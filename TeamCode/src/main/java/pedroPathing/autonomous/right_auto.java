@@ -201,18 +201,10 @@ public class right_auto extends OpMode {
                         // Line 5
                         new BezierLine(
                                 new Point(63.000, 14.000, Point.CARTESIAN),
-                                new Point(20.000, 14.000, Point.CARTESIAN)
+                                new Point(endPush)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
-                .addPath(
-                        // Line 6
-                        new BezierLine(
-                                new Point(20.000, 14.000, Point.CARTESIAN),
-                                new Point(20.000, 14.000, Point.CARTESIAN)
-                        )
-                )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         hang_first = new Path(
                 new BezierLine(
@@ -397,7 +389,7 @@ public class right_auto extends OpMode {
                 }
                 break; // BREAK
             case 5: // Starts the push all curve, don't think we need a wait time here
-                follower.followPath(pushAll1);
+                follower.followPath(pushAll);
                 if(pathTimer.getElapsedTimeSeconds() > 1) {
                     setoutClawState(4); // pickup position claw// Curve forward
                     setArmState(0); // sets arm down
@@ -406,28 +398,7 @@ public class right_auto extends OpMode {
                 }
                 /// The time frame between the hang and the pushall it is advised to set the servo and arm back in pickup position, however, they must be lowered when directly after the hang itself or else it might latch onto the low bar
                 break; // BREAK
-            case 7:
-                if (!follower.isBusy() || follower.getPose().roughlyEquals(pushstart, 1)) {// await based on distance, calls when its clsoe to behind of first sample
-                    follower.followPath(pushAll3); // straight back, ends with first push pose
-                    setPathState(8);
-                }
-                break; // break
-            case 8:
-                if (!follower.isBusy() || follower.getPose().roughlyEquals(firstpushPose, 1)) { // end of push all 3 into the observation zone doesn't stop and continues
-                    //if (/*follower.getPose().getX() > 57 && follower.getPose().getY() > 23*/ !follower.isBusy()) { // curve
-                    follower.followPath(pushAll4); // curve forward
-                    setPathState(9);
-                }
-                break; // break
-            case 9:
-                if (!follower.isBusy() || follower.getPose().roughlyEquals(pushstart2, 1)) { // follower not busy or close to end of the curve forward
-                    follower.followPath(pushAll5); // straight back
-                    // grab
-                    setPathState(10); //skip pushing third one to save time (very sad)
-                }
-                break; // BREAK
-// Turn here
-            case 10:
+            case 10: //TURN
                 if(!follower.isBusy() || follower.getPose().roughlyEquals(endPush, 1)) {
                     follower.turnTo(Math.toRadians(180));
                     setoutGrabState(3);
