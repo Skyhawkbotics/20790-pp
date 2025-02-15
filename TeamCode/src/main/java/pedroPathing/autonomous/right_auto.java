@@ -144,6 +144,8 @@ public class right_auto extends OpMode {
     private TouchSensor up_zero, out_zero;
     private Telemetry telemetryA;
 
+    private PathChain pushAll;
+
     double pickup_time = 1.5;
 
 
@@ -154,6 +156,64 @@ public class right_auto extends OpMode {
     //0.29
     // also if we put it too low maybe it might drift when it stretches
     public void buildPaths() {
+        pushAll = follower.pathBuilder()
+                .addPath(
+                        // Line 1
+                        new BezierLine(
+                                new Point(10.000, 67.000, Point.CARTESIAN),
+                                new Point(preloadhangPose)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Point(preloadhangPose),
+                                new Point(33, 36, Point.CARTESIAN)
+                        )
+                )
+                .setConstantHeadingInterpolation(0)
+                .addPath(
+                        new BezierCurve(
+                                new Point(33.000, 36.000, Point.CARTESIAN),
+                                new Point(62.000, 38.000, Point.CARTESIAN),
+                                new Point(pushstart)
+                        )
+                )
+                .setConstantHeadingInterpolation(0)
+                .addPath(
+                        // Line 3
+                        new BezierLine(
+                                new Point(61.000, 28.000, Point.CARTESIAN),
+                                new Point(20.000, 28.000, Point.CARTESIAN)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        // Line 4
+                        new BezierCurve(
+                                new Point(20.000, 28.000, Point.CARTESIAN),
+                                new Point(53.631, 28.942, Point.CARTESIAN),
+                                new Point(63.000, 14.000, Point.CARTESIAN)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        // Line 5
+                        new BezierLine(
+                                new Point(63.000, 14.000, Point.CARTESIAN),
+                                new Point(20.000, 14.000, Point.CARTESIAN)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        // Line 6
+                        new BezierLine(
+                                new Point(20.000, 14.000, Point.CARTESIAN),
+                                new Point(20.000, 14.000, Point.CARTESIAN)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
+                .build();
         hang_first = new Path(
                 new BezierLine(
                         new Point(startPose),
@@ -363,7 +423,7 @@ public class right_auto extends OpMode {
                 if (!follower.isBusy() || follower.getPose().roughlyEquals(pushstart2, 1)) { // follower not busy or close to end of the curve forward
                     follower.followPath(pushAll5); // straight back
                     // grab
-                    setPathState(12); //skip pushing third one to save time (very sad)
+                    setPathState(10); //skip pushing third one to save time (very sad)
                 }
                 break; // BREAK
 // Turn here
@@ -375,7 +435,7 @@ public class right_auto extends OpMode {
                 }
                 break;
             case 11:
-                if(!follower.isBusy() || follower.getPose().roughlyEquals(readyPose1, 1) /*|| pathTimer.getElapsedTime() >(1.5*Math.pow(10,9))*/) { // wait time for turn
+                if(follower.getPose().roughlyEquals(readyPose1, 1) || pathTimer.getElapsedTime() >(1.5*Math.pow(10,9))) { // wait time for turn
                     setPathState(13);
                 }
                 break;
@@ -405,7 +465,7 @@ public class right_auto extends OpMode {
                 }
                 break;
             case 143:
-                if(pathTimer.getElapsedTime() > (3*Math.pow(10,9)) || !follower.isBusy() || follower.getPose().roughlyEquals(pickupDone1)) { // time to turn todo calibrate
+                if(pathTimer.getElapsedTime() > (3*Math.pow(10,9)) ||  follower.getPose().roughlyEquals(pickupDone1)) { // time to turn todo calibrate
                     follower.followPath(first_hang);
                     setArmState(2);// hang pos
                     setPathState(145);
@@ -439,7 +499,7 @@ public class right_auto extends OpMode {
                 }
                 break;
             case 156:
-                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(readyPose, 1)) { // time to turn todo calibrate
+                if(pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(readyPose, 1)) { // time to turn todo calibrate
                     setoutGrabState(2);
                     follower.followPath(pickup);
                     setPathState(16);
@@ -465,7 +525,7 @@ public class right_auto extends OpMode {
                 }
                 break;
             case 163:
-                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(before_ready, 1)) { // time to turn todo calibrate
+                if(pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(before_ready, 1)) { // time to turn todo calibrate
                     setArmState(2);
                     setoutClawState(4);
                     follower.followPath(second_hang);

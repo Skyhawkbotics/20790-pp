@@ -47,7 +47,7 @@ public class opmode_MAIN extends OpMode {
     private DcMotorEx rightRear;
 
     //define these up here instead of in the init section like rr, idk why but it seems to work fine.
-    private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate;
+    private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate, sweeper;
     private CRServo servo_intake, servo_outtake;
     private DcMotorEx up, out;
     private TouchSensor up_zero, out_zero;
@@ -144,6 +144,7 @@ public class opmode_MAIN extends OpMode {
         servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
         servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
         servo_intake_rotate = hardwareMap.get(Servo.class, "intakeRotate");
+        sweeper = hardwareMap.get(Servo.class, "sweeper");
 
 
         //initialize touch sensor
@@ -180,8 +181,12 @@ public class opmode_MAIN extends OpMode {
         outtake_claw();
         macros();
 
-        //TEST PATH THING
-
+        //SWEEPER:
+        if (gamepad1.dpad_down) {
+            sweeper.setPosition(-1);
+        } else if (gamepad1.dpad_up) {
+            sweeper.setPosition(1);
+        }
 
         //telemetry
         telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
