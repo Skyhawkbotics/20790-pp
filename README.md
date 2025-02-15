@@ -1,5 +1,4 @@
-## Welcome to the Offical Pedro Pathing Quickstart!  
+TEAM 20790s PEDRO PATHING REPO
 
-Follow the steps on our [we********************************bsite](https://pedropathing.com/) to tune and setup!  
-Feel Free to reach out on the [Offical Pedro Pathing Discord Server](https://discord.gg/2GfC4qBP5s)!
-b********************
+
+
