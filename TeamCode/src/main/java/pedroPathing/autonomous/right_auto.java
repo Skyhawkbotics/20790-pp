@@ -144,6 +144,8 @@ public class right_auto extends OpMode {
     private TouchSensor up_zero, out_zero;
     private Telemetry telemetryA;
 
+    double pickup_time = 1.5;
+
 
     /// Values for the hangs
     int up_hanging_position = 1775; //DONE: calibrate this value, viper slide position to
@@ -337,7 +339,7 @@ public class right_auto extends OpMode {
             case 5: // Starts the push all curve, don't think we need a wait time here
                 follower.followPath(pushAll1);
                 if(pathTimer.getElapsedTimeSeconds() > 1) {
-                    setoutClawState(1); // pickup position claw// Curve forward
+                    setoutClawState(4); // pickup position claw// Curve forward
                     setArmState(0); // sets arm down
                     setoutGrabState(-1); // Stops grab
                     setPathState(7);
@@ -360,40 +362,57 @@ public class right_auto extends OpMode {
             case 9:
                 if (!follower.isBusy() || follower.getPose().roughlyEquals(pushstart2, 1)) { // follower not busy or close to end of the curve forward
                     follower.followPath(pushAll5); // straight back
-                    setoutGrabState(3); //grab
+                    // grab
                     setPathState(12); //skip pushing third one to save time (very sad)
                 }
                 break; // BREAK
 // Turn here
             case 10:
                 if(!follower.isBusy() || follower.getPose().roughlyEquals(endPush, 1)) {
-                    follower.holdPoint(readyPose1);
-
+                    follower.turnTo(Math.toRadians(180));
+                    setoutGrabState(3);
                     setPathState(11);
                 }
-
+                break;
             case 11:
-                if(!follower.isBusy() || follower.getPose().roughlyEquals(endPush, 1)) {
-                    follower.holdPoint(readyPose1);
+                if(!follower.isBusy() || follower.getPose().roughlyEquals(readyPose1, 1) /*|| pathTimer.getElapsedTime() >(1.5*Math.pow(10,9))*/) { // wait time for turn
                     setPathState(13);
                 }
+                break;
             case 13:
-                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) {
-                    follower.followPath(pickup1);
-                    setPathState(14);
-                }
+                follower.followPath(pickup1);
+                setPathState(14);
+                break;
             case 14:
-                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO pick up time shorten
-                    follower.followPath(first_hang);
-                    setArmState(1); //up
+                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { /// Time for Path for pickup and Pickup time
+                    setArmState(4); //up above wall
                     setoutGrabState(4); // unstable release path state
-                    setoutClawState(1); // Constant corrections for claw state so i never miss a hang
-                    setPathState(145); //145 is equivalent to 14.5 but we cant use double
+                    setoutClawState(4); // Constant corrections for claw state so i never miss a hang
+                    setPathState(141); //145 is equivalent to 14.5 but we cant use double
 
                 }
                 break;
+            case 141:
+                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { /// Time for arm to clear the wall todo calibrate this
+                    follower.followPath(pickup1_back);
+                    setPathState(142);
+                }
+                break;
+            case 142:
+                if(pathTimer.getElapsedTime() > (3*Math.pow(10,9)) || !follower.isBusy() || follower.getPose().roughlyEquals(readyPose1)) { /// Idk time to finish path pickup1 back todo calibrate
+                    follower.turnTo(Math.toRadians(0)); // turns to face hangs
+                    setPathState(143);
+                }
+                break;
+            case 143:
+                if(pathTimer.getElapsedTime() > (3*Math.pow(10,9)) || !follower.isBusy() || follower.getPose().roughlyEquals(pickupDone1)) { // time to turn todo calibrate
+                    follower.followPath(first_hang);
+                    setArmState(2);// hang pos
+                    setPathState(145);
+                }
+                break;
             case 145:
-                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) { //TODO: HANG CODE time to reach hang pos, then hang shorten
+                if (pathTimer.getElapsedTime() > (3*Math.pow(10,9))  || follower.getPose().roughlyEquals(firsthangPose, 0.2) ) { //todo time to reach hang pos
                     setArmState(3);
                     setoutClawState(2);
                     setPathState(146);
@@ -405,41 +424,56 @@ public class right_auto extends OpMode {
                 }
                 break;
             case 15:
-                //if (!follower.isBusy() || follower.getPose().roughlyEquals(firsthangPose)) { // TODO : see if roughly equals is good enough, i dont think this is needed
                 follower.followPath(first_hang_back);
                 setoutClawState(3);
                 if(pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {
-                    setArmState(0);
-                    setoutGrabState(2);
+                    setArmState(0); // all the way down
+                    setoutClawState(3); // pickup pos
+                    setPathState(151);
+                }
+                break;
+            case 151:
+                if (pathTimer.getElapsedTime() > (3*Math.pow(10,9))  || follower.getPose().roughlyEquals(before_ready, 1)) { // time to reach before ready - todo calibrate this down
+                    follower.turnTo(Math.toRadians(180));
                     setPathState(156);
                 }
                 break;
-            /*case 155:
-                if (pathTimer.getElapsedTime() > (3*Math.pow(10,9))) { // TODO time to get out of bar
-                    setoutClawState(1);
-                    setPathState(156);
-                }
-                break;
-
-             */
             case 156:
-                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9))) {
+                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(readyPose, 1)) { // time to turn todo calibrate
+                    setoutGrabState(2);
                     follower.followPath(pickup);
                     setPathState(16);
                 }
                 break;
             case 16:
                 if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO time to reach pickup/pickup
-                    // pickup
-                    follower.followPath(second_hang);
-                    setoutClawState(1);
                     setoutGrabState(4);
-                    setArmState(1);
+                    setArmState(4);
+                    setPathState(161);
+                }
+                break;
+            case 161:
+                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO time to raise the viper slide
+                    follower.followPath(pickup_back);
+                    setPathState(162);
+                }
+                break;
+            case 162:
+                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(readyPose, 1)) {// todo time to reach ready pose for turn
+                    follower.turnTo(Math.toRadians(0));
+                    setPathState(163);
+                }
+                break;
+            case 163:
+                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(before_ready, 1)) { // time to turn todo calibrate
+                    setArmState(2);
+                    setoutClawState(4);
+                    follower.followPath(second_hang);
                     setPathState(165);
                 }
                 break;
             case 165:
-                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) {// TODO : hang
+                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))  || follower.getPose().roughlyEquals(secondhangPose, 0.2)) {// TODO : hang
                     setArmState(3);
                     setoutClawState(2);
                     setPathState(166);
@@ -455,34 +489,58 @@ public class right_auto extends OpMode {
                 setoutClawState(3);
                 if(pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {
                     setArmState(0);
+                    setPathState(171);
+                }
+                break;
+            case 171:
+                if (pathTimer.getElapsedTime() > (3*Math.pow(10,9))  || follower.getPose().roughlyEquals(before_ready, 1)) { // time to reach before ready - todo calibrate this down
+                    follower.turnTo(Math.toRadians(180));
                     setPathState(175);
                 }
                 break;
             case 175:
-                if(pathTimer.getElapsedTime() > (2*Math.pow(10,9))) {
-                    follower.followPath(pickup);
+                if(pathTimer.getElapsedTime() > (1.5*Math.pow(10,9)) || follower.getPose().roughlyEquals(readyPose, 1)) { // time to turn to start pickup todo
                     setoutGrabState(2);
+                    follower.followPath(pickup);
                     setPathState(18);
-                    setoutClawState(1);
+                    setoutClawState(4);
                 }
                 break;
             case 18:
-                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO pickup time
-                    follower.followPath(third_hang);
-                    setArmState(1);
-                    setoutClawState(1);
+                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO pickup time / to reach pickup spot;
+                    setArmState(4);
+                    setoutClawState(4);
                     setoutGrabState(4);
-                    setPathState(185);
+                    setPathState(181);
                 }
                 break;
-            case 185:
-                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) { // wait to reach, hang
+            case 181:
+                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO time to raise the viper slide
+                    follower.followPath(pickup_back);
+                    setPathState(182);
+                }
+                break;
+            case 182:
+                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(readyPose, 1)) {// todo time to reach ready pose for turn
+                    follower.turnTo(Math.toRadians(0));
+                    setPathState(183);
+                }
+                break;
+            case 183:
+                if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9)) || follower.getPose().roughlyEquals(before_ready, 1)) { // time to turn todo calibrate
+                    setArmState(2);
+                    setoutClawState(4);
+                    follower.followPath(second_hang);
+                    setPathState(184);
+                }
+                break;
+            case 184:
+                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))  || follower.getPose().roughlyEquals(secondhangPose, 0.2)) {// TODO : hang
                     setArmState(3);
                     setoutClawState(2);
                     setPathState(186);
                 }
                 break;
-
             case 186:
                 if (pathTimer.getElapsedTimeSeconds() > 0.7) { // wait hang, for relase
                     setPathState(19);
@@ -493,7 +551,7 @@ public class right_auto extends OpMode {
                 setPathState(22);
                 break;
             case 22:
-                telemetryA.addLine("fucking done.....     oh hi ruben lol");
+                telemetryA.addLine(".....Done....");
 
         }
     }
@@ -513,6 +571,11 @@ public class right_auto extends OpMode {
                     up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 }
                 break;
+            case 4: // Higher than the wall
+                up.setTargetPosition(300); // todo calibrate
+                up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                up.setPower(1);
+
             case 15:
                 up.setTargetPosition(150);
                 up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -555,9 +618,11 @@ public class right_auto extends OpMode {
                 servo_outtake_wrist.setPosition(0.25);
                 servo_intake_wrist.setPosition(0);
                 break;
-            case 3:
+            case 3: // pickup? todo calibrate
                 servo_outtake_wrist.setPosition(0.47);
                 break;
+            case 4:
+                servo_outtake_wrist.setPosition(0.58);
 
         }
         switch (outgrabState) {
@@ -574,7 +639,7 @@ public class right_auto extends OpMode {
                 if (up.getCurrentPosition() < 1600) {
                     servo_outtake.setPower(1);
                 }
-            case 4:
+            case 4: // unstable state
                 if(servo_outtake_wrist.getPosition() <= 0.3) {
                     servo_outtake.setPower(1);
                 } else {
