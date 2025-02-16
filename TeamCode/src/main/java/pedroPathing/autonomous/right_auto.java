@@ -6,6 +6,7 @@ import android.os.storage.StorageManager;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -27,6 +28,9 @@ import com.pedropathing.util.Timer;
 import com.pedropathing.util.NanoTimer;
 
 import java.net.BindException;
+
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
 /**
  * This is an example auto that showcases movement and control of three servos autonomously.
@@ -69,7 +73,7 @@ public class right_auto extends OpMode {
     //Start Pose
     private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
 
-    private Pose pickupPose = new Pose( 6, 30, Math.toRadians(180));
+    private Pose pickupPose = new Pose( 3, 36, Math.toRadians(180));
     private Pose hangPose = new Pose(36.5, 72, Math.toRadians(0)); // TODO runs on
 
     private Pose firsthangPose = new Pose(36.0,70,0);
@@ -92,7 +96,7 @@ public class right_auto extends OpMode {
 
     private Pose readyPose1 = new Pose(20,18, Math.toRadians(180));
 
-    private Pose pickupPose1 = new Pose(6 ,18,Math.toRadians(180));
+    private Pose pickupPose1 = new Pose(3,18,Math.toRadians(180));
 
 
 
@@ -112,8 +116,8 @@ public class right_auto extends OpMode {
     private Telemetry telemetryA;
     double intake_wrist_pos_transfer = 0;
     double outtake_wrist_pos_transfer = 0;
-    int up_hanging_position = 1775; //DONE: calibrate this value, viper slide position to
-    int up_hanging_position_done = 1270; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
+    int up_hanging_position = 1755; //DONE: calibrate this value, viper slide position to
+    int up_hanging_position_done = 1250; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
     // 1543
     //0.29
 
@@ -183,7 +187,7 @@ public class right_auto extends OpMode {
         first_hang = new Path(
                 // Line 3
                 new BezierCurve(
-                        new Point(pickupPose1),
+                        new Point(pickupPose),
                         new Point(15.5, 63, Point.CARTESIAN),
                         new Point(firsthangPose)
                 )
@@ -355,16 +359,17 @@ public class right_auto extends OpMode {
                      */
             case 12:
                 if(!follower.isBusy() || follower.getPose().roughlyEquals(endPush, 1)) {
-                    follower.holdPoint(readyPose1);
+                    follower.holdPoint(readyPose);
                     setPathState(13);
                 }
             case 13:
-                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) {
-                    follower.followPath(pickup1);
+                if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) {
+                    follower.followPath(pickup);
                     setPathState(14);
+                    setoutGrabState(2);
                 }
             case 14:
-                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO pick up time shorten
+                if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) { // TODO pick up time shorten
                     follower.followPath(first_hang);
                     setArmState(1); //up
                     setoutGrabState(4); // unstable release path state
@@ -391,7 +396,6 @@ public class right_auto extends OpMode {
                 setoutClawState(3);
                 if(pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {
                     setArmState(0);
-                    setoutGrabState(2);
                     setPathState(156);
                 }
                 break;
@@ -407,10 +411,11 @@ public class right_auto extends OpMode {
                 if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9))) {
                     follower.followPath(pickup);
                     setPathState(16);
+                    setoutGrabState(2);
                 }
                 break;
             case 16:
-                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO time to reach pickup/pickup
+                if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) { // TODO time to reach pickup/pickup
                     // pickup
                     follower.followPath(second_hang);
                     setoutClawState(1);
@@ -558,7 +563,7 @@ public class right_auto extends OpMode {
                 telemetry.addData("claw position 2", true);
                 break;
             case 2: // Hang done Pos
-                servo_outtake_wrist.setPosition(0.25);
+                servo_outtake_wrist.setPosition(0.23);
                 servo_intake_wrist.setPosition(0);
                 break;
             case 3:
@@ -672,6 +677,7 @@ public class right_auto extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
+        Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
 
