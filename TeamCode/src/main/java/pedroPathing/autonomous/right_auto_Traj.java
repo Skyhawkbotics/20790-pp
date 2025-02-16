@@ -1,12 +1,19 @@
 package pedroPathing.autonomous;
 
 
-import android.os.storage.StorageManager;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.NanoTimer;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -17,17 +24,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.PathChain;
-import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Timer;
-import com.pedropathing.util.NanoTimer;
-
-import java.net.BindException;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -43,9 +39,9 @@ import pedroPathing.constants.LConstants;
  */
 
 @Config
-@Autonomous(name = "RIGHT_AUTO", group = "AUTO")
+@Autonomous(name = "right traj", group = "AUTO")
 // 18.5 inches away from observation zone
-public class right_auto extends OpMode {
+public class right_auto_Traj extends OpMode {
 
     /*
     Scrimage notes -
@@ -62,6 +58,13 @@ public class right_auto extends OpMode {
     private Timer actionTimer, opmodeTimer, outtimer; // Timers for progression of states
 
     private NanoTimer pathTimer;
+    double pickup_x = 3.000000;
+
+    double first_pickup_y = 15.0000;
+
+    double turn_distance_x = 18;
+
+    double pickups_y = 32.00;
 
 
     private int pathState, armState, outclawState, outgrabState, inclawState, ingrabState; // Different cases and states of the different parts of the robot
@@ -73,7 +76,15 @@ public class right_auto extends OpMode {
     //Start Pose
     private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
 
-    private Pose pickupPose = new Pose( 3, 36, Math.toRadians(180));
+    private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); /// turn spot so make sure it would be safe
+
+    private Pose pickupPose = new Pose(pickup_x, pickups_y, Math.toRadians(180));
+    private Pose readyPose1 = new Pose(turn_distance_x,first_pickup_y, Math.toRadians(180)); /// first pickup poses
+
+    private Pose pickupPose1 = new Pose(pickup_x,first_pickup_y,Math.toRadians(180)); /// first pickup poses
+
+
+    /// hang poses
     private Pose hangPose = new Pose(36.5, 67, Math.toRadians(0)); // TODO runs on
 
     private Pose firsthangPose = new Pose(36.0,70,0);
@@ -82,22 +93,18 @@ public class right_auto extends OpMode {
 
     private Pose thirdhangPose = new Pose(36.0, 66,0);
 
+
+    /// push poses  for case transitions
     private Pose pushstart = new  Pose(61,28,0); // has to match
 
     private Pose firstpushPose = new Pose(20,28, Math.toRadians(0)); // ^^
 
-    private Pose pushstart2 = new Pose(60,15,0); ///
+    private Pose pushstart2 = new Pose(60,15,0);
 
-    private Pose endPush = new Pose(20,15, Math.toRadians(0));
+    private Pose endPush = new Pose(20,15, Math.toRadians(0)); /// :D
 
-    private Pose readyPose = new Pose(20,30, Math.toRadians(180));
 
     private Pose parkPose = new Pose(10,24,0);
-
-    private Pose readyPose1 = new Pose(20,18, Math.toRadians(180));
-
-    private Pose pickupPose1 = new Pose(3,18,Math.toRadians(180));
-
 
 
     // Paths
@@ -108,12 +115,16 @@ public class right_auto extends OpMode {
 
     private Path ready_pickup, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back;
 
+    private PathChain pushFirst, pushSecond;
+
     // Motors
     private DcMotorEx up, out;
     private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate;
     private CRServo servo_outtake, servo_intake;
     private TouchSensor up_zero, out_zero;
     private Telemetry telemetryA;
+
+    // variables
     double intake_wrist_pos_transfer = 0;
     double outtake_wrist_pos_transfer = 0;
     int up_hanging_position = 1755; //DONE: calibrate this value, viper slide position to
@@ -132,50 +143,71 @@ public class right_auto extends OpMode {
         );
         hang_first.setConstantHeadingInterpolation(hangPose.getHeading());
 
-        pushAll1 = new Path(
-                new BezierCurve(
+        pushFirst = follower.pathBuilder()
+                .addPath( new BezierCurve(
                         new Point(hangPose),
                         new Point(22.444626743232156, 17.95570139458573, Point.CARTESIAN),
                         new Point(54.81214109926169, 46.54306808859721, Point.CARTESIAN),
                         new Point(pushstart)
                 )
-        );
-        pushAll1.setConstantHeadingInterpolation(0);
-        pushAll3 = new Path( // goes back
+        )
+                .setConstantHeadingInterpolation(0)
+        .addPath(
                 new BezierLine(
                         new Point(pushstart),
                         new Point(firstpushPose)
                 )
-        );
-        pushAll3.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0));
-        pushAll4 = new Path (
+        )
+                .setConstantHeadingInterpolation(0)
+                .build();
+
+        pushSecond = follower.pathBuilder()
+                .addPath(
                 new BezierCurve(
                         new Point(firstpushPose),
                         new Point(61.42739950779327, 27.878589007383106, Point.CARTESIAN),
                         new Point(pushstart2)
                 )
-        );
-        pushAll4.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0)); // curve toget in front of second sample
-        pushAll5 = new Path(
+        )
+                .setConstantHeadingInterpolation(0)
+                .addPath(
                 new BezierLine(
                         new Point(pushstart2),
                         new Point(endPush)
                 )
-        );
-        pushAll5.setConstantHeadingInterpolation(endPush.getHeading());
+        )
+        .setConstantHeadingInterpolation(0)
+                .build();
 
         /// END OF PUSH ALL
 
 
-
-        ready_pickup = new Path(
-                // Line 1
+        pickup1 = new Path (
+                new BezierCurve(
+                        new Point(readyPose1),
+                        new Point(pickupPose1)
+                )
+        );
+        pickup1.setConstantHeadingInterpolation(Math.toRadians(180));
+        first_hang = new Path(
+                // Line 3
+                new BezierCurve(
+                        new Point(pickupPose1),
+                        new Point(28.587366694011486, 21.73584905660377, Point.CARTESIAN),
+                        new Point(8.623461853978672, 66.15258408531584, Point.CARTESIAN),
+                        new Point(firsthangPose)
+                )
+        );
+        first_hang.setLinearHeadingInterpolation(pickupPose.getHeading(), Math.toRadians(0));
+        first_hang_back = new Path(
+                // Line 4
                 new BezierLine(
-                        new Point(endPush),
+                        new Point(firsthangPose),
                         new Point(readyPose)
                 )
         );
-        ready_pickup.setLinearHeadingInterpolation(endPush.getHeading(), readyPose.getHeading());
+        first_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), readyPose.getHeading());
+
         pickup = new Path(
                 // Line 2
                 new BezierLine(
@@ -183,68 +215,46 @@ public class right_auto extends OpMode {
                         new Point(pickupPose)
                 )
         );
-        pickup.setConstantHeadingInterpolation(pickupPose.getHeading());
-        pickup.setZeroPowerAccelerationMultiplier(1);
-        first_hang = new Path(
-                // Line 3
-                new BezierCurve(
-                        new Point(pickupPose),
-                        new Point(15.5, 63, Point.CARTESIAN),
-                        new Point(firsthangPose)
-                )
-        );
-        first_hang.setLinearHeadingInterpolation(pickupPose.getHeading(), Math.toRadians(0));
-        first_hang.setZeroPowerAccelerationMultiplier(1.25);
-        first_hang_back = new Path(
-                // Line 4
-                new BezierCurve(
-                        new Point(firsthangPose),
-                        new Point(23.5,68, Point.CARTESIAN),
-                        new Point(readyPose)
-                )
-        );
-        first_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), pickupPose.getHeading());
-        first_hang_back.setZeroPowerAccelerationMultiplier(3);
+        pickup.setConstantHeadingInterpolation(Math.toRadians(180));
+
         second_hang = new Path(
                 // Line 5
                 new BezierCurve(
                         new Point(pickupPose),
-                        new Point(15.5, 63, Point.CARTESIAN),
+                        new Point(27.28794093519278, 32.84003281378179, Point.CARTESIAN),
+                        new Point(8.26907301066448, 63.78999179655455, Point.CARTESIAN),
                         new Point(secondhangPose)
                 )
         );
         second_hang.setLinearHeadingInterpolation(pickupPose.getHeading(), Math.toRadians(0));
-        second_hang.setZeroPowerAccelerationMultiplier(1.25);
         second_hang_back = new Path(
                 // Line 6
-                new BezierCurve(
+                new BezierLine(
                         new Point(secondhangPose),
-                        new Point(23.5,68, Point.CARTESIAN),
                         new Point(readyPose)
                 )
         );
         second_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), readyPose.getHeading());
-        second_hang_back.setZeroPowerAccelerationMultiplier(3);
         third_hang = new Path(
                 // Line 7
                 new BezierCurve(
                         new Point(pickupPose),
-                        new Point(15.5, 63, Point.CARTESIAN),
+                        new Point(27.28794093519278, 30.359310910582437, Point.CARTESIAN),
+                        new Point(7.914684167350287, 61.191140278917146, Point.CARTESIAN),
                         new Point(thirdhangPose)
                 )
         );
         third_hang.setLinearHeadingInterpolation(pickupPose.getHeading(), Math.toRadians(0));
-        third_hang.setZeroPowerAccelerationMultiplier(1.25);
-        third_hang_back = new Path(
+        /*third_hang_back = new Path(
                 // Line 6
                 new BezierCurve(
-                        new Point(36.000, 65.000, Point.CARTESIAN),
-                        new Point(23.5,68, Point.CARTESIAN),
+                        new Point(thirdhangPose),
                         new Point(pickupPose)
                 )
         );
         third_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(320));
-        third_hang_back.setZeroPowerAccelerationMultiplier(3);
+
+         */
         fourth_hang = new Path(
                 // Line 7
                 new BezierCurve(
@@ -263,24 +273,15 @@ public class right_auto extends OpMode {
                 )
         );
         fourth_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0));
-        fourth_hang_back.setZeroPowerAccelerationMultiplier(1.5);
         park = new Path(
                 new BezierCurve(
-                        new Point(parkPose),
-                        new Point(12.070, 59.679, Point.CARTESIAN),
-                        new Point(10.393, 24.475, Point.CARTESIAN)
+                        new Point(thirdhangPose),
+                        new Point(10,24, Point.CARTESIAN)
                 )
         );
-        park.setConstantHeadingInterpolation(0);
+        park.setTangentHeadingInterpolation();
 
-        pickup1 = new Path (
-                new BezierCurve(
-                        new Point(readyPose1),
-                        new Point(pickupPose1)
-                )
-        );
-        pickup1.setLinearHeadingInterpolation(readyPose1.getHeading(), pickupPose1.getHeading());
-        pickup1.setZeroPowerAccelerationMultiplier(1.5);
+
 
 
     }
@@ -292,17 +293,12 @@ public class right_auto extends OpMode {
         switch (pathState) {
             case 2: //go to hang
                 follower.followPath(hang_first);
-                setArmState(1); // arm hang pos
-                setoutClawState(1); // hang claw pos
-                setoutGrabState(4); // unstable outtake state
+
                 setPathState(3);
                 break; // BREAK
 
             case 3: //hang
                 if (pathTimer.getElapsedTime() > 2*(Math.pow(10,9))){ // TODO: Time to reach hang Position, shorten
-                    setArmState(3);
-                    setoutGrabState(4); // unstable outtake state
-                    setoutClawState(2);
                     setPathState(4);
                 }
                 break; // BREAK
@@ -312,77 +308,41 @@ public class right_auto extends OpMode {
                 }
                 break; // BREAK
             case 5: // Starts the push all curve, don't think we need a wait time here
-                follower.followPath(pushAll1);
+                follower.followPath(pushFirst);
                 if(pathTimer.getElapsedTimeSeconds() > 1) {
-                    setoutClawState(1); // pickup position claw// Curve forward
-                    setArmState(0); // sets arm down
-                    setoutGrabState(-1); // Stops grab
-                    setPathState(7);
-                }
-                /// The time frame between the hang and the pushall it is advised to set the servo and arm back in pickup position, however, they must be lowered when directly after the hang itself or else it might latch onto the low bar
-                break; // BREAK
-            case 7:
-                if (!follower.isBusy() || follower.getPose().roughlyEquals(pushstart, 1)) {// await based on distance, calls when its clsoe to behind of first sample
-                    follower.followPath(pushAll3); // straight back, ends with first push pose
                     setPathState(8);
                 }
-                break; // break
+                break; // BREAK
             case 8:
                 if (!follower.isBusy() || follower.getPose().roughlyEquals(firstpushPose, 1)) { // end of push all 3 into the observation zone doesn't stop and continues
-                    //if (/*follower.getPose().getX() > 57 && follower.getPose().getY() > 23*/ !follower.isBusy()) { // curve
-                    follower.followPath(pushAll4); // curve forward
-                    setPathState(9);
+                    follower.followPath(pushSecond); // curve forward
+                    setPathState(12);
                 }
                 break; // break
-            case 9:
-                if (!follower.isBusy() || follower.getPose().roughlyEquals(pushstart2, 1)) { // follower not busy or close to end of the curve forward
-                    follower.followPath(pushAll5); // straight back
-                    setoutGrabState(3); //grab
-                    setPathState(12); //skip pushing third one to save time (very sad)
-                }
-                break; // BREAK
-            // skipped case 10 cuz there was some stuff
-            /*case 12:
-                if (!follower.isBusy() || follower.getPose().roughlyEquals((endPush))) { // calls in once its at the end of push stage following push all 5
-                    /*follower.followPath(ready_pickup);
-                    setPathState(13);
-                    setoutClawState(3);
-                }
-                break; // BREAK
-
-            case 13:
-                if (!follower.isBusy() || follower.getPose().roughlyEquals((readyPose))) {
-                    follower.followPath(pickup);
-                    setPathState(14);
-                }
-                break; // BREAK
-
-                     */
             case 12:
                 if(!follower.isBusy() || follower.getPose().roughlyEquals(endPush, 1)) {
-                    follower.holdPoint(readyPose);
+                    follower.holdPoint(readyPose1);
                     setPathState(13);
                 }
             case 13:
                 if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) {
-                    follower.followPath(pickup);
+                    follower.followPath(pickup1);
                     setPathState(14);
-                    setoutGrabState(2);
                 }
             case 14:
+                if(!follower.isBusy()) {
+                    setPathState(141);
+                }
+                break;
+            case 141:
                 if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) { // TODO pick up time shorten
                     follower.followPath(first_hang);
-                    setArmState(1); //up
-                    setoutGrabState(4); // unstable release path state
-                    setoutClawState(1); // Constant corrections for claw state so i never miss a hang
-                    setPathState(145); //145 is equivalent to 14.5 but we cant use double
+                    setPathState(145);
 
                 }
                 break;
             case 145:
-                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) { //TODO: HANG CODE time to reach hang pos, then hang shorten
-                    setArmState(3);
-                    setoutClawState(2);
+                if (!follower.isBusy() || pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) { //TODO: HANG CODE time to reach hang pos, then hang shorten
                     setPathState(146);
                 }
                 break;
@@ -394,9 +354,7 @@ public class right_auto extends OpMode {
             case 15:
                 //if (!follower.isBusy() || follower.getPose().roughlyEquals(firsthangPose)) { // TODO : see if roughly equals is good enough, i dont think this is needed
                 follower.followPath(first_hang_back);
-                setoutClawState(3);
                 if(pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {
-                    setArmState(0);
                     setPathState(156);
                 }
                 break;
@@ -411,24 +369,23 @@ public class right_auto extends OpMode {
             case 156:
                 if(!follower.isBusy() || pathTimer.getElapsedTime() > (1.5 * Math.pow(10, 9))) {
                     follower.followPath(pickup);
-                    setPathState(16);
-                    setoutGrabState(2);
+                    setPathState(161);
                 }
                 break;
-            case 16:
+            case 161:
+                if(!follower.isBusy()) {
+                setPathState(162);
+                }
+            break;
+            case 162:
                 if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) { // TODO time to reach pickup/pickup
                     // pickup
                     follower.followPath(second_hang);
-                    setoutClawState(1);
-                    setoutGrabState(4);
-                    setArmState(1);
                     setPathState(165);
                 }
                 break;
             case 165:
-                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) {// TODO : hang
-                    setArmState(3);
-                    setoutClawState(2);
+                if (!follower.isBusy() || pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) {// TODO : hang
                     setPathState(166);
                 }
                 break;
@@ -439,36 +396,34 @@ public class right_auto extends OpMode {
                 break;
             case 17:
                 follower.followPath(second_hang_back);
-                setoutClawState(3);
                 if(pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {
-                    setArmState(0);
                     setPathState(175);
                 }
                 break;
             case 175:
-                if(pathTimer.getElapsedTime() > (2*Math.pow(10,9))) {
+                if(!follower.isBusy() || pathTimer.getElapsedTime() > (2*Math.pow(10,9))) {
                     follower.followPath(pickup);
-                    setoutGrabState(2);
                     setPathState(18);
-                    setoutClawState(1);
                 }
                 break;
             case 18:
+                if(!follower.isBusy()) {
+                    setPathState(181);
+                }
+                break;
+            case 181:
                 if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO pickup time
                     follower.followPath(third_hang);
-                    setArmState(1);
-                    setoutClawState(1);
-                    setoutGrabState(4);
                     setPathState(185);
                 }
                 break;
             case 185:
-                if (pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) { // wait to reach, hang
-                    setArmState(3);
-                    setoutClawState(2);
-                    setPathState(186);
+                if (!follower.isBusy() || pathTimer.getElapsedTime() > (2.2*Math.pow(10,9))) { // wait to reach, hang
+                    setPathState(1866);
                 }
                 break;
+            case 1866: // hang
+                setPathState(186);
 
             case 186:
                 if (pathTimer.getElapsedTimeSeconds() > 0.7) { // wait hang, for relase
