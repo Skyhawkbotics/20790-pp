@@ -39,7 +39,7 @@ import pedroPathing.constants.LConstants;
  */
 
 @Config
-@Autonomous(name = "right auto arm", group = "AUTO")
+@Autonomous(name = "arm auto arm", group = "AUTO")
 // 18.5 inches away from observation zone
 public class right_auto_armas extends OpMode {
 
@@ -162,7 +162,6 @@ public class right_auto_armas extends OpMode {
                 break;
             case 1:
                 servo_outtake_wrist.setPosition(0.58);
-                servo_intake_wrist.setPosition(0.8);
                 telemetry.addData("claw position 2", true);
                 break;
             case 2: // Hang done Pos

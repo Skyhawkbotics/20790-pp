@@ -28,60 +28,34 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-/**
- * This is an example auto that showcases movement and control of three servos autonomously.
- * It is able to detect the team element using a huskylens and then use that information to go to the correct spike mark and backdrop position.
- * There are examples of different ways to build paths.
- * A custom action system have been created that can be based on time, position, or other factors.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @version 2.0, 9/8/2024
- */
 
 @Config
 @Autonomous(name = "right traj", group = "AUTO")
-// 18.5 inches away from observation zone
-public class right_auto_Traj extends OpMode {
+public class chickenbutt extends OpMode {
 
-    /*
-    Scrimage notes -
-    Pushall curve 1 needs to be adjusted based on new start position
-    Somehow initize the intake wrist / misumi slide so they do not come out at all during auto,
-    minimize time and make code more effiecent
-    optimize path a bit more, reducing hte start position and others.
-    decrease time from pick up
-    Run consisency tests
-    maybe make the
-     */
-    // cool
     private Follower follower; // THe drivetrain with the calculations needed for path following
     private Timer actionTimer, opmodeTimer, outtimer; // Timers for progression of states
 
     private NanoTimer pathTimer;
     double pickup_x = 3.000000;
 
-    double first_pickup_y = 15.0000;
+    double first_pickup_y = 20;
 
-    double turn_distance_x = 18;
+    double turn_distance_x = 20;
 
     double pickups_y = 32.00;
 
 
     private int pathState, armState, outclawState, outgrabState, inclawState, ingrabState; // Different cases and states of the different parts of the robot
-    /** Create and Define Poses + Paths
-     * Poses are built with three constructors: x, y, and heading (in Radians).
-     * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
-     * (For Centerstage, this would be blue far side/red human player station.)
-     * Even though Pedro uses a different coordinate system than RR, you can convert any roadrunner pose by adding +72 both the x and y. **/
-    //Start Pose
+
     private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
 
     private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); /// turn spot so make sure it would be safe
 
     private Pose pickupPose = new Pose(pickup_x, pickups_y, Math.toRadians(180));
-    private Pose readyPose1 = new Pose(turn_distance_x,first_pickup_y, Math.toRadians(180)); /// first pickup poses
+    private Pose readyPose1 = new Pose(turn_distance_x,18, Math.toRadians(180)); /// first pickup poses
 
-    private Pose pickupPose1 = new Pose(pickup_x,first_pickup_y,Math.toRadians(180)); /// first pickup poses
+    private Pose pickupPose1 = new Pose(pickup_x,18,Math.toRadians(180)); /// first pickup poses
 
 
     /// hang poses
@@ -95,13 +69,13 @@ public class right_auto_Traj extends OpMode {
 
 
     /// push poses  for case transitions
-    private Pose pushstart = new  Pose(61,28,0); // has to match
+    private Pose pushstart = new  Pose(61,28,Math.toRadians(180)); // has to match
 
     private Pose firstpushPose = new Pose(20,28, Math.toRadians(0)); // ^^
 
-    private Pose pushstart2 = new Pose(60,15,0);
+    private Pose pushstart2 = new Pose(60,18,Math.toRadians(180));
 
-    private Pose endPush = new Pose(20,15, Math.toRadians(0)); /// :D
+    private Pose endPush = new Pose(20,20, Math.toRadians(0)); /// :D
 
 
     private Pose parkPose = new Pose(10,24,0);
@@ -165,18 +139,19 @@ public class right_auto_Traj extends OpMode {
                 .addPath(
                 new BezierCurve(
                         new Point(firstpushPose),
-                        new Point(61.42739950779327, 27.878589007383106, Point.CARTESIAN),
-                        new Point(pushstart2)
+                        new Point(48.94994179278231, 36.71245634458673, Point.CARTESIAN),
+                        new Point(56.82887077997671, 46.26775320139697),
+                        new Point(pushstart)
                 )
         )
-                .setConstantHeadingInterpolation(0)
+                .setLinearHeadingInterpolation(firstpushPose.getHeading(),pickupPose1.getHeading())
                 .addPath(
                 new BezierLine(
                         new Point(pushstart2),
-                        new Point(endPush)
+                        new Point(pickupPose1)
                 )
         )
-        .setConstantHeadingInterpolation(0)
+        .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         /// END OF PUSH ALL
@@ -309,33 +284,23 @@ public class right_auto_Traj extends OpMode {
                 break; // BREAK
             case 5: // Starts the push all curve, don't think we need a wait time here
                 follower.followPath(pushFirst);
-                if(pathTimer.getElapsedTimeSeconds() > 1) {
-                    setPathState(8);
-                }
+                setPathState(8);
                 break; // BREAK
             case 8:
                 if (!follower.isBusy() || follower.getPose().roughlyEquals(firstpushPose, 1)) { // end of push all 3 into the observation zone doesn't stop and continues
                     follower.followPath(pushSecond); // curve forward
-                    setPathState(12);
+                    setPathState(141);
                 }
                 break; // break
-            case 12:
-                if(!follower.isBusy() || follower.getPose().roughlyEquals(endPush, 1)) {
-                    follower.holdPoint(readyPose1);
-                    setPathState(13);
-                }
+
             case 13:
-                if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) {
+                if (!follower.isBusy()) {
                     follower.followPath(pickup1);
-                    setPathState(14);
-                }
-            case 14:
-                if(!follower.isBusy()) {
                     setPathState(141);
                 }
                 break;
             case 141:
-                if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) { // TODO pick up time shorten
+                if (!follower.isBusy()) { // TODO pick up time shorten
                     follower.followPath(first_hang);
                     setPathState(145);
 
@@ -354,9 +319,7 @@ public class right_auto_Traj extends OpMode {
             case 15:
                 //if (!follower.isBusy() || follower.getPose().roughlyEquals(firsthangPose)) { // TODO : see if roughly equals is good enough, i dont think this is needed
                 follower.followPath(first_hang_back);
-                if(pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {
-                    setPathState(156);
-                }
+                setPathState(156);
                 break;
             /*case 155:
                 if (pathTimer.getElapsedTime() > (3*Math.pow(10,9))) { // TODO time to get out of bar
@@ -378,7 +341,7 @@ public class right_auto_Traj extends OpMode {
                 }
             break;
             case 162:
-                if (pathTimer.getElapsedTime() > (2*Math.pow(10,9))) { // TODO time to reach pickup/pickup
+                if (pathTimer.getElapsedTime() > (1*Math.pow(10,9))) { // TODO time to reach pickup/pickup
                     // pickup
                     follower.followPath(second_hang);
                     setPathState(165);
@@ -396,9 +359,7 @@ public class right_auto_Traj extends OpMode {
                 break;
             case 17:
                 follower.followPath(second_hang_back);
-                if(pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {
-                    setPathState(175);
-                }
+                setPathState(175);
                 break;
             case 175:
                 if(!follower.isBusy() || pathTimer.getElapsedTime() > (2*Math.pow(10,9))) {
@@ -412,7 +373,7 @@ public class right_auto_Traj extends OpMode {
                 }
                 break;
             case 181:
-                if (pathTimer.getElapsedTime() > (1.5*Math.pow(10,9))) { // TODO pickup time
+                if (pathTimer.getElapsedTime() > (1*Math.pow(10,9))) { // TODO pickup time
                     follower.followPath(third_hang);
                     setPathState(185);
                 }
@@ -431,7 +392,6 @@ public class right_auto_Traj extends OpMode {
                 }
                 break;
             case 19:
-                follower.followPath(third_hang_back);
                 setPathState(22);
                 break;
             case 22:
