@@ -192,11 +192,6 @@ public class opmode_MAIN extends OpMode {
         macros();
 
         //SWEEPER:
-        if (gamepad1.dpad_down) {
-            sweeper.setPosition(-1);
-        } else if (gamepad1.dpad_up) {
-            sweeper.setPosition(1);
-        }
 
         //telemetry
         telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
@@ -260,19 +255,23 @@ public class opmode_MAIN extends OpMode {
 
     public void misumi_slide() {
         // Misumi Slide
-        if (gamepad2.dpad_right && !out_zero.isPressed()) { //in
+        if (gamepad1.dpad_right && !out_zero.isPressed()) { //in
             //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
             out.setPower(-0.8);
             out_true_target_pos = 0;
-        } else if (gamepad2.dpad_left && out.getCurrentPosition() < out_max_pos ) { //out
+        } else if (gamepad1.dpad_left && out.getCurrentPosition() < out_max_pos ) { //out
             out.setPower(0.8);
-        } else if (gamepad2.dpad_right && out_zero.isPressed()) {
+        } else if (gamepad1.dpad_right && out_zero.isPressed()) {
             out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             telemetry.addData("reset out", true);
         } else {
             out.setPower(0);
             out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
+        if(gamepad1.x) {
+
+        }
+
     }
     public void intake_claw() {
         // Gamepad2.right_trigger is analog, so we need a comparative statement to use it as a digital button.
@@ -287,10 +286,10 @@ public class opmode_MAIN extends OpMode {
 
         // manual intake rotate location
         if (gamepad2.left_stick_x > 0.1) {
-            servo_intake_rotate_location += 0.015;
+            servo_intake_rotate_location -= 0.015;
         }
         if (gamepad2.left_stick_x < -0.1) {
-            servo_intake_rotate_location -= 0.015;
+            servo_intake_rotate_location += 0.015;
         }
 
         if (servo_intake_rotate_location > 1) {
@@ -375,6 +374,8 @@ public class opmode_MAIN extends OpMode {
         if (gamepad2.options) { //reset intake rotate
             servo_intake_rotate_location = 0.47;
             servo_intake_rotate.setPosition(servo_intake_rotate_location);
+            servo_intake_wrist_location = 0.7;
+            servo_intake_wrist.setPosition(servo_intake_wrist_location);
         }
         if(gamepad2.share) { //viper slide up to avoid touching!
             up.setTargetPosition(400);
