@@ -174,6 +174,16 @@ public class opmode_MAIN extends OpMode {
             driving_multiplier = driving_multiplier_fast;
         }
 
+        //BUMPERS STRAFE
+        if (gamepad1.left_bumper) {
+            follower.setTeleOpMovementVectors(0, 1, 0); //TODO: SWITCH IF NECESARRY
+        } else if (gamepad1.right_bumper) {
+            follower.setTeleOpMovementVectors(0, -1, 0); //TODO: SWITCH IF NECESARRY
+        } else {
+            follower.setTeleOpMovementVectors(0, 0, 0);
+
+        }
+
 
         viper_slide();
         misumi_slide();
@@ -377,6 +387,16 @@ public class opmode_MAIN extends OpMode {
         if (gamepad2.circle) { //reset intake wrist and rotate
             servo_intake_wrist_location = 0.7;
             servo_intake_rotate_location = 0.47;
+        }
+
+        if (gamepad2.x) {
+            if (out.getCurrentPosition() > 5) {
+                out.setTargetPosition(0);
+                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                out.setPower(500);
+            } else if (out_zero.isPressed()) {
+                out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
         }
     }
 }
