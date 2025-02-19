@@ -5,6 +5,7 @@ import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
+import com.pedropathing.pathgen.BezierLine;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -26,6 +27,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import com.pedropathing.follower.*;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.*;
+
 
 
 /**
@@ -88,6 +94,10 @@ public class opmode_MAIN extends OpMode {
     double last_time = 0;
     private final ElapsedTime runtime = new ElapsedTime();
 
+
+    //path
+    private PathChain park;
+
     /**
      * This initializes the drive motors as well as the Follower and motion Vectors.
      */
@@ -96,6 +106,17 @@ public class opmode_MAIN extends OpMode {
         //PATHING
         Pose pickupPoseBack = new Pose(15, 40, Math.toRadians(180)); // TODO: This value too!
         Pose hangPose = new Pose(36.5, 67.0, Math.toRadians(0)); // TODO
+    park = follower.pathBuilder()
+            .addPath(
+                    new BezierLine(
+                            new Point(hangPose),
+                            new Point(pickupPoseBack)
+                            )
+
+
+                    )
+                    .setConstantHeadingInterpolation(0)
+                    .build();
 
 
     }
@@ -164,8 +185,12 @@ public class opmode_MAIN extends OpMode {
 
 
         //TESTING PATH THING VERSION
-        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * driving_multiplier, -gamepad1.left_stick_x * driving_multiplier, -gamepad1.right_stick_x * 0.5);
-        follower.update();
+        if (!gamepad1.b) {
+            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * driving_multiplier, -gamepad1.left_stick_x * driving_multiplier, -gamepad1.right_stick_x * 0.5);
+            follower.update();
+        } if (gamepad1.b) {
+            follower.followPath(park);
+        }
 
         //change drive speed for more accuracy if needed
         if (gamepad1.left_bumper) {
