@@ -69,13 +69,13 @@ public class right_auto_final_final extends OpMode {
 
 
     /// hang poses
-    private Pose hangPose = new Pose(36.5, 67, Math.toRadians(0)); // TODO runs on
+    private Pose hangPose = new Pose(36.5, 72, Math.toRadians(0)); // TODO runs on
 
-    private Pose firsthangPose = new Pose(36.5,70,0);
+    private Pose firsthangPose = new Pose(36.2,70,0);
 
-    private Pose secondhangPose = new Pose(36.5,65,0);
+    private Pose secondhangPose = new Pose(36,67,0);
 
-    private Pose thirdhangPose = new Pose(36.6, 62.5,0);
+    private Pose thirdhangPose = new Pose(36, 64,0);
 
 
     /// push poses  for case transitions
@@ -267,7 +267,8 @@ public class right_auto_final_final extends OpMode {
                         new Point(10,24)
                 )
         );
-        park.setLinearHeadingInterpolation(thirdhangPose.getHeading(), parkPose.getHeading());
+        park.setTangentHeadingInterpolation();
+        park.setReversed(true);
 
 
 
