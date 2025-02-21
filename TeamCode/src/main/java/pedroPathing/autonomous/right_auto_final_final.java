@@ -152,7 +152,7 @@ public class right_auto_final_final extends OpMode {
                         new Point(firstpushPose),
                         new Point(48.94994179278231, 36.71245634458673, Point.CARTESIAN),
                         new Point(56.82887077997671, 46.26775320139697),
-                        new Point(pushstart)
+                        new Point(pushstart2)
                 )
         )
                 .setLinearHeadingInterpolation(firstpushPose.getHeading(),pickupPose1.getHeading())

@@ -93,7 +93,7 @@ public class right_auto_sweep extends OpMode {
 
 
     // Paths
-    private PathChain hang1;
+    private PathChain hang1, pickup1;
 
     private Path one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen;
 
@@ -115,54 +115,54 @@ public class right_auto_sweep extends OpMode {
     public void buildPaths() {
         one = new Path(
                 new BezierLine(
-                        new Point(8.000, 64.000, Point.CARTESIAN),
-                        new Point(36.500, 64.000, Point.CARTESIAN)
+                        new Point(10.000, 59.000, Point.CARTESIAN),
+                        new Point(36.500, 59.000, Point.CARTESIAN)
                 )
         );
         one.setConstantHeadingInterpolation(0);
         two = new Path(
                 new BezierCurve(
-                        new Point(36.500, 64.000, Point.CARTESIAN),
-                        new Point(15.000, 37.500, Point.CARTESIAN),
-                        new Point(35.000, 35.000, Point.CARTESIAN)
+                        new Point(36.500, 59.000, Point.CARTESIAN),
+                        new Point(31.683, 53.644, Point.CARTESIAN),
+                        new Point(36.500, 35.000, Point.CARTESIAN)
                 )
         );
-        two.setLinearHeadingInterpolation(0, Math.toRadians(300));
+        two.setLinearHeadingInterpolation(0, Math.toRadians(290));
         three = new Path(
                 new BezierLine(
-                        new Point(35.000, 35.000, Point.CARTESIAN),
-                        new Point(30.000, 35.000, Point.CARTESIAN)
+                        new Point(36.500, 35.000, Point.CARTESIAN),
+                        new Point(30.000, 32.000, Point.CARTESIAN)
                 )
         );
-        three.setLinearHeadingInterpolation(Math.toRadians(300), Math.toRadians(200));
+        three.setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(240));
         four = new Path(
                 new BezierLine(
-                        new Point(30.000, 35.000, Point.CARTESIAN),
-                        new Point(35.000, 29.000, Point.CARTESIAN)
+                        new Point(30.000, 32.000, Point.CARTESIAN),
+                        new Point(36.500, 27.000, Point.CARTESIAN)
                 )
         );
-        four.setConstantHeadingInterpolation(300);
+        four.setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(290));
         five = new Path(
                 new BezierLine(
-                        new Point(35.000, 29.000, Point.CARTESIAN),
-                        new Point(30.000, 29.000, Point.CARTESIAN)
-                )
-        );
-        five.setLinearHeadingInterpolation(Math.toRadians(300), Math.toRadians(200));
-        six = new Path(
-                new BezierLine(
-                        new Point(30.000, 29.000, Point.CARTESIAN),
-                        new Point(35.000, 24.000, Point.CARTESIAN)
-                )
-        );
-        six.setConstantHeadingInterpolation(300);
-        seven = new Path(
-                new BezierLine(
-                        new Point(35.000, 24.000, Point.CARTESIAN),
+                        new Point(36.500, 27.000, Point.CARTESIAN),
                         new Point(30.000, 24.000, Point.CARTESIAN)
                 )
         );
-        seven.setLinearHeadingInterpolation(Math.toRadians(300), Math.toRadians(180));
+        five.setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(240));
+        six = new Path(
+                new BezierLine(
+                        new Point(30.000, 24.000, Point.CARTESIAN),
+                        new Point(36.500, 21.000, Point.CARTESIAN)
+                )
+        );
+        six.setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(290));
+        seven = new Path(
+                new BezierLine(
+                        new Point(36.500, 21.000, Point.CARTESIAN),
+                        new Point(15.000, 18.000, Point.CARTESIAN)
+                )
+        );
+        seven.setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(180));
         eight = new Path(
                 new BezierLine(
                         new Point(30.000, 24.000, Point.CARTESIAN),
