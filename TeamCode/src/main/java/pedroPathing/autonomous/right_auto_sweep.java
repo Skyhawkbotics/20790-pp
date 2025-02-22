@@ -123,7 +123,7 @@ public class right_auto_sweep extends OpMode {
                 .addPath(
                 new BezierLine(
                         new Point(10.000, 59.000, Point.CARTESIAN),
-                        new Point(33.800, 59.000, Point.CARTESIAN)))
+                        new Point(35, 59.000, Point.CARTESIAN)))
                 .setConstantHeadingInterpolation(0)
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
@@ -166,7 +166,7 @@ public class right_auto_sweep extends OpMode {
         third_sweep = new Path(
                 new BezierLine(
                         new Point(36, 11, Point.CARTESIAN),
-                        new Point(15, 13, Point.CARTESIAN)
+                        new Point(15, 14, Point.CARTESIAN)
                 )
         );
         third_sweep.setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(180));
@@ -180,14 +180,14 @@ public class right_auto_sweep extends OpMode {
         hang1 = new Path(
                 new BezierCurve(
                         new Point(3, 10, Point.CARTESIAN),
-                        new Point(36.500, 65, Point.CARTESIAN)
+                        new Point(36.500, 63, Point.CARTESIAN)
                 )
         );
         hang1.setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0));
         back1 = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Point(36.5, 65, Point.CARTESIAN),
+                                new Point(36.5, 63, Point.CARTESIAN),
                                 new Point(20, 35, Point.CARTESIAN)))
                 .setLinearHeadingInterpolation(0, Math.toRadians(180))
                 .setZeroPowerAccelerationMultiplier(4.5)
@@ -200,14 +200,14 @@ public class right_auto_sweep extends OpMode {
         hang2 = new Path(
                 new BezierLine(
                         new Point(3, 35, Point.CARTESIAN),
-                        new Point(36.5, 64, Point.CARTESIAN)
+                        new Point(36.5, 61, Point.CARTESIAN)
                 )
         );
         hang2.setLinearHeadingInterpolation(Math.toRadians(180), 0);
         back2 = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Point(36.5, 64, Point.CARTESIAN),
+                                new Point(36.5, 61, Point.CARTESIAN),
                                 new Point(20, 35, Point.CARTESIAN)))
                 .setLinearHeadingInterpolation(0, Math.toRadians(180))
                 .addPath(
@@ -219,14 +219,14 @@ public class right_auto_sweep extends OpMode {
         hang3 = new Path(
                 new BezierCurve(
                         new Point(3.000, 35.000, Point.CARTESIAN),
-                        new Point(36.000, 63, Point.CARTESIAN)
+                        new Point(36.000, 59, Point.CARTESIAN)
                 )
         );
         hang3.setLinearHeadingInterpolation(Math.toRadians(180), 0);
         back3 = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Point(36, 63, Point.CARTESIAN),
+                                new Point(36, 59, Point.CARTESIAN),
                                 new Point(20, 35, Point.CARTESIAN)))
                 .setLinearHeadingInterpolation(0, Math.toRadians(180))
                 .addPath(
@@ -238,7 +238,7 @@ public class right_auto_sweep extends OpMode {
         hang4 = new Path(
                 new BezierCurve(
                         new Point(3, 35, Point.CARTESIAN),
-                        new Point(36.5, 62, Point.CARTESIAN)
+                        new Point(36.5, 57, Point.CARTESIAN)
                 )
         );
         hang4.setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0));
@@ -325,7 +325,7 @@ public class right_auto_sweep extends OpMode {
                 }
                 break;
             case 110:
-                if(pathTimer.getElapsedTime() > (0.2*(Math.pow(10,9)))) {
+                if(pathTimer.getElapsedTime() > (0.2*(Math.pow(10,9)))) { // pickup time :D
                     setPathState(11);
                 }
                 break;
@@ -361,11 +361,18 @@ public class right_auto_sweep extends OpMode {
                 break;
             case 131:
                 if (!follower.isBusy()) { // pickup
-                    follower.followPath(hang2);
-                    setArmState(2);
-                    setoutGrabState(4);
-                    setPathState(14);
+                    setPathState(140);
                 }
+                break;
+            case 140:
+                if(pathTimer.getElapsedTime() > (0.2*(Math.pow(10,9)))) { // pickup time :D
+                    setPathState(141);
+                }
+            case 141:
+                follower.followPath(hang2);
+                setArmState(2);
+                setoutGrabState(4);
+                setPathState(14);
                 break;
             case 14: // hang
                 if (!follower.isBusy()) {
@@ -389,13 +396,22 @@ public class right_auto_sweep extends OpMode {
             }
             break;
             case 15:
-                if (!follower.isBusy()) { // raise and go
+                if (!follower.isBusy()) {
+                    setPathState(160);
+                }
+                break;
+            case 160:
+                if(pathTimer.getElapsedTime() > (0.2*(Math.pow(10,9)))) { // pickup time :D
+                    setPathState(161);
+                }
+                break;
+            case 161:
+// raise and go
                     setArmState(2);
                     setoutGrabState(4);
                     setoutClawState(1);
                     follower.followPath(hang3);
                     setPathState(16);
-                }
                 break;
             case 16:
                 if (!follower.isBusy()) {
@@ -407,27 +423,32 @@ public class right_auto_sweep extends OpMode {
             case 170:
                 if(pathTimer.getElapsedTime() > (0.15*(Math.pow(10,9)))) { // release
                     follower.followPath(back3);
-                    setPathState(171);
+                    setPathState(181);
                 }
                 break;
-            case 171:
+            case 181:
                 if(pathTimer.getElapsedTime() > (0.35*(Math.pow(10,9)))) { // wait for lower and start intake
                     setArmState(0);
                     setoutClawState(3);
                     setoutGrabState(2);
-                    setPathState(17);
+                    setPathState(19);
                 }
                 break;
-            case 17:
+            case 19:
                 if (!follower.isBusy()) {
+                    setPathState(20);
+                }
+                break;
+            case 20:
+                if(pathTimer.getElapsedTime() > (0.2*(Math.pow(10,9)))) { // intake time
                     setArmState(2);
                     setoutGrabState(4);
                     setoutClawState(1);
                     follower.followPath(hang4);
-                    setPathState(18);
+                    setPathState(21);
                 }
                 break;
-            case 18:
+            case 21:
                 if (!follower.isBusy()) {
                     setArmState(3);
                     setoutClawState(2);
