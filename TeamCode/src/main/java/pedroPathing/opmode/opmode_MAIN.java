@@ -49,6 +49,9 @@ public class opmode_MAIN extends OpMode {
 
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
+
+    int misumiState;
+
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
 
@@ -61,6 +64,8 @@ public class opmode_MAIN extends OpMode {
     int arm_upper_lim = 4000;
     int up_true_target_pos;
     int out_true_target_pos;
+
+    double servo_sweeper_location = 0;
     double servo_outtake_wrist_location = 0;
     double servo_intake_wrist_location = 0;
     double servo_intake_rotate_location = 0.47;
@@ -236,9 +241,9 @@ public class opmode_MAIN extends OpMode {
         telemetry.addData("gamepad1.touchpad_finger_2_y", gamepad1.touchpad_finger_2_y);
         telemetry.addData("gamepad1.share", gamepad1.share);
         telemetry.addData("gamepad1.share", gamepad1.guide);
+        telemetry.addData("sweeper", sweeper.getPosition());
         telemetry.update();
     }
-
 
 
     public void viper_slide() {
@@ -281,10 +286,12 @@ public class opmode_MAIN extends OpMode {
     public void misumi_slide() {
         // Misumi Slide
         if (gamepad2.dpad_right && !out_zero.isPressed()) { //in
+            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
             out.setPower(-0.8);
             out_true_target_pos = 0;
         } else if (gamepad2.dpad_left && out.getCurrentPosition() < out_max_pos ) { //out
+            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             out.setPower(0.8);
         } else if (gamepad2.dpad_right && out_zero.isPressed()) {
             out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -293,12 +300,19 @@ public class opmode_MAIN extends OpMode {
             out.setPower(0);
             out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        if(gamepad1.x) {
-
-        }
 
     }
     public void intake_claw() {
+        if (gamepad1.y) {
+            servo_sweeper_location -= 0.02;
+        }
+        sweeper.setPosition(servo_sweeper_location);
+
+        if (servo_sweeper_location > 1) {
+            servo_intake_wrist_location = 1;
+        } else if (servo_sweeper_location < 0) {
+            servo_intake_wrist_location = 0;
+        }
         // Gamepad2.right_trigger is analog, so we need a comparative statement to use it as a digital button.
         //servo intake control
         if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //NO LONGER NEEDED: find a better solution for this limits so we can actually use them
@@ -359,6 +373,11 @@ public class opmode_MAIN extends OpMode {
         if (gamepad2.a) {
             servo_outtake_wrist_location -= 0.03;
         }
+        if (gamepad1.a) {
+            servo_sweeper_location += 0.02;
+        }
+
+
 
         //reset outtake wrist location in case value is above or below 1 or 0
         if (servo_outtake_wrist_location > 1) {
@@ -371,7 +390,7 @@ public class opmode_MAIN extends OpMode {
     }
     public void macros() {
         //Encoder Transfer Method
-        if (gamepad2.touchpad_finger_1 && !gamepad2.touchpad_finger_2) { //transfer pos
+        /* if (gamepad2.touchpad_finger_1 && !gamepad2.touchpad_finger_2) { //transfer pos
             servo_outtake_wrist_location = outtake_wrist_pos_transfer;
             servo_intake_wrist_location = intake_wrist_pos_transfer;
             servo_intake_rotate_location = 0.5;
@@ -389,12 +408,15 @@ public class opmode_MAIN extends OpMode {
             servo_outtake.setPower(-1);
             servo_intake.setPower(1);
         }
+
+         */
         if (gamepad2.x) { //goto hanging position
             up.setTargetPosition(up_specimen_hang);
             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up.setPower(1);
             servo_outtake_wrist_location = 0.56;
         }
+
 
         if (gamepad2.options) { //reset intake rotate
             servo_intake_rotate_location = 0.47;
@@ -413,7 +435,12 @@ public class opmode_MAIN extends OpMode {
         if (gamepad2.circle) { //reset intake wrist and rotate
             servo_intake_wrist_location = 0.7;
             servo_intake_rotate_location = 0.47;
+            out.setTargetPosition(250);
+            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            out.setPower(1);
         }
+
+
 
         if (gamepad2.x) {
             if (out.getCurrentPosition() > 5) {
