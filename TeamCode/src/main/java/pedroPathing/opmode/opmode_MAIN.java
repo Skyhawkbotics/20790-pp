@@ -185,12 +185,15 @@ public class opmode_MAIN extends OpMode {
 
 
         //TESTING PATH THING VERSION
-        if (!gamepad1.b) {
+        /*if (!gamepad1.b) {
             follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * driving_multiplier, -gamepad1.left_stick_x * driving_multiplier, -gamepad1.right_stick_x * 0.5);
             follower.update();
         } if (gamepad1.b) {
             follower.followPath(park);
-        }
+        }*/
+        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * driving_multiplier, -gamepad1.left_stick_x * driving_multiplier, -gamepad1.right_stick_x * 0.5);
+        follower.update();
+
 
         //change drive speed for more accuracy if needed
         if (gamepad1.left_bumper) {
@@ -371,7 +374,7 @@ public class opmode_MAIN extends OpMode {
     }
     public void macros() {
         //Encoder Transfer Method
-        if (gamepad2.touchpad_finger_1 && !gamepad2.touchpad_finger_2) { //transfer pos
+        /*if (gamepad2.touchpad_finger_1 && !gamepad2.touchpad_finger_2) { //transfer pos
             servo_outtake_wrist_location = outtake_wrist_pos_transfer;
             servo_intake_wrist_location = intake_wrist_pos_transfer;
             servo_intake_rotate_location = 0.5;
@@ -388,7 +391,7 @@ public class opmode_MAIN extends OpMode {
         if (gamepad2.touchpad_finger_2) { //transfer
             servo_outtake.setPower(-1);
             servo_intake.setPower(1);
-        }
+        }*/
         if (gamepad2.x) { //goto hanging position
             up.setTargetPosition(up_specimen_hang);
             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -402,6 +405,7 @@ public class opmode_MAIN extends OpMode {
             servo_intake_wrist_location = 0.7;
             servo_intake_wrist.setPosition(servo_intake_wrist_location);
         }
+
         if(gamepad2.share) { //viper slide up to avoid touching!
             up.setTargetPosition(400);
             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
