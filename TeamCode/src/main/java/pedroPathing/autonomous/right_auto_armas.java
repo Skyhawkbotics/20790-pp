@@ -60,7 +60,7 @@ public class right_auto_armas extends OpMode {
     private NanoTimer pathTimer;
 
 
-    private int pathState, armState, outclawState, outgrabState, inclawState, ingrabState; // Different cases and states of the different parts of the robot
+    private int pathState, armState, outclawState, outgrabState, inclawState, ingrabState, sweeperState; // Different cases and states of the different parts of the robot
     /** Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
      * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
@@ -72,25 +72,19 @@ public class right_auto_armas extends OpMode {
 
 
 
-
-    // Paths
-    private PathChain hang1;
-
-    private Path hang_first, park;
-    private Path pushAll1, pushAll2, pushAll3, pushAll4, pushAll5, pushAll6, pushAll7, pushAll8, pickup1;
-
-    private Path ready_pickup, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back;
-
     // Motors
     private DcMotorEx up, out;
-    private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate;
+
+    private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate, sweeper;
     private CRServo servo_outtake, servo_intake;
     private TouchSensor up_zero, out_zero;
     private Telemetry telemetryA;
     double intake_wrist_pos_transfer = 0;
     double outtake_wrist_pos_transfer = 0;
     int up_hanging_position = 1755; //DONE: calibrate this value, viper slide position to
-    int up_hanging_position_done = 1250; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
+    int up_hanging_position_done = 1560; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
+
+    int preload_hang_pos = 2160;
     // 1543
     //0.29
 
@@ -98,24 +92,24 @@ public class right_auto_armas extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                setArmState(1);
+                setSweeperState(-1);
                 setPathState(1);
                 break;
             case 1:
                 if(pathTimer.getElapsedTimeSeconds() > 5) {
-                    setArmState(3);
+                    setSweeperState(3);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if(pathTimer.getElapsedTimeSeconds() > 5) {
-                    setArmState(0);
+                    setSweeperState(1);
                     setPathState(3);
                 }
                 break;
             case 3:
                 if(pathTimer.getElapsedTimeSeconds() > 5) {
-                    setArmState(2);
+                    setSweeperState(2);
                 }
                 break;
 
@@ -126,8 +120,8 @@ public class right_auto_armas extends OpMode {
         switch (armState) {
             case -1:
                 up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                break;
 //most of the code stolen from opmode_main
+                break;
             case 0: //going to bottom position
                 up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 telemetry.addData("Lowered position", true);
@@ -137,21 +131,27 @@ public class right_auto_armas extends OpMode {
                     setArmState(-1);
                 }
                 break;
-            case 1: //going to hanging position
+            case 1: // preload
+                up.setTargetPosition(preload_hang_pos);
+                up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                up.setPower(1);
+                if(up.getCurrentPosition() > 350) {
+                    setoutClawState(4);
+                }
+                if(up.getCurrentPosition() >= 2160) {
+                    setoutGrabState(1);
+                }
+                break;
+
+            case 2: //going to hanging position
                 up.setTargetPosition(up_hanging_position);
                 up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 up.setPower(1);
                 break;
-            case 2:
-                up.setTargetPosition(150);
-                up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                up.setPower(0.7);
-                break;
-
             case 3:
-                up.setTargetPosition(1560);
+                up.setTargetPosition(up_hanging_position_done);
                 up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                up.setPower(0.6);
+                up.setPower(1);
                 break;
 
         }
@@ -162,14 +162,18 @@ public class right_auto_armas extends OpMode {
                 break;
             case 1:
                 servo_outtake_wrist.setPosition(0.58);
+                servo_intake_wrist.setPosition(0.8);
                 telemetry.addData("claw position 2", true);
                 break;
             case 2: // Hang done Pos
-                servo_outtake_wrist.setPosition(0.23);
+                servo_outtake_wrist.setPosition(0.25);
                 servo_intake_wrist.setPosition(0);
                 break;
             case 3:
                 servo_outtake_wrist.setPosition(0.47);
+                break;
+            case 4:
+                servo_outtake_wrist.setPosition(1);
                 break;
 
         }
@@ -195,12 +199,26 @@ public class right_auto_armas extends OpMode {
                 }
                 break;
         }
-        /*switch (inclawState) {
+        switch (sweeperState) {
+            case -1:
+                sweeper.setPosition(1);
+                break;
+            case 1: //release
+                sweeper.setPosition(0.14);
+                break;
+            case 2:
+                sweeper.setPosition(0.20);
+                break;
+            case 3:
+                sweeper.setPosition(0.4);
+                break;
+        }
+        switch (inclawState) {
             case 0:
                 servo_intake_wrist.setPosition(0);
                 break;
             case 1:
-                servo_intake_wrist.setPosition(0.5);
+                servo_intake_wrist.setPosition(0.8);
                 break;
 
         }
@@ -215,7 +233,7 @@ public class right_auto_armas extends OpMode {
                 servo_intake.setPower(-1);
                 break;
 
-        }*/
+        }
     }
 
     /** These change the states of the paths and actions
@@ -231,6 +249,9 @@ public class right_auto_armas extends OpMode {
     public void setoutGrabState(int gstate) {
         outgrabState = gstate;
     }
+    public void setSweeperState(int mstate) {
+        sweeperState = mstate;
+    }
     public void setinclawState(int icstate) {
         inclawState = icstate;
     }
@@ -240,8 +261,6 @@ public class right_auto_armas extends OpMode {
     public void setoutClawState(int cState) {
         outclawState = cState;
     }
-
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
     @Override
     public void loop() {
 
@@ -296,11 +315,13 @@ public class right_auto_armas extends OpMode {
 
         //example position setup
         out = hardwareMap.get(DcMotorEx.class, "out");
-        out.setTargetPosition(0);
+        int charles = out.getCurrentPosition();
+        out.setTargetPosition(charles);
         out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         out.setPower(1);
-
         servo_outtake = hardwareMap.get(CRServo.class,"outtake");
+
+        sweeper = hardwareMap.get(Servo.class, "sweeper");
 
 
         servo_intake = hardwareMap.get(CRServo.class, "intake");

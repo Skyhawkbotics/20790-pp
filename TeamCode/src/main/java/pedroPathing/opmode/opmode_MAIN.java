@@ -185,15 +185,12 @@ public class opmode_MAIN extends OpMode {
 
 
         //TESTING PATH THING VERSION
-        /*if (!gamepad1.b) {
+        if (!gamepad1.b) {
             follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * driving_multiplier, -gamepad1.left_stick_x * driving_multiplier, -gamepad1.right_stick_x * 0.5);
             follower.update();
         } if (gamepad1.b) {
             follower.followPath(park);
-        }*/
-        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * driving_multiplier, -gamepad1.left_stick_x * driving_multiplier, -gamepad1.right_stick_x * 0.5);
-        follower.update();
-
+        }
 
         //change drive speed for more accuracy if needed
         if (gamepad1.left_bumper) {
@@ -405,7 +402,6 @@ public class opmode_MAIN extends OpMode {
             servo_intake_wrist_location = 0.7;
             servo_intake_wrist.setPosition(servo_intake_wrist_location);
         }
-
         if(gamepad2.share) { //viper slide up to avoid touching!
             up.setTargetPosition(400);
             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
