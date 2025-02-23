@@ -39,7 +39,7 @@ import pedroPathing.constants.LConstants;
  */
 
 @Config
-@Autonomous(name = "RIGHT asian AUTO", group = "AUTO")
+@Autonomous(name = "RIGHT AUTO", group = "AUTO")
 // 18.5 inches away from observation zone
 public class right_auto_final_final extends OpMode {
 
@@ -47,13 +47,13 @@ public class right_auto_final_final extends OpMode {
     private Timer actionTimer, opmodeTimer, outtimer; // Timers for progression of states
 
     private NanoTimer pathTimer;
-    double pickup_x = 0.5;
+    double pickup_x = 0.6;
 
     double first_pickup_y = 20;
 
     double turn_distance_x = 20;
 
-    double pickups_y = 40.00;
+    double pickups_y = 41.00;
 
 
     private int pathState, armState, outclawState, outgrabState, inclawState, ingrabState; // Different cases and states of the different parts of the robot
@@ -63,7 +63,7 @@ public class right_auto_final_final extends OpMode {
     private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); /// turn spot so make sure it would be safe
 
     private Pose pickupPose = new Pose(pickup_x, pickups_y, Math.toRadians(180));
-    private Pose readyPose1 = new Pose(turn_distance_x,18, Math.toRadians(180)); /// first pickup poses
+    private Pose readyPose1 = new Pose(25,18, Math.toRadians(180)); /// first pickup poses
 
     private Pose pickupPose1 = new Pose(pickup_x,18,Math.toRadians(180)); /// first pickup poses
 
@@ -110,7 +110,7 @@ public class right_auto_final_final extends OpMode {
     // variables
     double intake_wrist_pos_transfer = 0;
     double outtake_wrist_pos_transfer = 0;
-    int up_hanging_position = 1765; //DONE: calibrate this value, viper slide position to
+    int up_hanging_position = 1778; //DONE: calibrate this value, viper slide position to
     int up_hanging_position_done = 1250; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
     // 1543
     //0.29
@@ -131,7 +131,7 @@ public class right_auto_final_final extends OpMode {
                 .addPath( new BezierCurve(
                         new Point(hangPose),
                         new Point(30.50989522700815, 18.77532013969732, Point.CARTESIAN),
-                        new Point(57.164144353899886, 53.811408614668224, Point.CARTESIAN),
+                        new Point(56.164144353899886, 53.811408614668224, Point.CARTESIAN),
                         new Point(pushstart)
                 )
         )
@@ -220,40 +220,23 @@ public class right_auto_final_final extends OpMode {
                 // Line 7
                 new BezierCurve(
                         new Point(pickupPose),
-                        new Point(27.28794093519278, 30.359310910582437, Point.CARTESIAN),
+                        // new Point(27.28794093519278, 30.359310910582437, Point.CARTESIAN),
                         new Point(7.914684167350287, 61.191140278917146, Point.CARTESIAN),
                         new Point(thirdhangPose)
                 )
         );
         third_hang.setLinearHeadingInterpolation(pickupPose.getHeading(), Math.toRadians(0));
-        /*third_hang_back = new Path(
+        third_hang_back = new Path(
                 // Line 6
                 new BezierCurve(
                         new Point(thirdhangPose),
-                        new Point(pickupPose)
+                        new Point(20,72,0)
                 )
         );
         third_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(320));
 
-         */
-        fourth_hang = new Path(
-                // Line 7
-                new BezierCurve(
-                        new Point(13.000, 11.000, Point.CARTESIAN),
-                        new Point(14.199, 59.162, Point.CARTESIAN),
-                        new Point(36.000, 65.000, Point.CARTESIAN)
-                )
-        );
-        fourth_hang.setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0));
-        fourth_hang_back = new Path(
-                // Line 6
-                new BezierCurve(
-                        new Point(36.000, 65.000, Point.CARTESIAN),
-                        new Point(14.199, 59.162, Point.CARTESIAN),
-                        new Point(13.000, 11.000, Point.CARTESIAN)
-                )
-        );
-        fourth_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0));
+
+
         park = new Path(
                 new BezierCurve(
                         new Point(thirdhangPose),
@@ -261,6 +244,7 @@ public class right_auto_final_final extends OpMode {
                 )
         );
         park.setTangentHeadingInterpolation();
+        park.setZeroPowerAccelerationMultiplier(4.2);
         park.setReversed(true);
 
 
@@ -289,7 +273,7 @@ public class right_auto_final_final extends OpMode {
                 }
                 break; // BREAK
             case 4:
-                if (pathTimer.getElapsedTime() > (0.8*(Math.pow(10,9)))) { // TODO : Allowing hang time / release
+                if (pathTimer.getElapsedTime() > (0.6*(Math.pow(10,9)))) { // TODO : Allowing hang time / release
                     setPathState(5);
                 }
                 break; // BREAK
@@ -356,6 +340,7 @@ public class right_auto_final_final extends OpMode {
             case 156:
                 setoutGrabState(2);
                 if(!follower.isBusy()) {
+                    follower.setMaxPower(0.8);
                     follower.followPath(pickup);
                     setPathState(161);
                 }
@@ -371,7 +356,7 @@ public class right_auto_final_final extends OpMode {
                     setoutGrabState(4);
                     setoutClawState(1);
                     // pickup
-                    follower.followPath(second_hang);
+                    follower.followPath(second_hang, true);
                     setPathState(165);
                 }
                 break;
@@ -401,6 +386,7 @@ public class right_auto_final_final extends OpMode {
                 break;
             case 175:
                 if(!follower.isBusy()) {
+                    follower.setMaxPower(0.8);
                     follower.followPath(pickup);
                     setPathState(18);
                 }
@@ -427,16 +413,20 @@ public class right_auto_final_final extends OpMode {
                 }
                 break;
             case 186:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) { // wait hang, for relase
+                if (pathTimer.getElapsedTime() > (0.4*Math.pow(10,9))) { // TODO pickup time
                     setPathState(19);
                 }
                 break;
             case 19:
-                setPathState(22);
+                follower.setMaxPower(1);
                 follower.followPath(park);
+                setPathState(20);
                 break;
-            case 22:
-                telemetryA.addLine("hao le");
+            case 20:
+                if(!follower.isBusy()) {
+                    telemetry.addData("hi", true);
+                }
+                break;
 
         }
     }
@@ -523,7 +513,7 @@ public class right_auto_final_final extends OpMode {
                 servo_outtake_wrist.setPosition(0.27);
                 break;
             case 3:
-                servo_outtake_wrist.setPosition(0.52);
+                servo_outtake_wrist.setPosition(0.55);
                 break;
 
         }
