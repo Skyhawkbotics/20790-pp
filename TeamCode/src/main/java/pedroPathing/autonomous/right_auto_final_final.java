@@ -73,7 +73,7 @@ public class right_auto_final_final extends OpMode {
 
     private Pose firsthangPose = new Pose(36.1,71,0);
 
-    private Pose secondhangPose = new Pose(36.1,67,0);
+    private Pose secondhangPose = new Pose(36.1,65,0);
 
     private Pose thirdhangPose = new Pose(36.3, 72,0);
 
@@ -368,7 +368,7 @@ public class right_auto_final_final extends OpMode {
                 }
                 break;
             case 166:
-                if (pathTimer.getElapsedTime() > (0.7*Math.pow(10,9))) {// time for relase
+                if (pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {// time for relase
                     setPathState(17);
                 }
                 break;

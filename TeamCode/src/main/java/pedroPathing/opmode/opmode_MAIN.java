@@ -373,7 +373,8 @@ public class opmode_MAIN extends OpMode {
         //Encoder Transfer Method
         /*if (gamepad2.touchpad_finger_1 && !gamepad2.touchpad_finger_2) { //transfer pos
             servo_outtake_wrist_location = outtake_wrist_pos_transfer;
-            servo_intake_wrist_location = intake_wrist_pos_transfer;
+            servo_intak
+            e_wrist_location = intake_wrist_pos_transfer;
             servo_intake_rotate_location = 0.5;
             out.setTargetPosition(out_pos_transfer);
             out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -411,7 +412,7 @@ public class opmode_MAIN extends OpMode {
             servo_intake_rotate_location = 0.5;
         }
         if (gamepad2.circle) { //reset intake wrist and rotate
-            servo_intake_wrist_location = 0.7;
+            servo_intake_wrist_location = 0.4;
             servo_intake_rotate_location = 0.47;
         }
 
