@@ -39,9 +39,9 @@ import pedroPathing.constants.LConstants;
  */
 
 @Config
-@Autonomous(name = "RIGHT asian AUTO", group = "AUTO")
+@Autonomous(name = "RIGHT werewrewr", group = "AUTO")
 // 18.5 inches away from observation zone
-public class right_auto_final_final extends OpMode {
+public class right_auto_final_final_duplicate extends OpMode {
 
     private Follower follower; // THe drivetrain with the calculations needed for path following
     private Timer actionTimer, opmodeTimer, outtimer; // Timers for progression of states
@@ -69,13 +69,13 @@ public class right_auto_final_final extends OpMode {
 
 
     /// hang poses
-    private Pose hangPose = new Pose(35, 74, Math.toRadians(0)); // TODO runs on
+    private Pose hangPose = new Pose(35, 64, Math.toRadians(0)); // TODO runs on
 
     private Pose firsthangPose = new Pose(36.1,71,0);
 
     private Pose secondhangPose = new Pose(36.1,67,0);
 
-    private Pose thirdhangPose = new Pose(36.3, 72,0);
+    private Pose thirdhangPose = new Pose(36.3, 64,0);
 
 
     /// push poses  for case transitions
@@ -88,6 +88,7 @@ public class right_auto_final_final extends OpMode {
     private Pose endPush = new Pose(20,20, Math.toRadians(0)); /// :D
 
 
+    private Pose parkPose = new Pose(15,122,Math.toRadians(90));
 
 
     // Paths
@@ -96,7 +97,7 @@ public class right_auto_final_final extends OpMode {
     private Path hang_first, park;
     private Path pushAll1, pushAll2, pushAll3, pushAll4, pushAll5, pushAll6, pushAll7, pushAll8, pickup1;
 
-    private Path ready_pickup, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back;
+    private Path ready_pickup, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back, sample;
 
     private PathChain pushFirst, pushSecond;
 
@@ -125,7 +126,7 @@ public class right_auto_final_final extends OpMode {
                 )
         );
         hang_first.setConstantHeadingInterpolation(hangPose.getHeading());
-        hang_first.setZeroPowerAccelerationMultiplier(3.5);
+        // hang_first.setZeroPowerAccelerationMultiplier(3.5);
 
         pushFirst = follower.pathBuilder()
                 .addPath( new BezierCurve(
@@ -154,7 +155,7 @@ public class right_auto_final_final extends OpMode {
                         new Point(pushstart)
                 )
         )
-                .setLinearHeadingInterpolation(firstpushPose.getHeading(),pickupPose1.getHeading())
+                .setLinearHeadingInterpolation(firstpushPose.getHeading(),pickupPose1.getHeading(), 0.7)
                 .addPath(
                 new BezierLine(
                         new Point(pushstart2),
@@ -162,7 +163,6 @@ public class right_auto_final_final extends OpMode {
                 )
         )
         .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(3.25)
                 .build();
 
         /// END OF PUSH ALL
@@ -226,7 +226,7 @@ public class right_auto_final_final extends OpMode {
                 )
         );
         third_hang.setLinearHeadingInterpolation(pickupPose.getHeading(), Math.toRadians(0));
-        /*third_hang_back = new Path(
+        third_hang_back = new Path(
                 // Line 6
                 new BezierCurve(
                         new Point(thirdhangPose),
@@ -235,7 +235,7 @@ public class right_auto_final_final extends OpMode {
         );
         third_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(320));
 
-         */
+
         fourth_hang = new Path(
                 // Line 7
                 new BezierCurve(
@@ -262,6 +262,13 @@ public class right_auto_final_final extends OpMode {
         );
         park.setTangentHeadingInterpolation();
         park.setReversed(true);
+        sample = new Path(
+                new BezierLine(
+                        new Point(pickupPose),
+                        new Point(parkPose)
+                )
+        );
+        sample.setLinearHeadingInterpolation(pickupPose.getHeading(),parkPose.getHeading());
 
 
 
@@ -289,7 +296,7 @@ public class right_auto_final_final extends OpMode {
                 }
                 break; // BREAK
             case 4:
-                if (pathTimer.getElapsedTime() > (0.8*(Math.pow(10,9)))) { // TODO : Allowing hang time / release
+                if (pathTimer.getElapsedTime() > (0.4*(Math.pow(10,9)))) { // TODO : Allowing hang time / release
                     setPathState(5);
                 }
                 break; // BREAK
@@ -319,27 +326,27 @@ public class right_auto_final_final extends OpMode {
                 }
                 break;
             case 141:
-                if (pathTimer.getElapsedTime() > (0.3*Math.pow(10,9))) { //pickup time
+                if (pathTimer.getElapsedTime() > (0.2*Math.pow(10,9))) { //pickup time
                     setArmState(1);
                         follower.followPath(first_hang);
                         setoutGrabState(4);
-                        setPathState(145);
+                        setPathState(145); // todo
+
                 }
                 break;
             case 145:
-                if (!follower.isBusy()) { //TODO: HANG CODE time to reach hang pos, then hang shorten
+                if (!follower.isBusy()) {
                     setArmState(3);
                     setoutClawState(2);
                     setPathState(146);
                 }
                 break;
             case 146:
-                if (pathTimer.getElapsedTime() > (0.6*Math.pow(10,9))) { // TODO : Time to release, shorten
+                if (pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) { // release
                     setPathState(15);
                 }
                 break;
             case 15:
-                //if (!follower.isBusy() || follower.getPose().roughlyEquals(firsthangPose)) { // TODO : see if roughly equals is good enough, i dont think this is needed
                 follower.followPath(first_hang_back);
                 setoutClawState(3);
                 setPathState(155);
@@ -348,7 +355,6 @@ public class right_auto_final_final extends OpMode {
                 if (pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) { // TODO time to get out of bar
                     setArmState(0);
                     setoutGrabState(2);
-
                     setPathState(156);
                 }
                 break;
@@ -366,10 +372,10 @@ public class right_auto_final_final extends OpMode {
                 }
             break;
             case 162:
-                if (pathTimer.getElapsedTime() > (0.1*Math.pow(10,9))) { // TODO time to reach pickup/pickup
+                if (pathTimer.getElapsedTime() > (0.1*Math.pow(10,9))) { // TODO removed to save time?
                     setArmState(1);
                     setoutGrabState(4);
-                    setoutClawState(1);
+                    setoutClawState(3);
                     // pickup
                     follower.followPath(second_hang);
                     setPathState(165);
@@ -383,7 +389,7 @@ public class right_auto_final_final extends OpMode {
                 }
                 break;
             case 166:
-                if (pathTimer.getElapsedTime() > (0.7*Math.pow(10,9))) {// time for relase
+                if (pathTimer.getElapsedTime() > (0.6*Math.pow(10,9))) {// time for relase
                     setPathState(17);
                 }
                 break;
@@ -427,17 +433,24 @@ public class right_auto_final_final extends OpMode {
                 }
                 break;
             case 186:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) { // wait hang, for relase
+                if (pathTimer.getElapsedTime() > (0.6*Math.pow(10,9))) { // TODO pickup time
                     setPathState(19);
                 }
                 break;
             case 19:
+                follower.followPath(third_hang_back);
+                setoutClawState(3);
                 setPathState(22);
-                follower.followPath(park);
+
                 break;
             case 22:
+                setoutGrabState(2);
+                if(!follower.isBusy()) {
+                    setoutGrabState(-1);
+                    follower.followPath(sample);
+                }
                 telemetryA.addLine("hao le");
-
+                break;
         }
     }
 

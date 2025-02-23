@@ -280,13 +280,13 @@ public class opmode_MAIN extends OpMode {
 
     public void misumi_slide() {
         // Misumi Slide
-        if (gamepad1.dpad_right && !out_zero.isPressed()) { //in
+        if (gamepad2.dpad_right && !out_zero.isPressed()) { //in
             //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
             out.setPower(-0.8);
             out_true_target_pos = 0;
-        } else if (gamepad1.dpad_left && out.getCurrentPosition() < out_max_pos ) { //out
+        } else if (gamepad2.dpad_left && out.getCurrentPosition() < out_max_pos ) { //out
             out.setPower(0.8);
-        } else if (gamepad1.dpad_right && out_zero.isPressed()) {
+        } else if (gamepad2.dpad_right && out_zero.isPressed()) {
             out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             telemetry.addData("reset out", true);
         } else {
