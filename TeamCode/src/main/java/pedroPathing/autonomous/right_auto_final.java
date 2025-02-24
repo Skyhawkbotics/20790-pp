@@ -37,86 +37,58 @@ import pedroPathing.constants.LConstants;
 public class right_auto_final extends OpMode {
 
     private Follower follower;
-    private Timer opmodeTimer; // Timers for progression of states
 
-    private NanoTimer pathTimer;
-    double pickup_x = 0.6;
+    // Timers
+    private Timer opmodeTimer;
+    private NanoTimer pathTimer; // Timers for progression of states, in nano seconds
 
-    double first_pickup_y = 20;
-
-    double turn_distance_x = 20;
-
-    double pickups_y = 41.00;
-
-
+    // Important Pose parts
+    double pickup_x = 0.6; // Distance from the claw to the sample
+    double turn_distance_x = 20; // Distance to start pickup
+    double pickups_y = 41.00; // Observation Zone pickup distance
     private int pathState, armState, outclawState, outgrabState; // Different cases and states of the different parts of the robot
 
+    // Poses, and pickUp Poses
     private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
-
-    private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); /// turn spot so make sure it would be safe
-
+    private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); // turn spot so make sure it would be safe
     private Pose pickupPose = new Pose(pickup_x, pickups_y, Math.toRadians(180));
-    private Pose readyPose1 = new Pose(25,18, Math.toRadians(180)); /// first pickup poses
-
-    private Pose pickupPose1 = new Pose(pickup_x,18,Math.toRadians(180)); /// first pickup poses
-
+    private Pose pickupPose1 = new Pose(pickup_x,18,Math.toRadians(180)); // first pickup poses
 
     /// hang poses
-    private Pose hangPose = new Pose(35, 74, Math.toRadians(0)); // TODO runs on
-
-    private Pose firsthangPose = new Pose(36.1,71,0);
-
-    private Pose secondhangPose = new Pose(36.1,65,0);
-
-    private Pose thirdhangPose = new Pose(36.3, 72,0);
-
+    private Pose hangPose = new Pose(35, 74, Math.toRadians(0)); // Hits it pretty hard, but its fine
+    private Pose firsthangPose = new Pose(36.1,71,0); // Quick hang, then back
+    private Pose secondhangPose = new Pose(36.1,65,0); // Should be quick hang, but idk they all mess up around here but somehow everything just works fine
+    private Pose thirdhangPose = new Pose(36.3, 72,0); // Last hang
 
     /// push poses  for case transitions
-    private Pose pushstart = new  Pose(59,30,Math.toRadians(180)); // has to match
+    private Pose pushstart = new  Pose(59,30,Math.toRadians(180)); // Bezier curve end behind second sample point
+    private Pose firstpushPose = new Pose(20,30, Math.toRadians(0)); // ^^ only x matters, keep y same
+    private Pose pushstart2 = new Pose(59,18,Math.toRadians(180));  // same
 
-    private Pose firstpushPose = new Pose(20,30, Math.toRadians(0)); // ^^
-
-    private Pose pushstart2 = new Pose(59,18,Math.toRadians(180));
-
-    private Pose endPush = new Pose(20,20, Math.toRadians(0)); /// :D
-
-
-
-
-    // Paths
-    private PathChain hang1;
-
-    private Path hang_first, park;
-    private Path pushAll1, pushAll2, pushAll3, pushAll4, pushAll5, pushAll6, pushAll7, pushAll8, pickup1;
-
-    private Path ready_pickup, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back;
-
+    /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
+    private Path hang_First, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, park;
     private PathChain pushFirst, pushSecond;
 
     // Motors
-    private DcMotorEx up, out;
-    private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate;
+    private DcMotorEx up, out; // Slide motors
+    private Servo servo_outtake_wrist, servo_intake_wrist;
     private CRServo servo_outtake, servo_intake;
-    private TouchSensor up_zero, out_zero;
+    private TouchSensor up_zero;
     private Telemetry telemetryA;
 
     // variables
-    double intake_wrist_pos_transfer = 0;
-    double outtake_wrist_pos_transfer = 0;
     int up_hanging_position = 1778; //DONE: calibrate this value, viper slide position to
-    int up_hanging_position_done = 1250; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
-    // 1543
-    //0.29
+    int up_hanging_position_done = 1559; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
 
     public void buildPaths() {
-        hang_first = new Path(
+        hang_First = new Path(
                 new BezierLine(
                         new Point(startPose),
                         new Point(hangPose)
                 )
         );
-        hang_first.setConstantHeadingInterpolation(hangPose.getHeading());
-        hang_first.setZeroPowerAccelerationMultiplier(3.5);
+        hang_First.setConstantHeadingInterpolation(hangPose.getHeading());
+        hang_First.setZeroPowerAccelerationMultiplier(3.5);
 
         pushFirst = follower.pathBuilder()
                 .addPath( new BezierCurve(
@@ -217,17 +189,6 @@ public class right_auto_final extends OpMode {
                 )
         );
         third_hang.setLinearHeadingInterpolation(pickupPose.getHeading(), Math.toRadians(0));
-        third_hang_back = new Path(
-                // Line 6
-                new BezierCurve(
-                        new Point(thirdhangPose),
-                        new Point(20,72,0)
-                )
-        );
-        third_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(320));
-
-
-
         park = new Path(
                 new BezierCurve(
                         new Point(thirdhangPose),
@@ -248,7 +209,7 @@ public class right_auto_final extends OpMode {
             case 2: //go to hang
                 setArmState(111);
                 if(pathTimer.getElapsedTime() > (0.5*(Math.pow(10,9)))) {
-                    follower.followPath(hang_first, true);
+                    follower.followPath(hang_First, true);
                     setPathState(3);
                 }
                 break; // BREAK
@@ -384,7 +345,7 @@ public class right_auto_final extends OpMode {
                 }
                 break;
             case 181:
-                if (pathTimer.getElapsedTime() > (0.1*Math.pow(10,9))) { // TODO pickup time
+                if (pathTimer.getElapsedTime() > (0.1*Math.pow(10,9))) { // pickup time
                     follower.followPath(third_hang);
                     setArmState(1);
                     setoutClawState(1);
@@ -393,14 +354,14 @@ public class right_auto_final extends OpMode {
                 }
                 break;
             case 185:
-                if (!follower.isBusy()) { // wait to reach, hang
+                if (!follower.isBusy()) { // hang when path done
                     setArmState(3);
                     setoutClawState(2);
                     setPathState(186);
                 }
                 break;
             case 186:
-                if (pathTimer.getElapsedTime() > (0.4*Math.pow(10,9))) { // TODO pickup time
+                if (pathTimer.getElapsedTime() > (0.4*Math.pow(10,9))) { // pickup time
                     setPathState(19);
                 }
                 break;
@@ -419,11 +380,10 @@ public class right_auto_final extends OpMode {
     }
     public void autonomousActionUpdate() {
             switch (armState) {
-                case -1:
+                case -1: // default stop
                     up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     break;
-//most of the code stolen from opmode_main
-                case 0: //going to bottom position
+                case 0: //going to bottom position, then closing the loop
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     telemetry.addData("Lowered position", true);
                     if (!up_zero.isPressed()) {
@@ -432,7 +392,7 @@ public class right_auto_final extends OpMode {
                         setArmState(-1);
                     }
                     break;
-                case 1: //going to hanging position
+                case 1: //going to hanging position, using run to position
                     up.setTargetPosition(up_hanging_position);
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     up.setPower(1);
@@ -440,46 +400,32 @@ public class right_auto_final extends OpMode {
                         setoutClawState(1);
                     }
                     break;
-                case 111: //going to hanging position
-                    up.setTargetPosition(1715);
-                    up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    up.setPower(1);
-                    if(up.getCurrentPosition() > 200) {
-                        setoutClawState(1);
-                    }
-                    break;
-                case 2:
-                    up.setTargetPosition(150);
-                    up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    up.setPower(0.7);
-                    break;
-
                 case 3:
-                    up.setTargetPosition(1559);
+                    up.setTargetPosition(up_hanging_position_done);
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     up.setPower(0.6);
                     break;
 
             }
         switch (outclawState) {
-            case -1:
+            case -1: // Init Pos
                 servo_outtake_wrist.setPosition(0);
                 telemetry.addData("claw position 1 ", true);
                 break;
-            case 1:
+            case 1: // Hang ready Pos
                 servo_outtake_wrist.setPosition(0.58);
                 telemetry.addData("claw position 2", true);
                 break;
             case 2: // Hang done Pos
                 servo_outtake_wrist.setPosition(0.27);
                 break;
-            case 3:
+            case 3: // PickUp Pos
                 servo_outtake_wrist.setPosition(0.55);
                 break;
 
         }
         switch (outgrabState) {
-            case -1:
+            case -1: // Init Pos
                 servo_outtake.setPower(0);
                 break;
             case 1: //release
@@ -488,10 +434,6 @@ public class right_auto_final extends OpMode {
             case 2: //grab
                 servo_outtake.setPower(-1);
                 break;
-            case 3: // hang release?
-                if (up.getCurrentPosition() < 1600) {
-                    servo_outtake.setPower(1);
-                }
             case 4:
                 if(servo_outtake_wrist.getPosition() <= 0.3) {
                     servo_outtake.setPower(1);
@@ -501,9 +443,6 @@ public class right_auto_final extends OpMode {
                 break;
         }
     }
-
-    /** These change the states of the paths and actions
-     * It will also reset the timers of the individual switches **/
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
@@ -520,11 +459,9 @@ public class right_auto_final extends OpMode {
     }
 
 
-        // Constant feedback loop for telemetry throughout the auto, great for troubleshooting
     @Override
     public void loop() {
 
-        // These loop the actions and movement of the robot
         follower.update();
 
         autonomousPathUpdate();
@@ -555,48 +492,42 @@ public class right_auto_final extends OpMode {
         // We init the timers, telemetry, motors , and follower
     @Override
     public void init() {
+
+        // Timers init
         pathTimer = new NanoTimer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
+        // Follower, and it's constants init
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
 
-
+        // Telemetry init
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.update();
 
-        //setup arm variable
-
+        //setup arms init
         up = hardwareMap.get(DcMotorEx.class, "up");
         up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         up.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        //example position setup
         out = hardwareMap.get(DcMotorEx.class, "out");
         int charles = out.getCurrentPosition();
         out.setTargetPosition(charles);
         out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         out.setPower(1);
 
+        // Servos init
         servo_outtake = hardwareMap.get(CRServo.class,"outtake");
-
-
         servo_intake = hardwareMap.get(CRServo.class, "intake");
-
-
-
         servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
-
         servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
         servo_outtake_wrist.setPosition(0);
 
-
+        // Sensor init
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
-
-
     }
 
     /** This method is called continuously after Init while waiting for "play", it's not necessary but its useful to give more time to build paths **/
@@ -606,10 +537,9 @@ public class right_auto_final extends OpMode {
 
         // After 4 Seconds, Robot Initialization is complete
         if (opmodeTimer.getElapsedTimeSeconds() > 4) {
-            telemetryA.addData("Init", "Finished");
+            telemetryA.addData("ready to cook cook cook cook cook", "Finished");
         }
     }
-
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
@@ -620,13 +550,7 @@ public class right_auto_final extends OpMode {
         setArmState(-1);
         setoutGrabState(0);
         setoutClawState(0);
-
-
     }
-
-
-
-    /** We do not use this because everything should automatically disable **/
     @Override
     public void stop() {
     }
