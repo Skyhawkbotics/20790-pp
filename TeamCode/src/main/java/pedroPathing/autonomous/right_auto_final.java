@@ -28,54 +28,47 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-/**
- * This is an example auto that showcases movement and control of three servos autonomously.
- * It is able to detect the team element using a huskylens and then use that information to go to the correct spike mark and backdrop position.
- * There are examples of different ways to build paths.
- * A custom action system have been created that can be based on time, position, or other factors.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @version 2.0, 9/8/2024
- */
 
 @Config
-@Autonomous(name = "dfasdsad", group = "AUTO")
-// 18.5 inches away from observation zone
-public class right_auto_final_final_duplicate_dupe extends OpMode {
+@Autonomous(name = "RIGHT AUTO", group = "AUTO")
+///* This is the Spark invitational auto
+/// We won spark 2nd in placement, 1st pick alliance, and also 2nd inspire.
+/// This  is a 4+0 autonomous and park for the into the deep season, using bezier curves and linear interpolation, along with a nano-second timer
+public class right_auto_final extends OpMode {
 
-    private Follower follower; // THe drivetrain with the calculations needed for path following
-    private Timer actionTimer, opmodeTimer, outtimer; // Timers for progression of states
+    private Follower follower;
+    private Timer opmodeTimer; // Timers for progression of states
 
     private NanoTimer pathTimer;
-    double pickup_x = 0.5;
+    double pickup_x = 0.6;
 
     double first_pickup_y = 20;
 
     double turn_distance_x = 20;
 
-    double pickups_y = 40.00;
+    double pickups_y = 41.00;
 
 
-    private int pathState, armState, outclawState, outgrabState, inclawState, ingrabState; // Different cases and states of the different parts of the robot
+    private int pathState, armState, outclawState, outgrabState; // Different cases and states of the different parts of the robot
 
     private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
 
-    private Pose readyPose = new Pose(20,40, Math.toRadians(180)); /// turn spot so make sure it would be safe
+    private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); /// turn spot so make sure it would be safe
 
-    private Pose pickupPose = new Pose(20, 40, Math.toRadians(180));
-    private Pose readyPose1 = new Pose(turn_distance_x,18, Math.toRadians(180)); /// first pickup poses
+    private Pose pickupPose = new Pose(pickup_x, pickups_y, Math.toRadians(180));
+    private Pose readyPose1 = new Pose(25,18, Math.toRadians(180)); /// first pickup poses
 
     private Pose pickupPose1 = new Pose(pickup_x,18,Math.toRadians(180)); /// first pickup poses
 
 
     /// hang poses
-    private Pose hangPose = new Pose(36, 64, Math.toRadians(0)); // TODO runs on
+    private Pose hangPose = new Pose(35, 74, Math.toRadians(0)); // TODO runs on
 
     private Pose firsthangPose = new Pose(36.1,71,0);
 
-    private Pose secondhangPose = new Pose(36.1,67,0);
+    private Pose secondhangPose = new Pose(36.1,65,0);
 
-    private Pose thirdhangPose = new Pose(36.3, 64,0);
+    private Pose thirdhangPose = new Pose(36.3, 72,0);
 
 
     /// push poses  for case transitions
@@ -88,7 +81,6 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
     private Pose endPush = new Pose(20,20, Math.toRadians(0)); /// :D
 
 
-    private Pose parkPose = new Pose(15,122,Math.toRadians(90));
 
 
     // Paths
@@ -97,7 +89,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
     private Path hang_first, park;
     private Path pushAll1, pushAll2, pushAll3, pushAll4, pushAll5, pushAll6, pushAll7, pushAll8, pickup1;
 
-    private Path ready_pickup, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back, sample;
+    private Path ready_pickup, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back;
 
     private PathChain pushFirst, pushSecond;
 
@@ -111,13 +103,11 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
     // variables
     double intake_wrist_pos_transfer = 0;
     double outtake_wrist_pos_transfer = 0;
-    int up_hanging_position = 1765; //DONE: calibrate this value, viper slide position to
+    int up_hanging_position = 1778; //DONE: calibrate this value, viper slide position to
     int up_hanging_position_done = 1250; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
     // 1543
     //0.29
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
         hang_first = new Path(
                 new BezierLine(
@@ -126,13 +116,13 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 )
         );
         hang_first.setConstantHeadingInterpolation(hangPose.getHeading());
-        // hang_first.setZeroPowerAccelerationMultiplier(3.5);
+        hang_first.setZeroPowerAccelerationMultiplier(3.5);
 
         pushFirst = follower.pathBuilder()
                 .addPath( new BezierCurve(
                         new Point(hangPose),
                         new Point(30.50989522700815, 18.77532013969732, Point.CARTESIAN),
-                        new Point(57.164144353899886, 53.811408614668224, Point.CARTESIAN),
+                        new Point(56.164144353899886, 53.811408614668224, Point.CARTESIAN),
                         new Point(pushstart)
                 )
         )
@@ -163,6 +153,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 )
         )
         .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setZeroPowerAccelerationMultiplier(3.25)
                 .build();
 
         /// END OF PUSH ALL
@@ -220,7 +211,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 // Line 7
                 new BezierCurve(
                         new Point(pickupPose),
-                        new Point(27.28794093519278, 30.359310910582437, Point.CARTESIAN),
+                        // new Point(27.28794093519278, 30.359310910582437, Point.CARTESIAN),
                         new Point(7.914684167350287, 61.191140278917146, Point.CARTESIAN),
                         new Point(thirdhangPose)
                 )
@@ -230,30 +221,13 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 // Line 6
                 new BezierCurve(
                         new Point(thirdhangPose),
-                        new Point(pickupPose)
+                        new Point(20,72,0)
                 )
         );
         third_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(320));
 
 
-        fourth_hang = new Path(
-                // Line 7
-                new BezierCurve(
-                        new Point(13.000, 11.000, Point.CARTESIAN),
-                        new Point(14.199, 59.162, Point.CARTESIAN),
-                        new Point(36.000, 65.000, Point.CARTESIAN)
-                )
-        );
-        fourth_hang.setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0));
-        fourth_hang_back = new Path(
-                // Line 6
-                new BezierCurve(
-                        new Point(36.000, 65.000, Point.CARTESIAN),
-                        new Point(14.199, 59.162, Point.CARTESIAN),
-                        new Point(13.000, 11.000, Point.CARTESIAN)
-                )
-        );
-        fourth_hang_back.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0));
+
         park = new Path(
                 new BezierCurve(
                         new Point(thirdhangPose),
@@ -261,22 +235,14 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 )
         );
         park.setTangentHeadingInterpolation();
+        park.setZeroPowerAccelerationMultiplier(4.2);
         park.setReversed(true);
-        sample = new Path(
-                new BezierLine(
-                        new Point(pickupPose),
-                        new Point(parkPose)
-                )
-        );
-        sample.setTangentHeadingInterpolation();
+
 
 
 
     }
 
-    /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
-     * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() function on line 193)
-     * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. **/
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 2: //go to hang
@@ -325,23 +291,22 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 }
                 break;
             case 141:
-                if (pathTimer.getElapsedTime() > (0.2*Math.pow(10,9))) { //pickup time
+                if (pathTimer.getElapsedTime() > (0.3*Math.pow(10,9))) { //pickup time
                     setArmState(1);
-                    follower.followPath(first_hang);
-                    setoutGrabState(4);
-                    setPathState(145); // todo
-
+                        follower.followPath(first_hang);
+                        setoutGrabState(4);
+                        setPathState(145);
                 }
                 break;
             case 145:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy()) { // Instant transition between reaching hang position and hang
                     setArmState(3);
                     setoutClawState(2);
                     setPathState(146);
                 }
                 break;
             case 146:
-                if (pathTimer.getElapsedTime() > (0.6*Math.pow(10,9))) { // release
+                if (pathTimer.getElapsedTime() > (0.6*Math.pow(10,9))) { // Release Time
                     setPathState(15);
                 }
                 break;
@@ -351,9 +316,10 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 setPathState(155);
                 break;
             case 155:
-                if (pathTimer.getElapsedTime() > (0.6*Math.pow(10,9))) { // TODO time to get out of bar
+                if (pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) { // Time for follower to get out of bar before lowering arm
                     setArmState(0);
                     setoutGrabState(2);
+
                     setPathState(156);
                 }
                 break;
@@ -361,6 +327,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
             case 156:
                 setoutGrabState(2);
                 if(!follower.isBusy()) {
+                    follower.setMaxPower(0.8);
                     follower.followPath(pickup);
                     setPathState(161);
                 }
@@ -371,12 +338,12 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 }
             break;
             case 162:
-                if (pathTimer.getElapsedTime() > (0.2*Math.pow(10,9))) { // TODO removed to save time?
+                if (pathTimer.getElapsedTime() > (0.1*Math.pow(10,9))) { // Time of pickup
                     setArmState(1);
                     setoutGrabState(4);
                     setoutClawState(1);
                     // pickup
-                    follower.followPath(second_hang);
+                    follower.followPath(second_hang, true);
                     setPathState(165);
                 }
                 break;
@@ -388,7 +355,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 }
                 break;
             case 166:
-                if (pathTimer.getElapsedTime() > (0.7*Math.pow(10,9))) {// time for relase
+                if (pathTimer.getElapsedTime() > (0.5*Math.pow(10,9))) {// time for relase
                     setPathState(17);
                 }
                 break;
@@ -406,6 +373,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 break;
             case 175:
                 if(!follower.isBusy()) {
+                    follower.setMaxPower(0.8);
                     follower.followPath(pickup);
                     setPathState(18);
                 }
@@ -432,46 +400,23 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 }
                 break;
             case 186:
-                if (pathTimer.getElapsedTime() > (0.7*Math.pow(10,9))) { // TODO pickup time
+                if (pathTimer.getElapsedTime() > (0.4*Math.pow(10,9))) { // TODO pickup time
                     setPathState(19);
                 }
                 break;
             case 19:
-                follower.followPath(third_hang_back);
-                setoutClawState(3);
-                setPathState(22);
-
+                follower.setMaxPower(1);
+                follower.followPath(park);
+                setPathState(20);
                 break;
-
+            case 20:
+                if(!follower.isBusy()) {
+                    telemetry.addData("hi", true);
+                }
+                break;
 
         }
     }
-
-
-
-    /* back_park = follower.pathBuilder()
-            .addPath(
-            // Line 1
-                        new BezierLine(
-                    new Point(startPose),
-                                new Point(59.660, 84.873, Point.CARTESIAN)
-                        )
-                                )
-                                .setTangentHeadingInterpolation()
-                .addPath(
-            // Line 2
-                        new BezierLine(
-                    new Point(59.660, 84.873, Point.CARTESIAN),
-                                new Point(10.121, 85.051, Point.CARTESIAN)
-                        )
-                                )
-                                .setConstantHeadingInterpolation(Math.toRadians(0))
-            .build();
-
-     */
-
-    /** This switch is called continuously and runs the necessary actions, when finished, it will set the state to -1.
-     * (Therefore, it will not run the action continuously) **/
     public void autonomousActionUpdate() {
             switch (armState) {
                 case -1:
@@ -529,7 +474,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 servo_outtake_wrist.setPosition(0.27);
                 break;
             case 3:
-                servo_outtake_wrist.setPosition(0.52);
+                servo_outtake_wrist.setPosition(0.55);
                 break;
 
         }
@@ -555,27 +500,6 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
                 }
                 break;
         }
-        /*switch (inclawState) {
-            case 0:
-                servo_intake_wrist.setPosition(0);
-                break;
-            case 1:
-                servo_intake_wrist.setPosition(0.5);
-                break;
-
-        }
-        switch (ingrabState) {
-            case 0:
-                servo_intake.setPower(0);
-                break;
-            case 1: // Release?
-                servo_intake.setPower(1);
-                break;
-            case 2:
-                servo_intake.setPower(-1);
-                break;
-
-        }*/
     }
 
     /** These change the states of the paths and actions
@@ -591,17 +515,12 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
     public void setoutGrabState(int gstate) {
         outgrabState = gstate;
     }
-    public void setinclawState(int icstate) {
-        inclawState = icstate;
-    }
-    public void setIngrabState(int icstate) {
-        ingrabState = icstate;
-    }
     public void setoutClawState(int cState) {
         outclawState = cState;
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+
+        // Constant feedback loop for telemetry throughout the auto, great for troubleshooting
     @Override
     public void loop() {
 
@@ -612,30 +531,31 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
         autonomousActionUpdate();
 
 
-        // Feedback to Driver Hub
+        // Feedback to Driver Hub, states and timers
         telemetryA.addData("path state", pathState);
         telemetryA.addData("arm state", armState);
         telemetryA.addData("claw state", outclawState);
         telemetryA.addData("out grab state", outgrabState);
+        telemetryA.addData("pathtimer elapsed time", pathTimer.getElapsedTimeSeconds());
 
+
+
+        // Poses, follower error
         telemetryA.addData("x", follower.getPose().getX());
         telemetryA.addData("y", follower.getPose().getY());
         telemetryA.addData("heading", follower.getPose().getHeading());
-        //telemetryA.addData("armPOS", up.getCurrentPosition());
-        //telemetryA.addData("out servo", servo_outtake_wrist.getPosition());
-        telemetryA.addData("pathtimer elapsed time", pathTimer.getElapsedTimeSeconds());
-        //telemetryA.addData("armmode", up.getMode());
         telemetryA.addData("Follower busy", follower.isBusy());
-
         telemetryA.addData("headingPID error", follower.headingError);
         telemetryA.update();
     }
 
-    /** This method is called once at the init of the OpMode. **/
+
+
+
+        // We init the timers, telemetry, motors , and follower
     @Override
     public void init() {
         pathTimer = new NanoTimer();
-        actionTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
@@ -679,7 +599,7 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
 
     }
 
-    /** This method is called continuously after Init while waiting for "play". **/
+    /** This method is called continuously after Init while waiting for "play", it's not necessary but its useful to give more time to build paths **/
     @Override
     public void init_loop() {
 
@@ -694,19 +614,15 @@ public class right_auto_final_final_duplicate_dupe extends OpMode {
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
     public void start() {
-        //setBackdropGoalPose();
         buildPaths();
         opmodeTimer.resetTimer();
         setPathState(2);
-        setArmState(-1); //starting ArmState
+        setArmState(-1);
         setoutGrabState(0);
-        setinclawState(0);
-        setIngrabState(0);
         setoutClawState(0);
 
 
     }
-    // run this
 
 
 
