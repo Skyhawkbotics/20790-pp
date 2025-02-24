@@ -28,15 +28,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-/**
- * This is an example auto that showcases movement and control of three servos autonomously.
- * It is able to detect the team element using a huskylens and then use that information to go to the correct spike mark and backdrop position.
- * There are examples of different ways to build paths.
- * A custom action system have been created that can be based on time, position, or other factors.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @version 2.0, 9/8/2024
- */
 
 @Config
 @Autonomous(name = "RIGHT AUTO", group = "AUTO")
@@ -115,8 +106,6 @@ public class right_auto_final_final extends OpMode {
     // 1543
     //0.29
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
         hang_first = new Path(
                 new BezierLine(
@@ -252,9 +241,6 @@ public class right_auto_final_final extends OpMode {
 
     }
 
-    /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
-     * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() function on line 193)
-     * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. **/
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 2: //go to hang
@@ -430,32 +416,6 @@ public class right_auto_final_final extends OpMode {
 
         }
     }
-
-
-
-    /* back_park = follower.pathBuilder()
-            .addPath(
-            // Line 1
-                        new BezierLine(
-                    new Point(startPose),
-                                new Point(59.660, 84.873, Point.CARTESIAN)
-                        )
-                                )
-                                .setTangentHeadingInterpolation()
-                .addPath(
-            // Line 2
-                        new BezierLine(
-                    new Point(59.660, 84.873, Point.CARTESIAN),
-                                new Point(10.121, 85.051, Point.CARTESIAN)
-                        )
-                                )
-                                .setConstantHeadingInterpolation(Math.toRadians(0))
-            .build();
-
-     */
-
-    /** This switch is called continuously and runs the necessary actions, when finished, it will set the state to -1.
-     * (Therefore, it will not run the action continuously) **/
     public void autonomousActionUpdate() {
             switch (armState) {
                 case -1:
@@ -539,27 +499,6 @@ public class right_auto_final_final extends OpMode {
                 }
                 break;
         }
-        /*switch (inclawState) {
-            case 0:
-                servo_intake_wrist.setPosition(0);
-                break;
-            case 1:
-                servo_intake_wrist.setPosition(0.5);
-                break;
-
-        }
-        switch (ingrabState) {
-            case 0:
-                servo_intake.setPower(0);
-                break;
-            case 1: // Release?
-                servo_intake.setPower(1);
-                break;
-            case 2:
-                servo_intake.setPower(-1);
-                break;
-
-        }*/
     }
 
     /** These change the states of the paths and actions
