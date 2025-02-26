@@ -28,67 +28,23 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-/**
- * This is an example auto that showcases movement and control of three servos autonomously.
- * It is able to detect the team element using a huskylens and then use that information to go to the correct spike mark and backdrop position.
- * There are examples of different ways to build paths.
- * A custom action system have been created that can be based on time, position, or other factors.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @version 2.0, 9/8/2024
- */
-
 @Config
 @Autonomous(name = "arm auto arm", group = "AUTO")
-// 18.5 inches away from observation zone
-public class right_auto_armas extends OpMode {
-
-    /*
-    Scrimage notes -
-    Pushall curve 1 needs to be adjusted based on new start position
-    Somehow initize the intake wrist / misumi slide so they do not come out at all during auto,
-    minimize time and make code more effiecent
-    optimize path a bit more, reducing hte start position and others.
-    decrease time from pick up
-    Run consisency tests
-    maybe make the
-     */
-    // cool
-    private Follower follower; // THe drivetrain with the calculations needed for path following
-    private Timer actionTimer, opmodeTimer, outtimer; // Timers for progression of states
-
+public class arm_auto_code extends OpMode {
+    private Follower follower;
+    private Timer opmodeTimer; // Timers for progression of states
     private NanoTimer pathTimer;
-
-
     private int pathState, armState, outclawState, outgrabState, inclawState, ingrabState, sweeperState; // Different cases and states of the different parts of the robot
-    /** Create and Define Poses + Paths
-     * Poses are built with three constructors: x, y, and heading (in Radians).
-     * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
-     * (For Centerstage, this would be blue far side/red human player station.)
-     * Even though Pedro uses a different coordinate system than RR, you can convert any roadrunner pose by adding +72 both the x and y. **/
-    //Start Pose
     private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
-
-
-
-
-    // Motors
     private DcMotorEx up, out;
 
-    private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate, sweeper;
+    private Servo servo_outtake_wrist, servo_intake_wrist, sweeper;
     private CRServo servo_outtake, servo_intake;
-    private TouchSensor up_zero, out_zero;
+    private TouchSensor up_zero;
     private Telemetry telemetryA;
-    double intake_wrist_pos_transfer = 0;
-    double outtake_wrist_pos_transfer = 0;
     int up_hanging_position = 1755; //DONE: calibrate this value, viper slide position to
     int up_hanging_position_done = 1560; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
-
     int preload_hang_pos = 2160;
-    // 1543
-    //0.29
-
-
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
@@ -120,9 +76,8 @@ public class right_auto_armas extends OpMode {
         switch (armState) {
             case -1:
                 up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//most of the code stolen from opmode_main
                 break;
-            case 0: //going to bottom position
+            case 0:
                 up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 telemetry.addData("Lowered position", true);
                 if (!up_zero.isPressed()) {
@@ -235,9 +190,6 @@ public class right_auto_armas extends OpMode {
 
         }
     }
-
-    /** These change the states of the paths and actions
-     * It will also reset the timers of the individual switches **/
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
@@ -289,12 +241,9 @@ public class right_auto_armas extends OpMode {
         telemetryA.addData("headingPID error", follower.headingError);
         telemetryA.update();
     }
-
-    /** This method is called once at the init of the OpMode. **/
     @Override
     public void init() {
         pathTimer = new NanoTimer();
-        actionTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
@@ -338,26 +287,19 @@ public class right_auto_armas extends OpMode {
 
 
     }
-
-    /** This method is called continuously after Init while waiting for "play". **/
     @Override
     public void init_loop() {
 
 
-        // After 4 Seconds, Robot Initialization is complete
         if (opmodeTimer.getElapsedTimeSeconds() > 4) {
             telemetryA.addData("Init", "Finished");
         }
     }
-
-    /** This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system **/
     @Override
     public void start() {
-        //setBackdropGoalPose();
         opmodeTimer.resetTimer();
         setPathState(0);
-        setArmState(-1); //starting ArmState
+        setArmState(-1);
         setoutGrabState(0);
         setinclawState(0);
         setIngrabState(0);
@@ -365,11 +307,6 @@ public class right_auto_armas extends OpMode {
 
 
     }
-    // run this
-
-
-
-    /** We do not use this because everything should automatically disable **/
     @Override
     public void stop() {
     }
