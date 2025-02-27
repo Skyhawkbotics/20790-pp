@@ -4,7 +4,8 @@ repositories {
 
     maven { url = 'https://maven.brott.dev/' }
     maven { url= "https://maven.pedropathing.com/" }
-
+    //nextftc stuff
+    maven { url = "https://maven.rowanmcalpin.com/" }
 }
 
 dependencies {
@@ -21,5 +22,10 @@ dependencies {
     //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
+
+    //nextftc
+    implementation 'com.rowanmcalpin.nextftc:core:0.5.10-beta1'
+    implementation 'com.rowanmcalpin.nextftc:ftc:0.5.10-beta1'
+    implementation 'com.rowanmcalpin.nextftc:pedro:0.5.10-beta1' // Remove if you don't intend to use PedroPathing
 }
 
