@@ -1,37 +1,28 @@
 package pedroPathing.opmode;
 
-import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName; // unsure if needed, but they are motors
+import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
+/*import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Constants;*/
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
-
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.util.Constants;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
-
-
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import com.pedropathing.follower.*;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.*;
-
+/*import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;*/
 
 
 /**
@@ -43,9 +34,9 @@ import com.pedropathing.pathgen.*;
  * @author Harrison Womack - 10158 Scott's Bots
  * @version 1.0, 3/21/2024
  *///sadfasdfilkajslkdfjaslk
-@TeleOp(name = "opmode_MAIN", group = "MAIN")
-public class opmode_MAIN extends OpMode {
-    private Follower follower;
+@TeleOp(name = "opmode_TEST", group = "TEST")
+public class opmode_MOTOR_TEST extends OpMode {
+    //private Follower follower;
 
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
@@ -100,34 +91,21 @@ public class opmode_MAIN extends OpMode {
 
 
     //path
-    private PathChain park;
+    //private PathChain park;
 
     /**
      * This initializes the drive motors as well as the Follower and motion Vectors.
      */
     @Override
     public void start() {
-        //PATHING
-        Pose pickupPoseBack = new Pose(15, 40, Math.toRadians(180)); // TODO: This value too!
-        Pose hangPose = new Pose(36.5, 67.0, Math.toRadians(0)); // TODO
-    park = follower.pathBuilder()
-            .addPath(
-                    new BezierLine(
-                            new Point(hangPose),
-                            new Point(pickupPoseBack)
-                            )
-
-
-                    )
-                    .setConstantHeadingInterpolation(0)
-                    .build();
-
 
     }
+
+
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        //Constants.setConstants(FConstants.class, LConstants.class);
+        /*follower = new Follower(hardwareMap);
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
         leftRear = hardwareMap.get(DcMotorEx.class, leftRearMotorName);
@@ -139,23 +117,23 @@ public class opmode_MAIN extends OpMode {
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        follower.startTeleopDrive();
+        follower.startTeleopDrive();*/
 
 
         //from rr version
 
         //setup arm to use velocity
         //setup arm variable
-        up = hardwareMap.get(DcMotorEx.class, "up");
+        up = hardwareMap.get(DcMotorEx.class, "misumi");
         up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //example position setup
-        out = hardwareMap.get(DcMotorEx.class, "out");
+        /*out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        up.setDirection(DcMotorSimple.Direction.REVERSE);
+        up.setDirection(DcMotorSimple.Direction.REVERSE);*/
 
         //example velocity setup
         //up = hardwareMap.get(DcMotorEx.class, "up");
@@ -164,7 +142,7 @@ public class opmode_MAIN extends OpMode {
         //up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //setup servos for intake and outtake
-        servo_intake = hardwareMap.get(Servo.class, "intake");
+        /*servo_intake = hardwareMap.get(Servo.class, "intake");
         servo_outtake = hardwareMap.get(CRServo.class, "outtake");
         servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
         servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
@@ -174,10 +152,10 @@ public class opmode_MAIN extends OpMode {
 
         //initialize touch sensor
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
-        out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
+        out_zero = hardwareMap.get(TouchSensor.class, "out_zero");*/
 
-        Pose startPose = new Pose(15, 40.0, Math.toRadians(0)); //TODO
-        follower.setStartingPose(startPose);
+        //Pose startPose = new Pose(15, 40.0, Math.toRadians(0)); //TODO
+        //follower.setStartingPose(startPose);
     }
     /**
      * This runs the OpMode. This is only drive control with Pedro Pathing live centripetal force
@@ -189,7 +167,7 @@ public class opmode_MAIN extends OpMode {
 
 
         //TESTING PATH THING VERSION
-        if (!gamepad1.b) {
+        /*if (!gamepad1.b) {
             follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * driving_multiplier, -gamepad1.left_stick_x * driving_multiplier, -gamepad1.right_stick_x * 0.5);
             follower.update();
         } if (gamepad1.b) {
@@ -211,19 +189,21 @@ public class opmode_MAIN extends OpMode {
         } else {
             follower.setTeleOpMovementVectors(0, 0, 0);
 
-        }
+        }*/
+
+        up.setVelocity(gamepad1.left_stick_x * 1000);
 
 
-        viper_slide();
-        misumi_slide();
-        intake_claw();
-        outtake_claw();
-        macros();
+        //viper_slide();
+        //misumi_slide();
+        //intake_claw();
+        //outtake_claw();
+        //macros();
 
         //SWEEPER:
 
         //telemetry
-        telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
+        /*telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
         telemetry.addData("gamepad2.rightsticky", gamepad2.right_stick_y);
         telemetry.addData("out.getCurrentpos", out.getCurrentPosition());
         telemetry.addData("servo pos", servo_outtake_wrist.getPosition());
@@ -240,7 +220,7 @@ public class opmode_MAIN extends OpMode {
         telemetry.addData("gamepad1.touchpad_finger_2_y", gamepad1.touchpad_finger_2_y);
         telemetry.addData("gamepad1.share", gamepad1.share);
         telemetry.addData("gamepad1.share", gamepad1.guide);
-        telemetry.update();
+        telemetry.update();*/
     }
 
 
