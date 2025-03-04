@@ -15,8 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -28,8 +26,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import com.pedropathing.follower.*;
-import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.*;
 
 
@@ -53,15 +49,15 @@ public class opmode_MAIN extends OpMode {
     private DcMotorEx rightRear;
 
     //define these up here instead of in the init section like rr, idk why but it seems to work fine.
-    private Servo servo_outtake_wrist, servo_intake_wrist, servo_intake_rotate, sweeper;
+    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper;
     private CRServo servo_intake, servo_outtake;
-    private DcMotorEx up, out;
+    private DcMotorEx up1, up2, out;
     private TouchSensor up_zero, out_zero;
     //from rr version of opmode_MAIN
     int arm_upper_lim = 4000;
     int up_true_target_pos;
     int out_true_target_pos;
-    double servo_outtake_wrist_location = 0;
+    double servo_outtake_flip_location = 0;
     double servo_intake_wrist_location = 0;
     double servo_intake_rotate_location = 0.47;
 
@@ -142,16 +138,20 @@ public class opmode_MAIN extends OpMode {
 
         //setup arm to use velocity
         //setup arm variable
-        up = hardwareMap.get(DcMotorEx.class, "up");
-        up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        up.setDirection(DcMotorSimple.Direction.REVERSE);
+        up1 = hardwareMap.get(DcMotorEx.class, "up1");
+        up1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        up1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        up1.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        up2 = hardwareMap.get(DcMotorEx.class, "up2");
+        up2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        up2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        up2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //example position setup
         out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //example velocity setup
         //up = hardwareMap.get(DcMotorEx.class, "up");
@@ -163,7 +163,8 @@ public class opmode_MAIN extends OpMode {
         servo_intake = hardwareMap.get(CRServo.class, "intake");
         servo_outtake = hardwareMap.get(CRServo.class, "outtake");
         servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
-        servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
+        servo_outtake_flip1 = hardwareMap.get(Servo.class, "outtakeFlip1");
+        servo_outtake_flip2 = hardwareMap.get(Servo.class, "outtakeFlip2");
         servo_intake_rotate = hardwareMap.get(Servo.class, "intakeRotate");
         sweeper = hardwareMap.get(Servo.class, "sweeper");
 
@@ -222,10 +223,12 @@ public class opmode_MAIN extends OpMode {
         telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
         telemetry.addData("gamepad2.rightsticky", gamepad2.right_stick_y);
         telemetry.addData("out.getCurrentpos", out.getCurrentPosition());
-        telemetry.addData("servo pos", servo_outtake_wrist.getPosition());
+        telemetry.addData("servo outtake flip1 pos", servo_outtake_flip1.getPosition());
+        telemetry.addData("servo outtake flip2 pos", servo_outtake_flip2.getPosition());
         telemetry.addData("intake_servo", servo_intake_wrist.getPosition());
         telemetry.addData("rotate_pos", servo_intake_rotate.getPosition());
-        telemetry.addData("up pos", up.getCurrentPosition());
+        telemetry.addData("up1 pos", up1.getCurrentPosition());
+        telemetry.addData("up2 pos", up2.getCurrentPosition());
         telemetry.addData("out_zero", out_zero.isPressed());
         telemetry.addData("gamepad1.touchpad", gamepad1.touchpad);
         telemetry.addData("gamepad1.touchpad_finger_1", gamepad1.touchpad_finger_1);
@@ -242,39 +245,54 @@ public class opmode_MAIN extends OpMode {
 
 
     public void viper_slide() {
-        if (gamepad2.right_stick_y < -0.3 && (up.getCurrentPosition() < arm_upper_lim)) { //left stick -, is going up! (I think it's inverted)
+        if (gamepad2.right_stick_y < -0.3 && ((up1.getCurrentPosition() < arm_upper_lim) || (up2.getCurrentPosition() < arm_upper_lim))) { //left stick -, is going up! (I think it's inverted)
             //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
-            up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            up.setVelocity(gamepad2.right_stick_y * -1300); // When left stick goes up?
+            up1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            up1.setVelocity(gamepad2.right_stick_y * -1300); // When left stick goes up?
+            up2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            up2.setVelocity(gamepad2.right_stick_y * -1300); // When left stick goes up?
             telemetry.addLine("trying to go up ma'am");
             up_true_target_pos = 0;
-        } else if (gamepad2.right_stick_y < -0.3 && (up.getCurrentPosition() >= arm_upper_lim)) {
-            up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        } else if (gamepad2.right_stick_y < -0.3 && ((up1.getCurrentPosition() >= arm_upper_lim) || up2.getCurrentPosition() >= arm_upper_lim)) {
+            up1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            up2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             telemetry.addData("upper limit reached", true);
         } else if (!up_zero.isPressed() && gamepad2.right_stick_y > 0.3) { //left stick +, going down
-            up.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Left stick goes down
-            up.setVelocity(gamepad2.right_stick_y * -1300);
+            up1.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Left stick goes down
+            up1.setVelocity(gamepad2.right_stick_y * -1300);
+            up2.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Left stick goes down
+            up2.setVelocity(gamepad2.right_stick_y * -1300);
             telemetry.addLine("trying to go down ma'am");
 
             up_true_target_pos = 0;
         } else if (up_zero.isPressed() && gamepad2.right_stick_y > 0.3) { // Lower limit for up
             telemetry.addData("Lower Limit Reached", up_zero);
-            up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            up1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            up2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } else {
-            up.setPower(1);
+            up1.setPower(1);
+            up2.setPower(1);
             //use position mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
             if (up_true_target_pos == 0) {
-                up.setTargetPosition(up.getCurrentPosition());
-                up_true_target_pos = up.getCurrentPosition();
+                up1.setTargetPosition(up1.getCurrentPosition());
+                up2.setTargetPosition(up2.getCurrentPosition());
+                up_true_target_pos = up1.getCurrentPosition();
             }
-            up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
         //make sure the upper and lower limits are actually at the upper and lower limits
-        if (up.getCurrentPosition() < 0) {
-            up.setTargetPosition(0);
-        } else if (up.getCurrentPosition() > arm_upper_lim) {
-            up.setTargetPosition(arm_upper_lim);
+        if (up1.getCurrentPosition() < 0) {
+            up1.setTargetPosition(0);
+        } else if (up1.getCurrentPosition() > arm_upper_lim) {
+            up1.setTargetPosition(arm_upper_lim);
+        }
+
+        if (up2.getCurrentPosition() < 0) {
+            up2.setTargetPosition(0);
+        } else if (up2.getCurrentPosition() > arm_upper_lim) {
+            up2.setTargetPosition(arm_upper_lim);
         }
     }
 
@@ -354,25 +372,26 @@ public class opmode_MAIN extends OpMode {
 
         // manual outtake wrist location
         if (gamepad2.y) {
-            servo_outtake_wrist_location += 0.03;
+            servo_outtake_flip_location += 0.03;
         }
         if (gamepad2.a) {
-            servo_outtake_wrist_location -= 0.03;
+            servo_outtake_flip_location -= 0.03;
         }
 
         //reset outtake wrist location in case value is above or below 1 or 0
-        if (servo_outtake_wrist_location > 1) {
-            servo_outtake_wrist_location = 1;
-        } else if (servo_outtake_wrist_location < 0) {
-            servo_outtake_wrist_location = 0;
+        if (servo_outtake_flip_location > 1) {
+            servo_outtake_flip_location = 1;
+        } else if (servo_outtake_flip_location < 0) {
+            servo_outtake_flip_location = 0;
         }
 
-        servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
+        servo_outtake_flip1.setPosition(servo_outtake_flip_location);
+        servo_outtake_flip2.setPosition(servo_outtake_flip_location);
     }
     public void macros() {
         //Encoder Transfer Method
         /*if (gamepad2.touchpad_finger_1 && !gamepad2.touchpad_finger_2) { //transfer pos
-            servo_outtake_wrist_location = outtake_wrist_pos_transfer;
+            servo_outtake_flip_location = outtake_wrist_pos_transfer;
             servo_intak
             e_wrist_location = intake_wrist_pos_transfer;
             servo_intake_rotate_location = 0.5;
@@ -391,10 +410,13 @@ public class opmode_MAIN extends OpMode {
             servo_intake.setPower(1);
         }*/
         if (gamepad2.x) { //goto hanging position
-            up.setTargetPosition(up_specimen_hang);
-            up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up.setPower(1);
-            servo_outtake_wrist_location = 0.56;
+            up1.setTargetPosition(up_specimen_hang);
+            up2.setTargetPosition(up_specimen_hang);
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up1.setPower(1);
+            up2.setPower(1);
+            servo_outtake_flip_location = 0.56;
         }
 
         if (gamepad2.options) { //reset intake rotate
@@ -403,14 +425,19 @@ public class opmode_MAIN extends OpMode {
             servo_intake_wrist_location = 0.7;
             servo_intake_wrist.setPosition(servo_intake_wrist_location);
         }
-        if(gamepad2.share) { //viper slide up to avoid touching!
-            up.setTargetPosition(400);
-            up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up.setPower(1);
-            servo_outtake_wrist_location = 0.50;
+        //shouldnt need this with new vertical slide
+        /*if(gamepad2.share) { //viper slide up to avoid touching!
+            up1.setTargetPosition(400);
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up1.setPower(1);
+            up2.setTargetPosition(400);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setPower(1);
+            servo_outtake_flip_location = 0.50;
             servo_intake_wrist_location = 0.2;
             servo_intake_rotate_location = 0.5;
-        }
+        }*/
+
         if (gamepad2.circle) { //reset intake wrist and rotate
             servo_intake_wrist_location = 0.4;
             servo_intake_rotate_location = 0.47;
