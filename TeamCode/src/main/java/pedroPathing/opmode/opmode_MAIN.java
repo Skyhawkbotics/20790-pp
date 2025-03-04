@@ -49,8 +49,8 @@ public class opmode_MAIN extends OpMode {
     private DcMotorEx rightRear;
 
     //define these up here instead of in the init section like rr, idk why but it seems to work fine.
-    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper;
-    private CRServo servo_intake, servo_outtake;
+    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake;
+    private CRServo servo_outtake;
     private DcMotorEx up1, up2, out;
     private TouchSensor up_zero, out_zero;
     //from rr version of opmode_MAIN
