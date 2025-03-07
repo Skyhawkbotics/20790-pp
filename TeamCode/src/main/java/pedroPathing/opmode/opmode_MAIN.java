@@ -100,21 +100,6 @@ public class opmode_MAIN extends OpMode {
     @Override
     public void start() {
         //PATHING
-        Pose pickupPoseBack = new Pose(15, 40, Math.toRadians(180)); // TODO: This value too!
-        Pose hangPose = new Pose(36.5, 67.0, Math.toRadians(0)); // TODO
-    park = follower.pathBuilder()
-            .addPath(
-                    new BezierLine(
-                            new Point(hangPose),
-                            new Point(pickupPoseBack)
-                            )
-
-
-                    )
-                    .setConstantHeadingInterpolation(0)
-                    .build();
-
-
     }
     @Override
     public void init() {
