@@ -30,15 +30,6 @@ import com.pedropathing.pathgen.*;
 
 
 
-/**
- * This is the TeleOpEnhancements OpMode. It is an example usage of the TeleOp enhancements that
- * Pedro Pathing is capable of.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/21/2024
- *///sadfasdfilkajslkdfjaslk
 @TeleOp(name = "opmode_MAIN", group = "MAIN")
 public class opmode_MAIN extends OpMode {
     private Follower follower;
@@ -232,7 +223,7 @@ public class opmode_MAIN extends OpMode {
     public void viper_slide() {
         if (gamepad2.right_stick_y < -0.3 && ((up1.getCurrentPosition() < arm_upper_lim) || (up2.getCurrentPosition() < arm_upper_lim))) { //left stick -, is going up! (I think it's inverted)
             //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
-            up1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up1.setVelocity(gamepad2.right_stick_y * -1300); // When left stick goes up?
             up2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             up2.setVelocity(gamepad2.right_stick_y * -1300); // When left stick goes up?
