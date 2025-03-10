@@ -30,7 +30,7 @@ import com.pedropathing.pathgen.*;
 
 
 
-@TeleOp(name = "opmode_MAIN", group = "MAIN")
+@TeleOp(name = "old", group = "MAIN")
 public class opmode_MAIN extends OpMode {
     private Follower follower;
 
