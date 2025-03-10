@@ -34,8 +34,7 @@ public class opmode_MAIN_Concept_testing extends OpMode {
     private DcMotorEx rightRear;
 
 
-    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake;
-    private CRServo servo_outtake;
+    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
     private DcMotorEx up1, up2, out;
     private TouchSensor up_zero, out_zero;
     //from rr version of opmode_MAIN
@@ -111,12 +110,12 @@ public class opmode_MAIN_Concept_testing extends OpMode {
         servo_intake_rotate = hardwareMap.get(Servo.class, "intakeRotate");
         servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
 
-        servo_intake = hardwareMap.get(Servo.class, "outtake");
-        servo_intake_rotate = hardwareMap.get(Servo.class, "outtaker");
 
         servo_outtake_flip1 = hardwareMap.get(Servo.class, "ofip1");
         servo_outtake_flip2 = hardwareMap.get(Servo.class, "ofip2");
 
+        servo_outtake = hardwareMap.get(Servo.class, "outtake");
+        servo_outtake_rotate = hardwareMap.get(Servo.class, "outtaker");
 
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
 
@@ -135,29 +134,14 @@ public class opmode_MAIN_Concept_testing extends OpMode {
 
         //TESTING PATH THING VERSION
 
-        //change drive speed for more accuracy if needed
-        if (gamepad1.left_bumper) {
-            driving_multiplier = driving_multiplier_slow;
-        } else {
-            driving_multiplier = driving_multiplier_fast;
-        }
-
-        //BUMPERS STRAFE
-        if (gamepad1.left_bumper) {
-            follower.setTeleOpMovementVectors(0, 1, 0); //TODO: SWITCH IF NECESARRY
-        } else if (gamepad1.right_bumper) {
-            follower.setTeleOpMovementVectors(0, -1, 0); //TODO: SWITCH IF NECESARRY
-        } else {
-            follower.setTeleOpMovementVectors(0, 0, 0);
-
-        }
+        //TESTING PATH THING VERSION
+        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * 0.5, -gamepad1.left_stick_x * 0.5, -gamepad1.right_stick_x * 0.5);
+        follower.update();
 
 
         viper_slide();
         intake_claw();
-        //flipper();
-
-        //telemetry
+        outtake_claw();
         telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
         telemetry.addData("gamepad2.rightsticky", gamepad2.right_stick_y);
         telemetry.addData("up1 pos", up1.getCurrentPosition());
@@ -212,51 +196,49 @@ public class opmode_MAIN_Concept_testing extends OpMode {
                 goingdown = false;
             }
         }
-        servo_outtake_flip2.setPosition(-1);
-        servo_outtake_flip1.setPosition(0);
+
+
     }
     public void outtake_claw() {
-        //Continuous servo outtake control
-        if (gamepad2.left_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //NO LONGER NEEDED: find a better solution for this limits so we can actually use them
-            servo_outtake.setPower(1);
-        } else if (gamepad2.left_bumper) { //NO LONGER NEEDED: these limits too.
-            servo_outtake.setPower(-1);
-        } else {
-            servo_outtake.setPower(0);
-        }
-
         // manual outtake wrist location
-        if (gamepad2.y) {
-            servo_outtake_flip_location += 0.03;
+        if (gamepad2.dpad_down) {
+            servo_outtake_flip2.setPosition(1);
+            servo_outtake_flip1.setPosition(0);
+            servo_outtake_rotate.setPosition(0);
         }
-        if (gamepad2.a) {
-            servo_outtake_flip_location -= 0.03;
+        if (gamepad2.dpad_up) {
+            servo_outtake_flip2.setPosition(0);
+            servo_outtake_flip1.setPosition(1);
+            servo_outtake_rotate.setPosition(1);
         }
+        if (gamepad2.right_bumper) {
+            servo_outtake.setPosition(servo_intake_open);
+        }
+        if (gamepad2.right_trigger > 0.3)
+                servo_outtake.setPosition(servo_intake_closed);
 
-        //reset outtake wrist location in case value is above or below 1 or 0
-        if (servo_outtake_flip_location > 1) {
-            servo_outtake_flip_location = 1;
-        } else if (servo_outtake_flip_location < 0) {
-            servo_outtake_flip_location = 0;
-        }
 
-        servo_outtake_flip1.setPosition(servo_outtake_flip_location);
-        servo_outtake_flip2.setPosition(servo_outtake_flip_location);
+
+
     }
+
     public void intake_claw() {
         //servo intake control
-        if (gamepad2.right_bumper) {
-            if (servo_intake.getPosition() == servo_intake_closed) {
-                servo_intake.setPosition(servo_intake_open);
-            } else if (servo_intake.getPosition() == servo_intake_open)
-                servo_intake.setPosition(servo_intake_open);
+        if (gamepad2.left_trigger > 0.3) {
+           servo_intake.setPosition(0.25);
+        }
+        if(gamepad2.left_bumper) {
+            servo_intake.setPosition(0.9);
+
         }
 
+
+
         // manual intake rotate location
-        if (gamepad2.left_stick_x > 0.1) {
+        if (gamepad2.right_stick_x > 0.1) {
             servo_intake_rotate_location -= 0.015;
         }
-        if (gamepad2.left_stick_x < -0.1) {
+        if (gamepad2.right_stick_x < -0.1) {
             servo_intake_rotate_location += 0.015;
         }
 
