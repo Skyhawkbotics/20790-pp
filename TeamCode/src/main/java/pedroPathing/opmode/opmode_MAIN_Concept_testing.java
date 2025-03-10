@@ -42,7 +42,7 @@ public class opmode_MAIN_Concept_testing extends OpMode {
     int up_true_target_pos;
     int out_true_target_pos;
     double servo_outtake_flip_location = 0;
-    double servo_intake_wrist_location = 0.5;
+    double servo_intake_wrist_location = 0.7;
 
     boolean goingdown = false;
     double servo_intake_rotate_location = 0.47;
@@ -92,6 +92,9 @@ public class opmode_MAIN_Concept_testing extends OpMode {
 
         follower.startTeleopDrive();
 
+        out = hardwareMap.get(DcMotorEx.class, "out");
+        out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //from rr version
 
@@ -140,6 +143,7 @@ public class opmode_MAIN_Concept_testing extends OpMode {
 
 
         viper_slide();
+        misumi_slide();
         intake_claw();
         outtake_claw();
         telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
@@ -207,18 +211,42 @@ public class opmode_MAIN_Concept_testing extends OpMode {
             servo_outtake_rotate.setPosition(0);
         }
         if (gamepad2.dpad_up) {
-            servo_outtake_flip2.setPosition(0);
-            servo_outtake_flip1.setPosition(1);
-            servo_outtake_rotate.setPosition(1);
+            servo_outtake_flip2.setPosition(0.6);
+            servo_outtake_flip1.setPosition(0.4);
+            servo_outtake_rotate.setPosition(0.9);
+        }
+        if (gamepad2.share) {
+            servo_outtake_flip2.setPosition(0.5);
+            servo_outtake_flip1.setPosition(0.5);
+            servo_outtake_rotate.setPosition(0.9);
         }
         if (gamepad2.right_bumper) {
             servo_outtake.setPosition(servo_intake_open);
         }
         if (gamepad2.right_trigger > 0.3)
-                servo_outtake.setPosition(servo_intake_closed);
+                servo_outtake.setPosition(0.15);
 
 
 
+
+    }
+    public void misumi_slide() {
+        // Misumi Slide
+        if (gamepad2.dpad_right) { //in
+            //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
+            out.setPower(0.4);
+            out_true_target_pos = 0;
+        } else if (gamepad2.dpad_left) { //out
+            out.setPower(-0.4);
+        /*} else if (gamepad2.dpad_right) {
+            out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            telemetry.addData("reset out", true);
+
+         */
+        } else {
+            out.setPower(0);
+            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
 
     }
 
