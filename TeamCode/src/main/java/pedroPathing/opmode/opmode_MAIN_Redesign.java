@@ -251,17 +251,17 @@ public class opmode_MAIN_Redesign extends OpMode {
     }
     public void outtake_claw() {
         // manual outtake flip location //TODO: switch if needed
-        if (gamepad2.triangle) {
+        if (gamepad2.triangle) { //arm ready hang pos
             servo_outtake_flip2.setPosition(1);
             servo_outtake_flip1.setPosition(0);
             servo_outtake_rotate.setPosition(0.1);
         }
-        if (gamepad2.cross) {
+        if (gamepad2.cross) { //arm down
             servo_outtake_flip2.setPosition(0.60);
             servo_outtake_flip1.setPosition(0.4);
             servo_outtake_rotate.setPosition(0.9);
         }
-        if (gamepad2.options) { //TODO: whats this for
+        if (gamepad2.options) { //arm hang pos (pull down)
             servo_outtake_flip2.setPosition(0.5);
             servo_outtake_flip1.setPosition(0.5);
             servo_outtake_rotate.setPosition(0.9);
