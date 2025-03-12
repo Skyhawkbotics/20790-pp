@@ -261,7 +261,7 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_outtake_flip1.setPosition(0.4);
             servo_outtake_rotate.setPosition(0.9);
         }
-        if (gamepad2.share) { //TODO: whats this for
+        if (gamepad2.options) { //TODO: whats this for
             servo_outtake_flip2.setPosition(0.5);
             servo_outtake_flip1.setPosition(0.5);
             servo_outtake_rotate.setPosition(0.9);
@@ -302,6 +302,10 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_outtake.setPosition(servo_intake_open);
         }
 
+        //intake rotate reset
+        if (gamepad2.share) {
+            servo_intake_rotate_location = 0.5; //TODO: tune if needed
+        }
         // manual intake rotate location
         if (gamepad2.left_stick_x > 0.1) {
             servo_intake_rotate_location -= 0.015;
