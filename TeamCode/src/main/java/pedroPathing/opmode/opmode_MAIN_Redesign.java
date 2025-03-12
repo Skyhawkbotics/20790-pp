@@ -25,7 +25,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @TeleOp(name = "opmode MAIN ", group = "MAIN")
-public class opmode_MAIN_Concept_testing extends OpMode {
+public class opmode_MAIN_Redesign extends OpMode {
     private Follower follower;
 
     private DcMotorEx leftFront;

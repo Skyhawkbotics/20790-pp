@@ -31,7 +31,7 @@ import com.pedropathing.pathgen.*;
 
 
 @TeleOp(name = "old", group = "MAIN")
-public class opmode_MAIN extends OpMode {
+public class old_opmode extends OpMode {
     private Follower follower;
 
     private DcMotorEx leftFront;
