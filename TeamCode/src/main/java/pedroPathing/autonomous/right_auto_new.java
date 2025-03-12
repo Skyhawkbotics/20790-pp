@@ -47,54 +47,188 @@ public class right_auto_new extends OpMode {
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
 
-
-    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
+    /// All motors / servos / sensors
+    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, servo_intake, servo_outtake, servo_outtake_rotate;
     private DcMotorEx up1, up2, out;
     private TouchSensor up_zero, out_zero;
 
-
-    boolean outisclosed = false;
-
-    boolean inisclosed = false;
     // Timers
     private Timer opmodeTimer;
-    private NanoTimer pathTimer; // Timers for progression of states, in nano seconds
-
-    // Important Pose parts
-    double pickup_x = 0.6; // Distance from the claw to the sample
+    private NanoTimer pathTimer;
+    double pickup_x = 0.6;
     double turn_distance_x = 20; // Distance to start pickup
     double pickups_y = 41.00; // Observation Zone pickup distance
     private int pathState, armState, outclawState, outgrabState; // Different cases and states of the different parts of the robot
 
     // Poses, and pickUp Poses
-    private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
-    private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); // turn spot so make sure it would be safe
+    private Pose startPose = new Pose(10.000, 55.000, Point.CARTESIAN); //TODO
+    private Pose curve2pushPose = new Pose(64.875, 27.157, Point.CARTESIAN); // turn spot so make sure it would be safe
     private Pose pickupPose = new Pose(pickup_x, pickups_y, Math.toRadians(180));
-    private Pose pickupPose1 = new Pose(pickup_x,18,Math.toRadians(180)); // first pickup poses
+    private Pose pickupPose1 = new Pose(7.208, 7.041, Point.CARTESIAN); // first pickup poses
 
     /// hang poses
-    private Pose hangPose = new Pose(35, 74, Math.toRadians(0)); // Hits it pretty hard, but its fine
-    private Pose firsthangPose = new Pose(36.1,71,0); // Quick hang, then back
+    private Pose inithangPose = new Pose(36.000, 55.000, Point.CARTESIAN); // Hits it pretty hard, but its fine
+    private Pose firsthangPose = new Pose(38.000, 77.000, Point.CARTESIAN);
     private Pose secondhangPose = new Pose(36.1,65,0); // Should be quick hang, but idk they all mess up around here but somehow everything just works fine
     private Pose thirdhangPose = new Pose(36.3, 72,0); // Last hang
 
     /// push poses  for case transitions
-    private Pose pushstart = new  Pose(59,30,Math.toRadians(180)); // Bezier curve end behind second sample point
-    private Pose firstpushPose = new Pose(20,30, Math.toRadians(0)); // ^^ only x matters, keep y same
+    private Pose push1 = new  Pose(27.660, 23.134, Point.CARTESIAN); // Bezier curve end behind second sample point
+    private Pose push2 = new Pose(43.418, 15.925, Point.CARTESIAN); // ^^ only x matters, keep y same
     private Pose pushstart2 = new Pose(59,18,Math.toRadians(180));  // same
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
-    private Path hang_First, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, park;
-    private PathChain pushFirst, pushSecond;
+    private Path init_hang, curve2push, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back;
+    private Path pickup;
+    private PathChain pushall, pushSecond;
 
     // Motors
     private Telemetry telemetryA;
 
-    // variables
-    int up_hanging_position = 1778; //DONE: calibrate this value, viper slide position to
-    int up_hanging_position_done = 1559; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
+    boolean outisclosed = false;
 
+    boolean inisclosed = false;
     public void buildPaths() {
+        init_hang = new Path(
+                // Line 1
+                new BezierLine(
+                        new Point(startPose),
+                        new Point(inithangPose)
+                )
+        );
+        init_hang.setConstantHeadingInterpolation(Math.toRadians(0));
+        curve2push = new Path(
+                        // Line 2
+                        new BezierCurve(
+                                new Point(inithangPose),
+                                new Point(30.845, 31.348, Point.CARTESIAN),
+                                new Point(curve2pushPose)
+                        )
+                );
+        curve2push.setConstantHeadingInterpolation(Math.toRadians(0));
+        pushall = follower.pathBuilder()
+                .addPath(
+                        // Line 3
+                        new BezierCurve(
+                                new Point(curve2pushPose),
+                                new Point(1.844, 30.007, Point.CARTESIAN),
+                                new Point(push1)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        /// behind second sample and pushing it
+                        new BezierCurve(
+                                new Point(push1),
+                                new Point(82.142, 23.302, Point.CARTESIAN),
+                                new Point(push2)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        /// pushes second sample in and moves towards behind third
+                        new BezierCurve(
+                                new Point(push2),
+                                new Point(1.341, 14.752, Point.CARTESIAN),
+                                new Point(32.354, 12.908, Point.CARTESIAN)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        /// gets behind third and pushes it
+                        new BezierCurve(
+                                new Point(32.354, 12.908, Point.CARTESIAN),
+                                new Point(92.871, 11.232, Point.CARTESIAN),
+                                new Point(35.707, 6.705, Point.CARTESIAN)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath( /// Finishes the push and goes to pickup pose
+                        // Line 7
+                        new BezierLine(
+                                new Point(35.707, 6.705, Point.CARTESIAN),
+                                new Point(pickupPose1)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .build();
+
+                /// First hang
+                first_hang = new Path(
+                        // Line 1
+                        new BezierLine(
+                                new Point(pickupPose1),
+                                new Point(firsthangPose)
+                        )
+                );
+                first_hang.setConstantHeadingInterpolation(Math.toRadians(0));
+                first_hang_back = new Path(
+                        // Line 2
+                        new BezierLine(
+                                new Point(38.000, 77.000, Point.CARTESIAN),
+                                new Point(10.000, 36.000, Point.CARTESIAN)
+                        )
+                );
+                first_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
+                pickup = new Path(
+                        // Line 3
+                        new BezierLine(
+                                new Point(10.000, 36.000, Point.CARTESIAN),
+                                new Point(8.000, 36.000, Point.CARTESIAN)
+                        )
+                );
+                pickup.setConstantHeadingInterpolation(Math.toRadians(0));
+                second_hang = new Path(
+                        // Line 4
+                        new BezierLine(
+                                new Point(8.000, 36.000, Point.CARTESIAN),
+                                new Point(38.000, 75.000, Point.CARTESIAN)
+                        )
+                );
+                second_hang.setConstantHeadingInterpolation(Math.toRadians(0));
+                second_hang_back = new Path(
+                        // Line 5
+                        new BezierLine(
+                                new Point(38.000, 75.000, Point.CARTESIAN),
+                                new Point(10.000, 36.000, Point.CARTESIAN)
+                        )
+                );
+                second_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
+                /// Run pickup
+                third_hang = new Path(
+                        // Line 7
+                        new BezierLine(
+                                new Point(8.000, 36.000, Point.CARTESIAN),
+                                new Point(38.000, 73.000, Point.CARTESIAN)
+                        )
+                );
+                third_hang.setConstantHeadingInterpolation(Math.toRadians(0));
+                third_hang_back = new Path(
+                        // Line 8
+                        new BezierLine(
+                                new Point(38.000, 73.000, Point.CARTESIAN),
+                                new Point(10.000, 36.000, Point.CARTESIAN)
+                        )
+                );
+                third_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
+                /// Run pickup
+
+                fourth_hang = new Path(
+                        // Line 10
+                        new BezierLine(
+                                new Point(8.000, 36.000, Point.CARTESIAN),
+                                new Point(38.000, 71.000, Point.CARTESIAN)
+                        )
+                );
+                fourth_hang.setConstantHeadingInterpolation(Math.toRadians(0));
+                fourth_hang_back = new Path(
+                        // Line 11
+                        new BezierLine(
+                                new Point(38.000, 71.000, Point.CARTESIAN),
+                                new Point(12.740, 18.943, Point.CARTESIAN)
+                        )
+                );
+                fourth_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
     }
 
     public void autonomousPathUpdate() {
