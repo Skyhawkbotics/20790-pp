@@ -250,18 +250,18 @@ public class opmode_MAIN_Redesign extends OpMode {
         }
     }
     public void outtake_claw() {
-        // manual outtake wrist location
-        if (gamepad2.dpad_down) {
+        // manual outtake flip location //TODO: switch if needed
+        if (gamepad2.triangle) {
             servo_outtake_flip2.setPosition(1);
             servo_outtake_flip1.setPosition(0);
             servo_outtake_rotate.setPosition(0.1);
         }
-        if (gamepad2.dpad_up) {
+        if (gamepad2.cross) {
             servo_outtake_flip2.setPosition(0.60);
             servo_outtake_flip1.setPosition(0.4);
             servo_outtake_rotate.setPosition(0.9);
         }
-        if (gamepad2.share) {
+        if (gamepad2.share) { //TODO: whats this for
             servo_outtake_flip2.setPosition(0.5);
             servo_outtake_flip1.setPosition(0.5);
             servo_outtake_rotate.setPosition(0.9);
@@ -279,7 +279,7 @@ public class opmode_MAIN_Redesign extends OpMode {
     }
     public void intake_claw() {
         //servo intake control
-        if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
+        if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
             inisclosed = !inisclosed;
 
         }
@@ -289,6 +289,19 @@ public class opmode_MAIN_Redesign extends OpMode {
         if(!inisclosed) {
             servo_intake.setPosition(servo_intake_open);
         }
+
+        //servo outtake control
+        if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
+            outisclosed = !outisclosed;
+
+        }
+        if(outisclosed) {
+            servo_outtake.setPosition(0.5);
+        }
+        if(!outisclosed) {
+            servo_outtake.setPosition(servo_intake_open);
+        }
+
         // manual intake rotate location
         if (gamepad2.left_stick_x > 0.1) {
             servo_intake_rotate_location -= 0.015;
@@ -305,24 +318,13 @@ public class opmode_MAIN_Redesign extends OpMode {
 
         servo_intake_rotate.setPosition(servo_intake_rotate_location);
 
-
-       // manual intake wrist location
-        if (gamepad2.cross) { // down pos
-            servo_intake_wrist.setPosition(0.6);
-        }
-        if (gamepad2.triangle) { // ready pos
-            servo_intake_wrist.setPosition(0.45);
-        }
-        if(gamepad2.options) {
-            servo_intake_wrist.setPosition(0);
-
-        }
-       /* if (gamepad2.circle) {
+        //intake wrist control
+       if (gamepad2.dpad_up) {
             servo_intake_wrist_location += 0.05;
         }
-        if (gamepad2.square) {
-            servo_intake_wrist_location -= 0.05;
-        }
+       if (gamepad2.dpad_down) {
+           servo_intake_wrist_location -= 0.05;
+       }
 
         // limits
         if (servo_intake_wrist_location > 1) {
@@ -332,7 +334,5 @@ public class opmode_MAIN_Redesign extends OpMode {
         }
 
         servo_intake_wrist.setPosition(servo_intake_wrist_location);
-
-        */
     }
 }
