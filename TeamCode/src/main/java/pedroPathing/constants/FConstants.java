@@ -22,13 +22,13 @@ public class FConstants {
 
 
 
-        FollowerConstants.mass = 6.8; //
+        FollowerConstants.mass = 11.6; //
 
-        FollowerConstants.xMovement = 85.15898644122602; //
-        FollowerConstants.yMovement = 64.30589719874934; //
+        FollowerConstants.xMovement = 89.60436715720597; //
+        FollowerConstants.yMovement = 73.62300910252853; //
 
-        FollowerConstants.forwardZeroPowerAcceleration = -22.250407226979885; //
-        FollowerConstants.lateralZeroPowerAcceleration = -70.00183900955383; //
+        FollowerConstants.forwardZeroPowerAcceleration = -31.019890435797123; //
+        FollowerConstants.lateralZeroPowerAcceleration = -70.288841567035; //
 
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(
                 0.2,
