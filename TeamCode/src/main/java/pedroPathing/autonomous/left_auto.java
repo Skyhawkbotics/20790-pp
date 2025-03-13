@@ -53,8 +53,8 @@ public class left_auto extends OpMode {
     private Pose bucketPose = new Pose(15, 129, Math.toRadians(135)); //TODO
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
-    //private Path ; //TODO: Trevor
-    //private PathChain ;//TODO: Trevor as well
+    private Path preload, pickup1, basket1, pickup2, basket2, pickup3, basket3, park;
+    //private PathChain ;//TODO: Trevor, idt we have any path chains, right?
 
     /// Motors
     private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
@@ -66,7 +66,7 @@ public class left_auto extends OpMode {
     /// variables
     int up_basket_position = 0; //TODO: calibrate this value, slide position to
 
-    /*
+
 
     public void buildPaths() { //TODO: Trevor needs to change these paths
         // preload
@@ -85,14 +85,14 @@ public class left_auto extends OpMode {
                 )
         );
         pickup1.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
-        hang1 = new Path(
+        basket1 = new Path(
                 // Line 3
                 new BezierLine(
                         new Point(20.000, 122.000, Point.CARTESIAN),
                         new Point(bucketPose)
                 )
         );
-        hang1.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
+        basket1.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
         pickup2 = new Path(
                 // Line 4
                 new BezierLine(
@@ -101,14 +101,14 @@ public class left_auto extends OpMode {
                 )
         );
         pickup2.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
-        hang2 = new Path(
+        basket2 = new Path(
                 // Line 5
                 new BezierLine(
                         new Point(26.000, 131.500, Point.CARTESIAN),
                         new Point(bucketPose)
                 )
         );
-        hang2.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
+        basket2.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
         pickup3 = new Path(
                 // Line 6
                 new BezierLine(
@@ -117,14 +117,14 @@ public class left_auto extends OpMode {
                 )
         );
         pickup3.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(35));
-        hang3 = new Path(
+        basket3 = new Path(
                 // Line 7
                 new BezierLine(
                         new Point(28.000, 131.300, Point.CARTESIAN),
                         new Point(bucketPose)
                 )
         );
-        hang3.setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(135));
+        basket3.setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(135));
         park = new Path(
                 // Line 8
                 new BezierCurve(
@@ -136,7 +136,7 @@ public class left_auto extends OpMode {
         park.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(270));
 
     }
-    */
+
 
     public void autonomousPathUpdate() {
         switch (pathState) {
@@ -211,7 +211,7 @@ public class left_auto extends OpMode {
         up2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         out = hardwareMap.get(DcMotorEx.class, "out");
-        int charles = out.getCurrentPosition();
+        int charles = out.getCurrentPosition(); //TODO: I need documentation for this please!
         out.setTargetPosition(charles);
         out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         out.setPower(1);
