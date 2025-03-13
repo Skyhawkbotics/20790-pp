@@ -30,7 +30,7 @@ import pedroPathing.constants.LConstants;
 
 
 @Config
-@Autonomous(name = "RIGHT AUTO", group = "AUTO")
+@Autonomous(name = "LEFT AUTO", group = "AUTO")
 
 public class left_auto extends OpMode {
 
@@ -53,22 +53,23 @@ public class left_auto extends OpMode {
     private Pose bucketPose = new Pose(15, 129, Math.toRadians(135)); //TODO
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
-    private Path ; //TODO: Trevor
-    private PathChain ;//TODO: Trevor as well
+    //private Path ; //TODO: Trevor
+    //private PathChain ;//TODO: Trevor as well
 
     /// Motors
     private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
     private DcMotorEx up1, up2, out;
     private TouchSensor up_zero, out_zero;
-    private TouchSensor up_zero;
+    //private TouchSensor up_zero;
     private Telemetry telemetryA;
 
     /// variables
-    int up_basket_position = ; //TODO: calibrate this value, slide position to
+    int up_basket_position = 0; //TODO: calibrate this value, slide position to
 
+    /*
 
     public void buildPaths() { //TODO: Trevor needs to change these paths
-                // preload
+        // preload
         preload = new Path(
                 new BezierLine(
                         new Point(startPose),
@@ -76,135 +77,73 @@ public class left_auto extends OpMode {
                 )
         );
         preload.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
-                pickup1 = new Path(
-                        // Line 2
-                        new BezierLine(
-                                new Point(bucketPose),
-                                new Point(20.000, 122.000, Point.CARTESIAN)
-                        )
-                );
-                pickup1.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
-        hang1 = new Path (
-                        // Line 3
-                        new BezierLine(
-                                new Point(20.000, 122.000, Point.CARTESIAN),
-                                new Point(bucketPose)
-                        )
-                );
-                hang1.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
-        pickup2 = new Path (
-                        // Line 4
-                        new BezierLine(
-                                new Point(bucketPose),
-                                new Point(26.000, 131.500, Point.CARTESIAN)
-                        )
-                );
-                pickup2.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
-        hang2 = new Path (
-                        // Line 5
-                        new BezierLine(
-                                new Point(26.000, 131.500, Point.CARTESIAN),
-                                new Point(bucketPose)
-                        )
-                );
+        pickup1 = new Path(
+                // Line 2
+                new BezierLine(
+                        new Point(bucketPose),
+                        new Point(20.000, 122.000, Point.CARTESIAN)
+                )
+        );
+        pickup1.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
+        hang1 = new Path(
+                // Line 3
+                new BezierLine(
+                        new Point(20.000, 122.000, Point.CARTESIAN),
+                        new Point(bucketPose)
+                )
+        );
+        hang1.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
+        pickup2 = new Path(
+                // Line 4
+                new BezierLine(
+                        new Point(bucketPose),
+                        new Point(26.000, 131.500, Point.CARTESIAN)
+                )
+        );
+        pickup2.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
+        hang2 = new Path(
+                // Line 5
+                new BezierLine(
+                        new Point(26.000, 131.500, Point.CARTESIAN),
+                        new Point(bucketPose)
+                )
+        );
         hang2.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
         pickup3 = new Path(
-                        // Line 6
-                        new BezierLine(
-                                new Point(bucketPose),
-                                new Point(28.000, 131.300, Point.CARTESIAN)
-                        )
-                );
+                // Line 6
+                new BezierLine(
+                        new Point(bucketPose),
+                        new Point(28.000, 131.300, Point.CARTESIAN)
+                )
+        );
         pickup3.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(35));
-        hang3 = new Path (
-                        // Line 7
-                        new BezierLine(
-                                new Point(28.000, 131.300, Point.CARTESIAN),
-                                new Point(bucketPose)
-                        )
-                );
+        hang3 = new Path(
+                // Line 7
+                new BezierLine(
+                        new Point(28.000, 131.300, Point.CARTESIAN),
+                        new Point(bucketPose)
+                )
+        );
         hang3.setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(135));
         park = new Path(
-                        // Line 8
-                        new BezierCurve(
-                                new Point(bucketPose),
-                                new Point(58.400, 131.000, Point.CARTESIAN),
-                                new Point(59.000, 95.300, Point.CARTESIAN)
-                        )
-                );
-                park.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(270));
+                // Line 8
+                new BezierCurve(
+                        new Point(bucketPose),
+                        new Point(58.400, 131.000, Point.CARTESIAN),
+                        new Point(59.000, 95.300, Point.CARTESIAN)
+                )
+        );
+        park.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(270));
+
     }
+    */
 
     public void autonomousPathUpdate() {
         switch (pathState) {
 
         }
     }
-    /*public void autonomousActionUpdate() {
-            switch (armState) {
-                case -1: // default stop
-                    up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    break;
-                case 0: //going to bottom position, then closing the loop
-                    up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    telemetry.addData("Lowered position", true);
-                    if (!up_zero.isPressed()) {
-                        up.setPower(-1);
-                    } else if (up_zero.isPressed()) {
-                        setArmState(-1);
-                    }
-                    break;
-                case 1: //going to hanging position, using run to position
-                    up.setTargetPosition(up_hanging_position);
-                    up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    up.setPower(1);
-                    if(up.getCurrentPosition() > 400) {
-                        setoutClawState(1);
-                    }
-                    break;
-                case 3:
-                    up.setTargetPosition(up_hanging_position_done);
-                    up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    up.setPower(0.6);
-                    break;
 
-            }
-        switch (outclawState) {
-            case -1: // Init Pos
-                servo_outtake_wrist.setPosition(0);
-                telemetry.addData("claw position 1 ", true);
-                break;
-            case 1: // Hang ready Pos
-                servo_outtake_wrist.setPosition(0.58);
-                telemetry.addData("claw position 2", true);
-                break;
-            case 2: // Hang done Pos
-                servo_outtake_wrist.setPosition(0.27);
-                break;
-            case 3: // PickUp Pos
-                servo_outtake_wrist.setPosition(0.55);
-                break;
-
-        }
-        switch (outgrabState) {
-            case -1: // Init Pos
-                servo_outtake.setPower(0);
-                break;
-            case 1: //release
-                servo_outtake.setPower(1);
-                break;
-            case 2: //grab
-                servo_outtake.setPower(-1);
-                break;
-            case 4:
-                if(servo_outtake_wrist.getPosition() <= 0.3) {
-                    servo_outtake.setPower(1);
-                } else {
-                    servo_outtake.setPower(0);
-                }
-                break;
-        }
-    }*/
     public void autonomousActionUpdate() { //TODO: Ruben... Set up variables for all necessary values so it's easy to calibrate
 
     }
@@ -213,15 +152,6 @@ public class left_auto extends OpMode {
         pathTimer.resetTimer();
     }
 
-    public void setArmState(int aState) {
-        armState = aState;
-    }
-    public void setoutGrabState(int gstate) {
-        outgrabState = gstate;
-    }
-    public void setoutClawState(int cState) {
-        outclawState = cState;
-    }
 
 
     @Override
@@ -235,9 +165,7 @@ public class left_auto extends OpMode {
 
         // Feedback to Driver Hub, states and timers
         telemetryA.addData("path state", pathState);
-        telemetryA.addData("arm state", armState);
-        telemetryA.addData("claw state", outclawState);
-        telemetryA.addData("out grab state", outgrabState);
+
         telemetryA.addData("pathtimer elapsed time", pathTimer.getElapsedTimeSeconds());
 
 
@@ -250,7 +178,6 @@ public class left_auto extends OpMode {
         telemetryA.addData("headingPID error", follower.headingError);
         telemetryA.update();
     }
-
 
 
 
@@ -320,14 +247,15 @@ public class left_auto extends OpMode {
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
     public void start() {
-        buildPaths();
+        //buildPaths();
         opmodeTimer.resetTimer();
         //TODO: Change all of these values below
         setPathState(2);
-        setArmState(-1);
-        setoutGrabState(0);
-        setoutClawState(0);
+
     }
+
+
+
     @Override
     public void stop() {
     }

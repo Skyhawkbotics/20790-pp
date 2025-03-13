@@ -131,6 +131,8 @@ public class opmode_MAIN_Redesign extends OpMode {
 
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
 
+        out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
+
         Pose startPose = new Pose(15, 40.0, Math.toRadians(0)); //TODO
         follower.setStartingPose(startPose);
 
@@ -189,6 +191,9 @@ public class opmode_MAIN_Redesign extends OpMode {
 
 
     public void viper_slide() {
+        if(up1.getCurrentPosition() == arm_upper_lim) {
+            telemetry.addData("upper limit reached", true);
+        }
         if (gamepad2.right_stick_y < -0.5) { // Up
             goingdown = false;
             up1.setTargetPosition(arm_upper_lim);
@@ -202,8 +207,10 @@ public class opmode_MAIN_Redesign extends OpMode {
 
             telemetry.addData("up1", true);
             telemetry.addData("up2", true);
-        } else if (gamepad2.right_stick_y > 0.5) { // Down
-            goingdown = true;
+        } else if (gamepad2.right_stick_y > 0.5 && !up_zero.isPressed()) { // Down
+            goingdown = false;
+        } else if (gamepad2.right_stick_y > 0.5 && up_zero.isPressed()) {
+            telemetry.addData("lower limt reach", true);
         } else if(gamepad2.right_stick_y == 0) {
             goingdown = false;
             up1.setTargetPosition(up1.getCurrentPosition());
@@ -234,10 +241,12 @@ public class opmode_MAIN_Redesign extends OpMode {
     public void misumi_slide() {
         // Misumi Slide
         if (gamepad2.dpad_right) { //in
+            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
             out.setPower(0.2);
-            out_true_target_pos = 0;
         } else if (gamepad2.dpad_left) { //out
+            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
             out.setPower(-0.2);
         /*} else if (gamepad2.dpad_right) {
             out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -245,20 +254,22 @@ public class opmode_MAIN_Redesign extends OpMode {
 
          */
         } else {
-            out.setPower(0);
-            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int charles = out.getCurrentPosition();
+            out.setTargetPosition(charles);
+            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            out.setPower(0.5);
         }
     }
     public void outtake_claw() {
         // manual outtake flip location //TODO: switch if needed
-        if (gamepad2.triangle) { //arm ready hang pos
+        if (gamepad2.triangle) { //arm pickup
             servo_outtake_flip2.setPosition(1);
             servo_outtake_flip1.setPosition(0);
             servo_outtake_rotate.setPosition(0.1);
         }
         if (gamepad2.cross) { //arm down
-            servo_outtake_flip2.setPosition(0.60);
-            servo_outtake_flip1.setPosition(0.4);
+            servo_outtake_flip2.setPosition(0.55);
+            servo_outtake_flip1.setPosition(0.45);
             servo_outtake_rotate.setPosition(0.9);
         }
         if (gamepad2.options) { //arm hang pos (pull down)
