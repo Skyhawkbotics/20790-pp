@@ -68,6 +68,7 @@ public class left_auto extends OpMode {
     int outarm_in_position = 0;//TODO: Set value
     int outarm_out_position = 0;//TODO: set value
     int outarm_transfer_position = 0;//TODO: set value
+    int basket_height = 2800;
 
 
 
@@ -198,7 +199,18 @@ public class left_auto extends OpMode {
                 break;
         }
         switch (upArmState) {
-
+            case 0: //Initialization position
+                up1.setTargetPosition(0);
+                up2.setTargetPosition(0);
+                up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+            case 1: //up arm position for dropping sample
+                up1.setTargetPosition(basket_height);
+                up2.setTargetPosition(basket_height);
+                up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
         }
     }
     public void setPathState(int pState) {
