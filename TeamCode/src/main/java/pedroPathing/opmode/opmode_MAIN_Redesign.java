@@ -1,9 +1,11 @@
 package pedroPathing.opmode;
 
+
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
+
 
 import com.acmerobotics.dashboard.message.redux.ReceiveGamepadState;
 import com.pedropathing.follower.Follower;
@@ -21,17 +23,22 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+
 
 @TeleOp(name = "opmode MAIN ", group = "MAIN")
 public class opmode_MAIN_Redesign extends OpMode {
     private Follower follower;
 
+
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
+
+
 
 
     private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
@@ -44,30 +51,41 @@ public class opmode_MAIN_Redesign extends OpMode {
     double servo_outtake_flip_location = 0;
     double servo_intake_wrist_location = 0.7;
 
+
     boolean goingdown = false;
+
 
     boolean defend = false;
 
+
     boolean outisclosed = false;
+
 
     boolean inisclosed = false;
     double servo_intake_rotate_location = 0.47;
+
 
     double servo_intake_open = 0.9;
     double servo_intake_closed = 0.25;
     double servo_intake_location = 0.5;
     int out_max_pos = 1330;
 
+
     int up_specimen_hang = 1907; // Viper
 
+
     double outtake_specimen_hang = 0.45;
+
 
     double driving_multiplier_fast = 0.7;
     double driving_multiplier_slow = 0.3;
 
+
     double driving_multiplier;
 
+
     private final ElapsedTime runtime = new ElapsedTime();
+
 
     private Gamepad currentgamepad2 = new Gamepad();
     private Gamepad previousgamepad2 = new Gamepad();
@@ -75,6 +93,7 @@ public class opmode_MAIN_Redesign extends OpMode {
     private Gamepad currentgamepad1 = new Gamepad();
     private Gamepad previousgamepad1 = new Gamepad();
     private PathChain park;
+
 
     /**
      * This initializes the drive motors as well as the Follower and motion Vectors.
@@ -84,28 +103,35 @@ public class opmode_MAIN_Redesign extends OpMode {
         //PATHING
     }
 
+
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
         leftRear = hardwareMap.get(DcMotorEx.class, leftRearMotorName);
         rightRear = hardwareMap.get(DcMotorEx.class, rightRearMotorName);
         rightFront = hardwareMap.get(DcMotorEx.class, rightFrontMotorName);
 
+
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
         follower.startTeleopDrive();
+
 
         out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
         //from rr version
+
 
         //setup arm to use velocity
         //setup arm variable
@@ -114,34 +140,47 @@ public class opmode_MAIN_Redesign extends OpMode {
         up1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         up1.setDirection(DcMotorSimple.Direction.REVERSE);
 
+
         up2 = hardwareMap.get(DcMotorEx.class, "up2");
         up2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         up2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         servo_intake = hardwareMap.get(Servo.class, "intake");
         servo_intake_rotate = hardwareMap.get(Servo.class, "intakeRotate");
         servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
 
 
+
+
         servo_outtake_flip1 = hardwareMap.get(Servo.class, "ofip1");
         servo_outtake_flip2 = hardwareMap.get(Servo.class, "ofip2");
+
 
         servo_outtake = hardwareMap.get(Servo.class, "outtake");
         servo_outtake_rotate = hardwareMap.get(Servo.class, "outtaker");
 
+
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
 
+
         out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
+
 
         Pose startPose = new Pose(15, 40.0, Math.toRadians(0)); //TODO
         follower.setStartingPose(startPose);
 
+
         inisclosed = false;
+
 
         outisclosed = false;
 
 
+
+
     }
+
 
     /**
      * This runs the OpMode. This is only drive control with Pedro Pathing live centripetal force
@@ -149,6 +188,7 @@ public class opmode_MAIN_Redesign extends OpMode {
      */
     @Override
     public void loop() {
+
 
         previousgamepad2.copy(currentgamepad2);
         currentgamepad2.copy(gamepad2);
@@ -172,7 +212,9 @@ public class opmode_MAIN_Redesign extends OpMode {
             follower.startTeleopDrive();
         }
 
-            follower.update();
+
+        follower.update();
+
 
         telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
         telemetry.addData("gamepad2.rightsticky", gamepad2.right_stick_y);
@@ -186,8 +228,11 @@ public class opmode_MAIN_Redesign extends OpMode {
         telemetry.addData("flip2", servo_outtake_flip2.getPosition());
         telemetry.addData("defend", defend);
 
+
         telemetry.update();
     }
+
+
 
 
     public void viper_slide() {
@@ -199,11 +244,14 @@ public class opmode_MAIN_Redesign extends OpMode {
             up1.setTargetPosition(arm_upper_lim);
             up2.setTargetPosition(arm_upper_lim);
 
+
             up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+
             up1.setPower(1);
             up2.setPower(1);
+
 
             telemetry.addData("up1", true);
             telemetry.addData("up2", true);
@@ -216,8 +264,10 @@ public class opmode_MAIN_Redesign extends OpMode {
             up1.setTargetPosition(up1.getCurrentPosition());
             up2.setTargetPosition(up1.getCurrentPosition());
 
+
             up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
             up1.setPower(1);
             up2.setPower(1);
@@ -247,12 +297,14 @@ public class opmode_MAIN_Redesign extends OpMode {
         } else if (gamepad2.dpad_left) { //out
             out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            out.setPower(-0.2);
-        /*} else if (gamepad2.dpad_right) {
-            out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            telemetry.addData("reset out", true);
 
-         */
+            out.setPower(-0.2);
+       /*} else if (gamepad2.dpad_right) {
+           out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+           telemetry.addData("reset out", true);
+
+
+        */
         } else {
             int charles = out.getCurrentPosition();
             out.setTargetPosition(charles);
@@ -280,6 +332,7 @@ public class opmode_MAIN_Redesign extends OpMode {
         if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
             outisclosed = !outisclosed;
 
+
         }
         if(outisclosed) {
             servo_outtake.setPosition(0.0);
@@ -293,6 +346,7 @@ public class opmode_MAIN_Redesign extends OpMode {
         if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
             inisclosed = !inisclosed;
 
+
         }
         if(inisclosed) {
             servo_intake.setPosition(0.5);
@@ -301,9 +355,11 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_intake.setPosition(servo_intake_open);
         }
 
+
         //servo outtake control
         if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
             outisclosed = !outisclosed;
+
 
         }
         if(outisclosed) {
@@ -312,6 +368,7 @@ public class opmode_MAIN_Redesign extends OpMode {
         if(!outisclosed) {
             servo_outtake.setPosition(servo_intake_open);
         }
+
 
         //intake rotate reset
         if (gamepad2.share) {
@@ -325,21 +382,25 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_intake_rotate_location += 0.015;
         }
 
+
         if (servo_intake_rotate_location > 1) {
             servo_intake_rotate_location = 1;
         } else if (servo_intake_rotate_location < 0) {
             servo_intake_rotate_location = 0;
         }
 
+
         servo_intake_rotate.setPosition(servo_intake_rotate_location);
 
+
         //intake wrist control
-       if (gamepad2.dpad_up) {
+        if (gamepad2.dpad_up) {
             servo_intake_wrist_location += 0.05;
         }
-       if (gamepad2.dpad_down) {
-           servo_intake_wrist_location -= 0.05;
-       }
+        if (gamepad2.dpad_down) {
+            servo_intake_wrist_location -= 0.05;
+        }
+
 
         // limits
         if (servo_intake_wrist_location > 1) {
@@ -347,6 +408,7 @@ public class opmode_MAIN_Redesign extends OpMode {
         } else if (servo_intake_wrist_location < 0) {
             servo_intake_wrist_location = 0;
         }
+
 
         servo_intake_wrist.setPosition(servo_intake_wrist_location);
     }
