@@ -53,8 +53,9 @@ public class left_auto extends OpMode {
     private Pose bucketPose = new Pose(15, 129, Math.toRadians(135)); //TODO
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
-    private Path preload, pickup1, pickup2, pickup3, hang1, hang2, hang3, park;
-    //private PathChain ;
+
+    private Path preload, pickup1, basket1, pickup2, basket2, pickup3, basket3, park;
+    //private PathChain ;//TODO: Trevor, idt we have any path chains, right?
 
     /// Motors
     private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
@@ -65,6 +66,10 @@ public class left_auto extends OpMode {
 
     /// variables
     int up_basket_position = 0; //TODO: calibrate this value, slide position to
+    int outarm_in_position = 0;//TODO: Set value
+    int outarm_out_position = 0;//TODO: set value
+    int outarm_transfer_position = 0;//TODO: set value
+    int basket_height = 2800;
 
     public void buildPaths() {
         // preload
@@ -83,14 +88,14 @@ public class left_auto extends OpMode {
                 )
         );
         pickup1.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
-        hang1 = new Path(
+        basket1 = new Path(
                 // Line 3
                 new BezierLine(
                         new Point(20.000, 122.000, Point.CARTESIAN),
                         new Point(bucketPose)
                 )
         );
-        hang1.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
+        basket1.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
         pickup2 = new Path(
                 // Line 4
                 new BezierLine(
@@ -99,14 +104,14 @@ public class left_auto extends OpMode {
                 )
         );
         pickup2.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(0));
-        hang2 = new Path(
+        basket2 = new Path(
                 // Line 5
                 new BezierLine(
                         new Point(26.000, 131.500, Point.CARTESIAN),
                         new Point(bucketPose)
                 )
         );
-        hang2.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
+        basket2.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(135));
         pickup3 = new Path(
                 // Line 6
                 new BezierLine(
@@ -115,14 +120,14 @@ public class left_auto extends OpMode {
                 )
         );
         pickup3.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(35));
-        hang3 = new Path(
+        basket3 = new Path(
                 // Line 7
                 new BezierLine(
                         new Point(28.000, 131.300, Point.CARTESIAN),
                         new Point(bucketPose)
                 )
         );
-        hang3.setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(135));
+        basket3.setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(135));
         park = new Path(
                 // Line 8
                 new BezierCurve(
@@ -143,7 +148,69 @@ public class left_auto extends OpMode {
     }
 
     public void autonomousActionUpdate() { //TODO: Ruben... Set up variables for all necessary values so it's easy to calibrate
+        switch (outtakeState) {
 
+        }
+        switch (intakeState) {
+            case 0: //initialize position
+                servo_intake.setPosition(0);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(0); //TODO: Please check all of the variables
+                break;
+            case 1: //prepare to pick up position
+                servo_intake.setPosition(0); //TODO: my goal is to have the claw open here
+                servo_intake_rotate.setPosition(0.5); //TODO: my goal is to have the rotate straight
+                servo_intake_wrist.setPosition(0.5); //TODO: my goal is to have the wrist parallel to the ground
+                break;
+            case 2: //robot straight pick up open position. basically means that the robot intake is in the right spot but hasn't closed the claw yet
+                servo_intake.setPosition(0);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(1);
+                break;
+            case 3: //straight pick up closed position. same thing as above but with a closed claw
+                servo_intake.setPosition(1);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(1);
+                break;
+            case 4: //picking up from an angle. No idea what this will look like.
+                servo_intake.setPosition(1);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(1);
+                break;
+            case 9: //transfer position! Same as the initialization position but I created the case for clarity. If you need to edit values, you can.
+                servo_intake.setPosition(0);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(0);
+                break;
+        }
+        switch (outArmState) { //All case 9s are for transfer position
+            case 0:
+                out.setTargetPosition(outarm_in_position);
+                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+            case 1:
+                out.setTargetPosition(outarm_out_position);
+                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+            case 9:
+                out.setTargetPosition(outarm_transfer_position);
+                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+        }
+        switch (upArmState) {
+            case 0: //Initialization position
+                up1.setTargetPosition(0);
+                up2.setTargetPosition(0);
+                up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+            case 1: //up arm position for dropping sample
+                up1.setTargetPosition(basket_height);
+                up2.setTargetPosition(basket_height);
+                up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+        }
     }
     public void setPathState(int pState) {
         pathState = pState;
@@ -209,7 +276,7 @@ public class left_auto extends OpMode {
         up2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         out = hardwareMap.get(DcMotorEx.class, "out");
-        int charles = out.getCurrentPosition();
+        int charles = out.getCurrentPosition(); //TODO: I need documentation for this please!
         out.setTargetPosition(charles);
         out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         out.setPower(1);
