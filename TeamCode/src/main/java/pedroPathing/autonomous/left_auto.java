@@ -53,8 +53,8 @@ public class left_auto extends OpMode {
     private Pose bucketPose = new Pose(15, 129, Math.toRadians(135)); //TODO
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
-    //private Path ; //TODO: Trevor
-    //private PathChain ;//TODO: Trevor as well
+    private Path preload, pickup1, pickup2, pickup3, hang1, hang2, hang3, park;
+    //private PathChain ;
 
     /// Motors
     private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
@@ -66,9 +66,7 @@ public class left_auto extends OpMode {
     /// variables
     int up_basket_position = 0; //TODO: calibrate this value, slide position to
 
-    /*
-
-    public void buildPaths() { //TODO: Trevor needs to change these paths
+    public void buildPaths() {
         // preload
         preload = new Path(
                 new BezierLine(
@@ -136,7 +134,7 @@ public class left_auto extends OpMode {
         park.setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(270));
 
     }
-    */
+
 
     public void autonomousPathUpdate() {
         switch (pathState) {
