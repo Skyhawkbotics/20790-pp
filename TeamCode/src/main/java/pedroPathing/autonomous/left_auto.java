@@ -55,7 +55,6 @@ public class left_auto extends OpMode {
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
 
     private Path preload, pickup1, basket1, pickup2, basket2, pickup3, basket3, park;
-    //private PathChain ;//TODO: Trevor, idt we have any path chains, right?
 
     /// Motors
     private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
@@ -144,12 +143,211 @@ public class left_auto extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
 
+            //FIRST BASKET/PRELOAD
+
+            case 2: //go to basket preload sample
+                follower.followPath(preload);
+                upArmState = 1;
+                outtakeState = 1;
+                if (!follower.isBusy()) {
+                    setPathState(3);
+                }
+                break;
+            case 3: //let go
+                outtakeState = 2;
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    setPathState(4);
+                }
+                break;
+
+                //SECOND BASKET/FIRST PICKUP
+
+            case 4: //go to pickup pos
+                follower.followPath(pickup1);
+                outArmState = 1;
+                intakeState = 1;
+                if (!follower.isBusy()) {
+                    setPathState(5);
+                }
+                break;
+            case 5: //actually pickup
+                intakeState = 2;
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    setPathState(6);
+                }
+                break;
+            case 6: //transfer pos
+                intakeState = 9;
+                outArmState = 9;
+                upArmState = 0; //TODO: is this right for transfer? if not also change others with same todo!
+                outtakeState = 9;
+                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    setPathState(7);
+                }
+                break;
+            case 7: //transfer
+                intakeState = 10;
+                outtakeState = 10;
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    setPathState(8);
+                }
+                break;
+            case 8: //goto hang pos
+                outtakeState = 1;
+                outArmState = 0;
+                upArmState = 1;
+                follower.followPath(basket1);
+                if (!follower.isBusy()) {
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                outtakeState = 2;
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    setPathState(10);
+                }
+                break;
+
+                //THIRD BASKET/SECOND PICKUP
+
+            case 10: //go to pickup pos
+                follower.followPath(pickup2);
+                outArmState = 1;
+                intakeState = 1;
+                if (!follower.isBusy()) {
+                    setPathState(11);
+                }
+                break;
+            case 11: //actually pickup
+                intakeState = 2;
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    setPathState(12);
+                }
+                break;
+            case 12: //transfer pos
+                intakeState = 9;
+                outArmState = 9;
+                upArmState = 0; //TODO: is this right for transfer? if not also change others with same todo!
+                outtakeState = 9;
+                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    setPathState(13);
+                }
+                break;
+            case 13: //transfer
+                intakeState = 10;
+                outtakeState = 10;
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    setPathState(14);
+                }
+                break;
+            case 14: //goto hang pos
+                outtakeState = 1;
+                outArmState = 0;
+                upArmState = 1;
+                follower.followPath(basket2);
+                if (!follower.isBusy()) {
+                    setPathState(15);
+                }
+                break;
+            case 15:
+                outtakeState = 2;
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    setPathState(16);
+                }
+                break;
+
+                //FOURTH BASKET/THIRD PICKUP
+
+            case 16: //go to pickup pos
+                follower.followPath(pickup3);
+                outArmState = 1;
+                intakeState = 1;
+                if (!follower.isBusy()) {
+                    setPathState(17);
+                }
+                break;
+            case 17: //actually pickup
+                intakeState = 2;
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    setPathState(18);
+                }
+                break;
+            case 18: //transfer pos
+                intakeState = 9;
+                outArmState = 9;
+                upArmState = 0; //TODO: is this right for transfer? if not also change others with same todo!
+                outtakeState = 9;
+                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    setPathState(19);
+                }
+                break;
+            case 19: //transfer
+                intakeState = 10;
+                outtakeState = 10;
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    setPathState(20);
+                }
+                break;
+            case 20: //goto hang pos
+                outtakeState = 1;
+                outArmState = 0;
+                upArmState = 1;
+                follower.followPath(basket3);
+                if (!follower.isBusy()) {
+                    setPathState(21);
+                }
+                break;
+            case 21:
+                outtakeState = 2;
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    setPathState(22);
+                }
+                break;
+
+                //PARK
+
+            case 22:
+                follower.followPath(park);
+                intakeState = 0;
+                outtakeState = 0;
+                outArmState = 0;
+                upArmState = 0;
+
         }
     }
 
     public void autonomousActionUpdate() { //TODO: Ruben... Set up variables for all necessary values so it's easy to calibrate
         switch (outtakeState) {
-
+            case 0: //flipper init pos
+                servo_outtake_flip2.setPosition(1);
+                servo_outtake_flip1.setPosition(0);
+                servo_outtake_rotate.setPosition(0.1);
+                servo_outtake.setPosition(0.1);
+                break;
+            case 1: //flipper basket pos but claw closed
+                servo_outtake_flip2.setPosition(0.6);
+                servo_outtake_flip1.setPosition(0.5);
+                servo_outtake_rotate.setPosition(0.75);
+                servo_outtake.setPosition(0.1);
+                break;
+            case 2: //flipper basket pos, claw open
+                servo_outtake_flip2.setPosition(0.6);
+                servo_outtake_flip1.setPosition(0.5);
+                servo_outtake_rotate.setPosition(0.75);
+                servo_outtake.setPosition(1);
+                break;
+            case 9: //flipper transfer pos, claw closed
+                servo_outtake_flip2.setPosition(0.6); //TODO: THESE VALUES FOR TRANSFER!
+                servo_outtake_flip1.setPosition(0.5);//TODO: THESE VALUES FOR TRANSFER!
+                servo_outtake_rotate.setPosition(0.75);//TODO: THESE VALUES FOR TRANSFER!
+                servo_outtake.setPosition(0.1);
+                break;
+            case 10: //flipper transfer pos, claw open
+                servo_outtake_flip2.setPosition(0.6);//TODO: THESE VALUES FOR TRANSFER!
+                servo_outtake_flip1.setPosition(0.5);//TODO: THESE VALUES FOR TRANSFER!
+                servo_outtake_rotate.setPosition(0.75);//TODO: THESE VALUES FOR TRANSFER!
+                servo_outtake.setPosition(1);
+                break;
         }
         switch (intakeState) {
             case 0: //initialize position
@@ -158,7 +356,7 @@ public class left_auto extends OpMode {
                 servo_intake_wrist.setPosition(0); //TODO: Please check all of the variables
                 break;
             case 1: //prepare to pick up position
-                servo_intake.setPosition(0); //TODO: my goal is to have the claw open here
+                servo_intake.setPosition(0.9); //FIXED: my goal is to have the claw open here
                 servo_intake_rotate.setPosition(0.5); //TODO: my goal is to have the rotate straight
                 servo_intake_wrist.setPosition(0.5); //TODO: my goal is to have the wrist parallel to the ground
                 break;
@@ -182,13 +380,18 @@ public class left_auto extends OpMode {
                 servo_intake_rotate.setPosition(0.5);
                 servo_intake_wrist.setPosition(0);
                 break;
+            case 10: //transfer position but claw open!
+                servo_intake.setPosition(1);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(0);
+                break;
         }
         switch (outArmState) { //All case 9s are for transfer position
-            case 0:
+            case 0: //in
                 out.setTargetPosition(outarm_in_position);
                 out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 break;
-            case 1:
+            case 1: //out
                 out.setTargetPosition(outarm_out_position);
                 out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 break;
@@ -276,7 +479,7 @@ public class left_auto extends OpMode {
         up2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         out = hardwareMap.get(DcMotorEx.class, "out");
-        int charles = out.getCurrentPosition(); //TODO: I need documentation for this please!
+        int charles = out.getCurrentPosition(); //this is to set the target position to the current position, and you can use charles later to do this! (should problebly be renamed)
         out.setTargetPosition(charles);
         out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         out.setPower(1);
