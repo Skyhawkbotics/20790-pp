@@ -10,7 +10,10 @@ import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 import com.acmerobotics.dashboard.message.redux.ReceiveGamepadState;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -62,6 +65,8 @@ public class opmode_MAIN_Redesign extends OpMode {
 
 
     boolean inisclosed = false;
+
+    Path align;
     double servo_intake_rotate_location = 0.47;
 
 
@@ -128,6 +133,7 @@ public class opmode_MAIN_Redesign extends OpMode {
         out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        out.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         //from rr version
@@ -204,16 +210,32 @@ public class opmode_MAIN_Redesign extends OpMode {
             follower.holdPoint(follower.getPose());
         }
         if (currentgamepad1.triangle && !previousgamepad1.triangle) {
-            defend = true;
+            defend = !defend;
             follower.breakFollowing();
+            follower.startTeleopDrive();
         }
         if (currentgamepad1.circle && !previousgamepad1.circle) {
             defend = false;
             follower.startTeleopDrive();
         }
+        if(currentgamepad1.left_bumper && !previousgamepad1.left_bumper) {
+            follower.setPose(new Pose(20, 20, 0));
+        }
+        if(currentgamepad1.right_bumper && !previousgamepad1.right_bumper) {
+            follower.breakFollowing();
+            align = new Path(
+                    new BezierLine(
+                            new Point(follower.getPose()),
+                            new Point(20,20,0)
+                    )
+            );
+            align.setConstantHeadingInterpolation(0);
+            align.setZeroPowerAccelerationMultiplier(1);
+            follower.setMaxPower(0.5);
+            follower.followPath(align);
+        }
 
 
-        follower.update();
 
 
         telemetry.addData("gamepad2.rightstickx", gamepad2.right_stick_x);
@@ -227,9 +249,12 @@ public class opmode_MAIN_Redesign extends OpMode {
         telemetry.addData("flip1", servo_outtake_flip1.getPosition());
         telemetry.addData("flip2", servo_outtake_flip2.getPosition());
         telemetry.addData("defend", defend);
+        telemetry.addData("pos",follower.getPose());
 
 
         telemetry.update();
+        follower.update();
+
     }
 
 
@@ -290,26 +315,20 @@ public class opmode_MAIN_Redesign extends OpMode {
     }
     public void misumi_slide() {
         // Misumi Slide
-        if (gamepad2.dpad_right) { //in
+        if (gamepad2.dpad_right && !out_zero.isPressed()) { //in
             out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
             out.setPower(0.2);
-        } else if (gamepad2.dpad_left) { //out
+        } else if (gamepad2.dpad_left ) { //out
             out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
             out.setPower(-0.2);
-       /*} else if (gamepad2.dpad_right) {
-           out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-           telemetry.addData("reset out", true);
+        } else if (gamepad2.dpad_right && out_zero.isPressed()) {
+            out.setPower(0);
+            telemetry.addData("limit reached", true);
 
-
-        */
         } else {
-            int charles = out.getCurrentPosition();
-            out.setTargetPosition(charles);
-            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            out.setPower(0.5);
+            out.setPower(0);
+            telemetry.addData("no power for out slide", true);
         }
     }
     public void outtake_claw() {
@@ -373,6 +392,7 @@ public class opmode_MAIN_Redesign extends OpMode {
         //intake rotate reset
         if (gamepad2.share) {
             servo_intake_rotate_location = 0.5; //TODO: tune if needed
+            servo_intake_wrist.setPosition(0.25);
         }
         // manual intake rotate location
         if (gamepad2.left_stick_x > 0.1) {
@@ -395,21 +415,12 @@ public class opmode_MAIN_Redesign extends OpMode {
 
         //intake wrist control
         if (gamepad2.dpad_up) {
-            servo_intake_wrist_location += 0.05;
+            servo_intake_wrist.setPosition(0.45);
         }
         if (gamepad2.dpad_down) {
-            servo_intake_wrist_location -= 0.05;
+            servo_intake_wrist.setPosition(0.55);
         }
 
 
-        // limits
-        if (servo_intake_wrist_location > 1) {
-            servo_intake_wrist_location = 1;
-        } else if (servo_intake_wrist_location < 0) {
-            servo_intake_wrist_location = 0;
-        }
-
-
-        servo_intake_wrist.setPosition(servo_intake_wrist_location);
     }
 }

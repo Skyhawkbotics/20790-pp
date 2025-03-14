@@ -71,15 +71,14 @@ public class right_auto_new extends OpMode {
 
     // Poses, and pickUp Poses
     private Pose startPose = new Pose(10.000, 55.000, 0); //TODO
-    private Pose curve2pushPose = new Pose(61, 28, 0); // turn spot so make sure it would be safe
 
 
     /// hang poses, Make sure they running on hard enough (x), far enough from each other (y)
     private Pose inithangPose = new Pose(36.000, 55.000, Point.CARTESIAN);
-    private Pose firsthangPose = new Pose(38.000, 77.000, Point.CARTESIAN);
-    private Pose secondhangPose = new Pose(38.000, 75.000, Point.CARTESIAN);
-    private Pose thirdhangPose = new Pose(38.000, 73.000, Point.CARTESIAN);
-    private Pose fourthhangPose = new Pose(38,71,Point.CARTESIAN);
+    private Pose firsthangPose = new Pose(38.000, 73.000, Point.CARTESIAN);
+    private Pose secondhangPose = new Pose(38.000, 70.000, Point.CARTESIAN);
+    private Pose thirdhangPose = new Pose(38.000, 67.000, Point.CARTESIAN);
+    private Pose fourthhangPose = new Pose(38,64,Point.CARTESIAN);
 
 
 
@@ -87,14 +86,15 @@ public class right_auto_new extends OpMode {
     /// push poses  for case transitions, pushPoses are when the sample is fully pushed, before is behind the sample
     /// Adjust distance from observation zone (X)
     /// make sure (y) is same as before push
-    private Pose push1 = new  Pose(20, 28, Point.CARTESIAN);
-    private Pose push2 = new Pose(20, 15, Point.CARTESIAN);
-    private Pose pickupPose1 = new Pose(12, 7, 0); // first pickup poses also doubles as end of push 3
+    private Pose curve2pushPose = new Pose(61, 32, 0); // turn spot so make sure it would be safe
+    private Pose push1 = new  Pose(20, 32, Point.CARTESIAN);
+    private Pose push2 = new Pose(20, 12, Point.CARTESIAN);
+    private Pose pickupPose1 = new Pose(15, 6, 0); // first pickup poses also doubles as end of push 3
 
 
     /// adjust (X) to minimize overshoot , (y) to target the sample fully to push , make sure Y is same as push poses
-    private Pose beforepush2 = new Pose(60, 15, Point.CARTESIAN);
-    private Pose beforepush3 = new Pose(60, 7, Point.CARTESIAN);
+    private Pose beforepush2 = new Pose(60, 12, Point.CARTESIAN);
+    private Pose beforepush3 = new Pose(60, 6, Point.CARTESIAN);
 
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
@@ -193,7 +193,7 @@ public class right_auto_new extends OpMode {
                 // Line 2
                 new BezierLine(
                         new Point(38.000, 77.000, Point.CARTESIAN),
-                        new Point(15.000, 36.000, Point.CARTESIAN)
+                        new Point(20.000, 36.000, Point.CARTESIAN)
                 )
         );
         first_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
@@ -201,14 +201,15 @@ public class right_auto_new extends OpMode {
                 // Line 3
                 new BezierLine(
                         new Point(15.000, 36.000, Point.CARTESIAN),
-                        new Point(10, 36.000, Point.CARTESIAN)
+                        new Point(15, 36.000, Point.CARTESIAN)
                 )
         );
         pickup.setConstantHeadingInterpolation(Math.toRadians(0));
+        pickup.setZeroPowerAccelerationMultiplier(3);
         second_hang = new Path(
                 // Line 4
                 new BezierLine(
-                        new Point(10.000, 36.000, Point.CARTESIAN),
+                        new Point(15.000, 36.000, Point.CARTESIAN),
                         new Point(secondhangPose)
                 )
         );
@@ -217,7 +218,7 @@ public class right_auto_new extends OpMode {
                 // Line 5
                 new BezierLine(
                         new Point(secondhangPose),
-                        new Point(15.000, 36.000, Point.CARTESIAN)
+                        new Point(20.000, 36.000, Point.CARTESIAN)
                 )
         );
         second_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
@@ -225,7 +226,7 @@ public class right_auto_new extends OpMode {
         third_hang = new Path(
                 // Line 7
                 new BezierLine(
-                        new Point(10.000, 36.000, Point.CARTESIAN),
+                        new Point(15.000, 36.000, Point.CARTESIAN),
                         new Point(thirdhangPose)
                 )
         );
@@ -234,7 +235,7 @@ public class right_auto_new extends OpMode {
                 // Line 8
                 new BezierLine(
                         new Point(thirdhangPose),
-                        new Point(15.000, 36.000, Point.CARTESIAN)
+                        new Point(20.000, 36.000, Point.CARTESIAN)
                 )
         );
         third_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
@@ -244,7 +245,7 @@ public class right_auto_new extends OpMode {
         fourth_hang = new Path(
                 // Line 10
                 new BezierLine(
-                        new Point(10.000, 36.000, Point.CARTESIAN),
+                        new Point(15.000, 36.000, Point.CARTESIAN),
                         new Point(fourthhangPose)
                 )
         );
@@ -289,7 +290,6 @@ public class right_auto_new extends OpMode {
                 break;
             case 201:
                 if (pathTimer.getElapsedTime() > (0.5*(Math.pow(10,9)))) {
-                    telemetryA.addData("YOYOYOYOYOYO", true);
                     //setArmState(0);
                     setPathState(2);
                 }
@@ -320,13 +320,13 @@ public class right_auto_new extends OpMode {
                 break;
             case 601:
                 if(!follower.isBusy()) {
-                    setoutClawState(0);
+                    //setoutClawState(0);
                     setPathState(602);
                 }
                 break;
             case 602:
                 if (pathTimer.getElapsedTime() > (0.5*(Math.pow(10,9)))) {
-                    setArmState(1);
+                   // setArmState(1);
                     setPathState(6);
                 }
                 break;
@@ -418,18 +418,11 @@ public class right_auto_new extends OpMode {
         }
         switch (stoneState) {
             case -1:
-                break;
-            case 0: // default stop always until i get a 6+0?
-                if(up_zero.isPressed()) {
-                    up1.setPower(-0.1);
-                    up2.setPower(-0.1);
+                if(!out_zero.isPressed()) {
+                    out.setPower(-0.1);
                 } else {
-                    up1.setPower(0);
-                    up2.setPower(0);
+                    out.setPower(0);
                 }
-                out.setTargetPosition(0);
-                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                out.setPower(0.5);
                 break;
 
 
@@ -466,6 +459,10 @@ public class right_auto_new extends OpMode {
 
         autonomousPathUpdate();
         autonomousActionUpdate();
+        telemetryA.addData("out zero", out_zero.isPressed());
+        telemetryA.addData("Pose", follower.getPose());
+        telemetryA.addData("time", opmodeTimer);
+        telemetry.update();
 
     }
 
@@ -563,8 +560,10 @@ public class right_auto_new extends OpMode {
     @Override
     public void start() {
         buildPaths();
-        setPathState(-1);
+        opmodeTimer.resetTimer();
+        setPathState(0);
         setoutstate(-1);
+        setstonestate(-1);
     }
     @Override
     public void stop() {
