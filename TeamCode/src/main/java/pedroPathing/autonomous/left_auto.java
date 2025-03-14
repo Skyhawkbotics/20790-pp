@@ -177,7 +177,7 @@ public class left_auto extends OpMode {
                 servo_intake_rotate.setPosition(0.5);
                 servo_intake_wrist.setPosition(1);
                 break;
-            case 9: //transfer position! Same as the initalization position but I created the case for clarity. If you need to edit values, you can.
+            case 9: //transfer position! Same as the initialization position but I created the case for clarity. If you need to edit values, you can.
                 servo_intake.setPosition(0);
                 servo_intake_rotate.setPosition(0.5);
                 servo_intake_wrist.setPosition(0);
