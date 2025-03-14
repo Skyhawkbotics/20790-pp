@@ -65,6 +65,9 @@ public class left_auto extends OpMode {
 
     /// variables
     int up_basket_position = 0; //TODO: calibrate this value, slide position to
+    int outarm_in_position = 0;//TODO: Set value
+    int outarm_out_position = 0;//TODO: set value
+    int outarm_transfer_position = 0;//TODO: set value
 
 
 
@@ -145,7 +148,58 @@ public class left_auto extends OpMode {
     }
 
     public void autonomousActionUpdate() { //TODO: Ruben... Set up variables for all necessary values so it's easy to calibrate
+        switch (outtakeState) {
 
+        }
+        switch (intakeState) {
+            case 0: //initialize position
+                servo_intake.setPosition(0);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(0); //TODO: Please check all of the variables
+                break;
+            case 1: //prepare to pick up position
+                servo_intake.setPosition(0); //TODO: my goal is to have the claw open here
+                servo_intake_rotate.setPosition(0.5); //TODO: my goal is to have the rotate straight
+                servo_intake_wrist.setPosition(0.5); //TODO: my goal is to have the wrist parallel to the ground
+                break;
+            case 2: //robot straight pick up open position. basically means that the robot intake is in the right spot but hasn't closed the claw yet
+                servo_intake.setPosition(0);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(1);
+                break;
+            case 3: //straight pick up closed position. same thing as above but with a closed claw
+                servo_intake.setPosition(1);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(1);
+                break;
+            case 4: //picking up from an angle. No idea what this will look like.
+                servo_intake.setPosition(1);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(1);
+                break;
+            case 9: //transfer position! Same as the initalization position but I created the case for clarity. If you need to edit values, you can.
+                servo_intake.setPosition(0);
+                servo_intake_rotate.setPosition(0.5);
+                servo_intake_wrist.setPosition(0);
+                break;
+        }
+        switch (outArmState) { //All case 9s are for transfer position
+            case 0:
+                out.setTargetPosition(outarm_in_position);
+                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+            case 1:
+                out.setTargetPosition(outarm_out_position);
+                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+            case 9:
+                out.setTargetPosition(outarm_transfer_position);
+                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                break;
+        }
+        switch (upArmState) {
+
+        }
     }
     public void setPathState(int pState) {
         pathState = pState;
