@@ -74,11 +74,11 @@ public class right_auto_new extends OpMode {
 
 
     /// hang poses, Make sure they running on hard enough (x), far enough from each other (y)
-    private Pose inithangPose = new Pose(36.000, 55.000, Point.CARTESIAN);
-    private Pose firsthangPose = new Pose(38.000, 73.000, Point.CARTESIAN);
-    private Pose secondhangPose = new Pose(38.000, 70.000, Point.CARTESIAN);
-    private Pose thirdhangPose = new Pose(38.000, 67.000, Point.CARTESIAN);
-    private Pose fourthhangPose = new Pose(38,64,Point.CARTESIAN);
+    private Pose inithangPose = new Pose(35.5000, 65.000, Point.CARTESIAN);
+    private Pose firsthangPose = new Pose(35.000, 73.000, Point.CARTESIAN);
+    private Pose secondhangPose = new Pose(35.000, 70.000, Point.CARTESIAN);
+    private Pose thirdhangPose = new Pose(35.000, 67.000, Point.CARTESIAN);
+    private Pose fourthhangPose = new Pose(35,64,Point.CARTESIAN);
 
 
 
@@ -86,15 +86,15 @@ public class right_auto_new extends OpMode {
     /// push poses  for case transitions, pushPoses are when the sample is fully pushed, before is behind the sample
     /// Adjust distance from observation zone (X)
     /// make sure (y) is same as before push
-    private Pose curve2pushPose = new Pose(61, 32, 0); // turn spot so make sure it would be safe
-    private Pose push1 = new  Pose(20, 32, Point.CARTESIAN);
-    private Pose push2 = new Pose(20, 12, Point.CARTESIAN);
-    private Pose pickupPose1 = new Pose(15, 6, 0); // first pickup poses also doubles as end of push 3
+    private Pose curve2pushPose = new Pose(61, 26, 0); // turn spot so make sure it would be safe
+    private Pose push1 = new  Pose(35, 26, Point.CARTESIAN);
+    private Pose push2 = new Pose(35, 18, Point.CARTESIAN);
+    private Pose pickupPose1 = new Pose(35, 8 , 0); // first pickup poses also doubles as end of push 3
 
 
     /// adjust (X) to minimize overshoot , (y) to target the sample fully to push , make sure Y is same as push poses
-    private Pose beforepush2 = new Pose(60, 12, Point.CARTESIAN);
-    private Pose beforepush3 = new Pose(60, 6, Point.CARTESIAN);
+    private Pose beforepush2 = new Pose(60, 18, Point.CARTESIAN);
+    private Pose beforepush3 = new Pose(60, 8, Point.CARTESIAN);
 
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
@@ -123,7 +123,8 @@ public class right_auto_new extends OpMode {
                 /// behind first, make sure this doesn't hit the sub
                 new BezierCurve(
                         new Point(inithangPose),
-                        new Point(28.163, 31.013, Point.CARTESIAN),
+                        new Point(25.9837019790454, 18.607683352735737, Point.CARTESIAN),
+                        new Point(55.82305005820722, 39.56228172293365, Point.CARTESIAN),
                         new Point(curve2pushPose)
                 )
         );
@@ -137,6 +138,7 @@ public class right_auto_new extends OpMode {
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setZeroPowerAccelerationMultiplier(3)
                 .addPath(
                         /// behind second sample
                         new BezierCurve(
@@ -146,6 +148,8 @@ public class right_auto_new extends OpMode {
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setZeroPowerAccelerationMultiplier(3.9)
+
                 .addPath(
                         /// pushes second
                         new BezierLine(
@@ -154,6 +158,7 @@ public class right_auto_new extends OpMode {
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setZeroPowerAccelerationMultiplier(3)
                 .addPath(
                         /// gets behind third
                         new BezierCurve(
@@ -163,6 +168,7 @@ public class right_auto_new extends OpMode {
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setZeroPowerAccelerationMultiplier(3.9)
                 .addPath(  /// Pushes third
                         // Line 7
                         new BezierLine(
@@ -171,6 +177,13 @@ public class right_auto_new extends OpMode {
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Point(pickupPose1),
+                                new Point(10, 36, Point.CARTESIAN)
+                        )
+                )
+                .setConstantHeadingInterpolation(0)
                 .build();
 
 
@@ -200,8 +213,8 @@ public class right_auto_new extends OpMode {
         pickup = new Path(
                 // Line 3
                 new BezierLine(
-                        new Point(15.000, 36.000, Point.CARTESIAN),
-                        new Point(15, 36.000, Point.CARTESIAN)
+                        new Point(20.000, 36.000, Point.CARTESIAN),
+                        new Point(10, 36.000, Point.CARTESIAN)
                 )
         );
         pickup.setConstantHeadingInterpolation(Math.toRadians(0));
@@ -268,19 +281,19 @@ public class right_auto_new extends OpMode {
                 setstonestate(0);
                 break;
             case 0:
-                //setArmState(1); // Ready pos
+                setArmState(1); // Ready pos
                 follower.followPath(init_hang);
                 setPathState(101);
                 break;
             case 101: /// Hang
                 if(!follower.isBusy()) {
-                    //setArmState(2);
+                    setoutClawState(1);
                     setPathState(102);
                 }
                 break;
             case 102:
                 if(pathTimer.getElapsedTime() > (0.25*(Math.pow(10,9)))) {
-                    //setoutClawState(1);
+                    setoutClawState(1);
                     setPathState(1);
                 }
                 break;
@@ -289,8 +302,8 @@ public class right_auto_new extends OpMode {
                 setPathState(201);
                 break;
             case 201:
-                if (pathTimer.getElapsedTime() > (0.5*(Math.pow(10,9)))) {
-                    //setArmState(0);
+                if (pathTimer.getElapsedTime() > (0.05*(Math.pow(10,9)))) {
+                    setArmState(0);
                     setPathState(2);
                 }
                 break;
@@ -302,17 +315,37 @@ public class right_auto_new extends OpMode {
                 break;
             case 3:
                 if (!follower.isBusy()) {
+                    setoutClawState(1);
+                    setPathState(401);
+                }
+                break;
+            case 401:
+                if (pathTimer.getElapsedTime() > (0.2*(Math.pow(10,9)))) {
+                    setArmState(1);
+                    setPathState(402);
+                }
+                break;
+            case 402:
+                if(servo_outtake_flip1.getPosition() <= 0.1) {
                     follower.followPath(first_hang);
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
+                    setoutClawState(0);
                     follower.followPath(first_hang_back);
-                    setPathState(5);
+                    setPathState(501);
                 }
                 break;
-            case 5:
+            case 501:
+                if (pathTimer.getElapsedTime() > (0.2*(Math.pow(10,9)))) {
+                    setArmState(0);
+                    setPathState(5);
+
+                }
+                break;
+                case 5:
                 if (!follower.isBusy()) {
                     follower.followPath(pickup);
                     setPathState(601);
@@ -320,25 +353,25 @@ public class right_auto_new extends OpMode {
                 break;
             case 601:
                 if(!follower.isBusy()) {
-                    //setoutClawState(0);
+                    setoutClawState(1);
                     setPathState(602);
                 }
                 break;
             case 602:
                 if (pathTimer.getElapsedTime() > (0.5*(Math.pow(10,9)))) {
-                   // setArmState(1);
+                    setArmState(1);
                     setPathState(6);
                 }
                 break;
             case 6:
-                if (!follower.isBusy()) {
+                if(servo_outtake_flip1.getPosition() <= 0.1) {
                     follower.followPath(second_hang);
                     setPathState(7);
                 }
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                    setArmState(2);
+                    //setArmState(2);
                     follower.followPath(second_hang_back);
                     setPathState(8);
                 }
@@ -391,16 +424,20 @@ public class right_auto_new extends OpMode {
                 servo_outtake_rotate.setPosition(0.1);
                 break;
             case 1: // Run on position
-                servo_outtake_flip2.setPosition(0.55);
-                servo_outtake_flip1.setPosition(0.45);
-                servo_outtake_rotate.setPosition(0.9);
+                servo_outtake_flip2.setPosition(0.6);
+                servo_outtake_flip1.setPosition(0.5);
+                servo_outtake_rotate.setPosition(0.75);
                 break;
             case 2: // More power to run on
                 servo_outtake_flip2.setPosition(0.5);
                 servo_outtake_flip1.setPosition(0.5);
-                servo_outtake_rotate.setPosition(0.9);
+                servo_outtake_rotate.setPosition(1);
                 break;
             case 3:
+
+
+
+
         }
         switch (outclawState) {
             case -1: // Init Pos
@@ -409,7 +446,7 @@ public class right_auto_new extends OpMode {
                 servo_outtake.setPosition(0.0);
                 break;
             case 1: // open
-                servo_outtake.setPosition(0.7);
+                servo_outtake.setPosition(1);
                 break;
 
 
@@ -459,10 +496,6 @@ public class right_auto_new extends OpMode {
 
         autonomousPathUpdate();
         autonomousActionUpdate();
-        telemetryA.addData("out zero", out_zero.isPressed());
-        telemetryA.addData("Pose", follower.getPose());
-        telemetryA.addData("time", opmodeTimer);
-        telemetry.update();
 
     }
 
@@ -538,12 +571,16 @@ public class right_auto_new extends OpMode {
 
         servo_outtake = hardwareMap.get(Servo.class, "outtake");
         servo_outtake_rotate = hardwareMap.get(Servo.class, "outtaker");
-
+        servo_outtake.setPosition(0.3);
+        servo_outtake_flip2.setPosition(0.9);
+        servo_outtake_flip1.setPosition(0.3);
+        servo_outtake_rotate.setPosition(0.9);
 
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
 
 
         out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
+
 
 
 

@@ -38,6 +38,8 @@ public class opmode_MAIN_Redesign extends OpMode {
 
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
+
+    boolean hang = false;
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
 
@@ -88,6 +90,8 @@ public class opmode_MAIN_Redesign extends OpMode {
 
     double driving_multiplier;
 
+    int nigga;
+    int nigga2;
 
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -250,7 +254,7 @@ public class opmode_MAIN_Redesign extends OpMode {
         telemetry.addData("flip2", servo_outtake_flip2.getPosition());
         telemetry.addData("defend", defend);
         telemetry.addData("pos",follower.getPose());
-
+        telemetry.addData("outisclosed", outisclosed);
 
         telemetry.update();
         follower.update();
@@ -281,9 +285,7 @@ public class opmode_MAIN_Redesign extends OpMode {
             telemetry.addData("up1", true);
             telemetry.addData("up2", true);
         } else if (gamepad2.right_stick_y > 0.5 && !up_zero.isPressed()) { // Down
-            goingdown = false;
-        } else if (gamepad2.right_stick_y > 0.5 && up_zero.isPressed()) {
-            telemetry.addData("lower limt reach", true);
+            goingdown = true;
         } else if(gamepad2.right_stick_y == 0) {
             goingdown = false;
             up1.setTargetPosition(up1.getCurrentPosition());
@@ -296,6 +298,21 @@ public class opmode_MAIN_Redesign extends OpMode {
 
             up1.setPower(1);
             up2.setPower(1);
+        }
+        if(gamepad2.touchpad) {
+            hang = true;
+            nigga = up1.getCurrentPosition();
+            nigga2 = up2.getCurrentPosition();
+        }
+        if(hang) {
+            up1.setTargetPosition(nigga);
+            up2.setTargetPosition(nigga2);
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up1.setPower(1);
+            up2.setPower(1);
+
+
         }
         if(goingdown) {
             if(!up_zero.isPressed()) {
@@ -333,61 +350,43 @@ public class opmode_MAIN_Redesign extends OpMode {
     }
     public void outtake_claw() {
         // manual outtake flip location //TODO: switch if needed
-        if (gamepad2.triangle) { //arm pickup
+        if (gamepad2.cross) { //arm pickup
             servo_outtake_flip2.setPosition(1);
             servo_outtake_flip1.setPosition(0);
             servo_outtake_rotate.setPosition(0.1);
         }
-        if (gamepad2.cross) { //arm down
-            servo_outtake_flip2.setPosition(0.55);
-            servo_outtake_flip1.setPosition(0.45);
-            servo_outtake_rotate.setPosition(0.9);
+        if (gamepad2.triangle) { //arm up
+            servo_outtake_flip2.setPosition(0.6);
+            servo_outtake_flip1.setPosition(0.5);
+            servo_outtake_rotate.setPosition(0.75);
         }
         if (gamepad2.options) { //arm hang pos (pull down)
-            servo_outtake_flip2.setPosition(0.5);
-            servo_outtake_flip1.setPosition(0.5);
-            servo_outtake_rotate.setPosition(0.9);
+            servo_outtake_flip2.setPosition(0.3);
+            servo_outtake_flip1.setPosition(0.7);
+            servo_outtake_rotate.setPosition(0.75);
         }
         if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
             outisclosed = !outisclosed;
-
-
         }
         if(outisclosed) {
-            servo_outtake.setPosition(0.0);
+            servo_outtake.setPosition(0.1);
         }
         if(!outisclosed) {
-            servo_outtake.setPosition(0.7);
+            servo_outtake.setPosition(1);
         }
     }
     public void intake_claw() {
         //servo intake control
-        if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
+        if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
             inisclosed = !inisclosed;
-
 
         }
         if(inisclosed) {
             servo_intake.setPosition(0.5);
         }
         if(!inisclosed) {
-            servo_intake.setPosition(servo_intake_open);
+            servo_intake.setPosition(0.9);
         }
-
-
-        //servo outtake control
-        if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
-            outisclosed = !outisclosed;
-
-
-        }
-        if(outisclosed) {
-            servo_outtake.setPosition(0.5);
-        }
-        if(!outisclosed) {
-            servo_outtake.setPosition(servo_intake_open);
-        }
-
 
         //intake rotate reset
         if (gamepad2.share) {
@@ -420,7 +419,6 @@ public class opmode_MAIN_Redesign extends OpMode {
         if (gamepad2.dpad_down) {
             servo_intake_wrist.setPosition(0.55);
         }
-
 
     }
 }
