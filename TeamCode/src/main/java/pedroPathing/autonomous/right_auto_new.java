@@ -6,7 +6,9 @@ import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -19,11 +21,14 @@ import com.pedropathing.util.NanoTimer;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -42,354 +47,70 @@ public class right_auto_new extends OpMode {
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
 
-    /// All motors / servos / sensors
-    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, servo_intake, servo_outtake, servo_outtake_rotate;
+
+    private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
     private DcMotorEx up1, up2, out;
     private TouchSensor up_zero, out_zero;
 
-    // Timers
-    private Timer opmodeTimer;
-    private NanoTimer pathTimer;
-    double pickup_x = 0.6;
-
-    int charles;
-    double turn_distance_x = 20; // Distance to start pickup
-    double pickups_y = 41.00; // Observation Zone pickup distance
-    private int pathState, armState, outclawState, outgrabState, stoneState; // Different cases and states of the different parts of the robot
-
-    // Poses, and pickUp Poses
-    private Pose startPose = new Pose(10.000, 55.000, 0); //TODO
-    private Pose curve2pushPose = new Pose(61, 28, 0); // turn spot so make sure it would be safe
-
-    /// hang poses, Make sure they running on hard enough (x), far enough from each other (y)
-    private Pose inithangPose = new Pose(36.000, 55.000, Point.CARTESIAN);
-    private Pose firsthangPose = new Pose(38.000, 77.000, Point.CARTESIAN);
-    private Pose secondhangPose = new Pose(38.000, 75.000, Point.CARTESIAN);
-    private Pose thirdhangPose = new Pose(38.000, 73.000, Point.CARTESIAN);
-    private Pose fourthhangPose = new Pose(38,71,Point.CARTESIAN);
-
-
-    /// push poses  for case transitions, pushPoses are when the sample is fully pushed, before is behind the sample
-    /// Adjust distance from observation zone (X)
-    /// make sure (y) is same as before push
-    private Pose push1 = new  Pose(20, 28, Point.CARTESIAN);
-    private Pose push2 = new Pose(20, 15, Point.CARTESIAN);
-    private Pose pickupPose1 = new Pose(12, 7, 0); // first pickup poses also doubles as end of push 3
-
-    /// adjust (X) to minimize overshoot , (y) to target the sample fully to push , make sure Y is same as push poses
-    private Pose beforepush2 = new Pose(60, 15, Point.CARTESIAN);
-    private Pose beforepush3 = new Pose(60, 7, Point.CARTESIAN);
-
-    /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
-    private Path init_hang, curve2push, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, third_hang_back, fourth_hang, fourth_hang_back;
-    private Path pickup;
-    private PathChain pushall;
-
-    private Telemetry telemetryA;
 
     boolean outisclosed = false;
 
     boolean inisclosed = false;
+    // Timers
+    private Timer opmodeTimer;
+    private NanoTimer pathTimer; // Timers for progression of states, in nano seconds
+
+    // Important Pose parts
+    double pickup_x = 0.6; // Distance from the claw to the sample
+    double turn_distance_x = 20; // Distance to start pickup
+    double pickups_y = 41.00; // Observation Zone pickup distance
+    private int pathState, armState, outclawState, outgrabState; // Different cases and states of the different parts of the robot
+
+    // Poses, and pickUp Poses
+    private Pose startPose = new Pose(10, 67.0, Math.toRadians(0)); //TODO
+    private Pose readyPose = new Pose(turn_distance_x,pickups_y, Math.toRadians(180)); // turn spot so make sure it would be safe
+    private Pose pickupPose = new Pose(pickup_x, pickups_y, Math.toRadians(180));
+    private Pose pickupPose1 = new Pose(pickup_x,18,Math.toRadians(180)); // first pickup poses
+
+    /// hang poses
+    private Pose hangPose = new Pose(35, 74, Math.toRadians(0)); // Hits it pretty hard, but its fine
+    private Pose firsthangPose = new Pose(36.1,71,0); // Quick hang, then back
+    private Pose secondhangPose = new Pose(36.1,65,0); // Should be quick hang, but idk they all mess up around here but somehow everything just works fine
+    private Pose thirdhangPose = new Pose(36.3, 72,0); // Last hang
+
+    /// push poses  for case transitions
+    private Pose pushstart = new  Pose(59,30,Math.toRadians(180)); // Bezier curve end behind second sample point
+    private Pose firstpushPose = new Pose(20,30, Math.toRadians(0)); // ^^ only x matters, keep y same
+    private Pose pushstart2 = new Pose(59,18,Math.toRadians(180));  // same
+
+    /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
+    private Path hang_First, pickup, first_hang, first_hang_back, second_hang, second_hang_back, third_hang, park;
+    private PathChain pushFirst, pushSecond;
+
+    // Motors
+    private Telemetry telemetryA;
+
+    // variables
+    int up_hanging_position = 1778; //DONE: calibrate this value, viper slide position to
+    int up_hanging_position_done = 1559; //TODO: calibrate this value, position of viper slide when releasing after speciman is on the bar.
+
     public void buildPaths() {
-        init_hang = new Path(
-                /// init hang path
-                new BezierLine(
-                        new Point(startPose),
-                        new Point(inithangPose)
-                )
-        );
-        init_hang.setConstantHeadingInterpolation(Math.toRadians(0));
-        curve2push = new Path(
-                        /// behind first, make sure this doesn't hit the sub
-                        new BezierCurve(
-                                new Point(inithangPose),
-                                new Point(28.163, 31.013, Point.CARTESIAN),
-                                new Point(curve2pushPose)
-                        )
-                );
-        curve2push.setConstantHeadingInterpolation(Math.toRadians(0));
-        pushall = follower.pathBuilder()
-                .addPath(
-                        /// push first
-                        new BezierLine(
-                                new Point(curve2pushPose),
-                                new Point(push1)
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
-                .addPath(
-                        /// behind second sample
-                        new BezierCurve(
-                                new Point(push1),
-                                new Point(61.427, 27.879, Point.CARTESIAN), /// changed
-                                new Point(beforepush2)
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
-                .addPath(
-                        /// pushes second
-                        new BezierLine(
-                                new Point(beforepush2),
-                                new Point(push2)
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
-                .addPath(
-                        /// gets behind third
-                        new BezierCurve(
-                                new Point(push2),
-                                new Point(60,15,Point.CARTESIAN),
-                                new Point(beforepush3)
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
-                .addPath(  /// Pushes third
-                        // Line 7
-                        new BezierLine(
-                                new Point(beforepush3),
-                                new Point(pickupPose1)
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
-                .build();
-
-
-
-
-                /// First hang
-                first_hang = new Path(
-                        // Line 1
-                        new BezierLine(
-                                new Point(pickupPose1),
-                                new Point(firsthangPose)
-                        )
-                );
-                first_hang.setConstantHeadingInterpolation(Math.toRadians(0));
-                first_hang_back = new Path(
-                        // Line 2
-                        new BezierLine(
-                                new Point(38.000, 77.000, Point.CARTESIAN),
-                                new Point(15.000, 36.000, Point.CARTESIAN)
-                        )
-                );
-                first_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
-                pickup = new Path(
-                        // Line 3
-                        new BezierLine(
-                                new Point(15.000, 36.000, Point.CARTESIAN),
-                                new Point(10, 36.000, Point.CARTESIAN)
-                        )
-                );
-                pickup.setConstantHeadingInterpolation(Math.toRadians(0));
-                second_hang = new Path(
-                        // Line 4
-                        new BezierLine(
-                                new Point(10.000, 36.000, Point.CARTESIAN),
-                                new Point(secondhangPose)
-                        )
-                );
-                second_hang.setConstantHeadingInterpolation(Math.toRadians(0));
-                second_hang_back = new Path(
-                        // Line 5
-                        new BezierLine(
-                                new Point(secondhangPose),
-                                new Point(15.000, 36.000, Point.CARTESIAN)
-                        )
-                );
-                second_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
-                /// Run pickup
-                third_hang = new Path(
-                        // Line 7
-                        new BezierLine(
-                                new Point(10.000, 36.000, Point.CARTESIAN),
-                                new Point(thirdhangPose)
-                        )
-                );
-                third_hang.setConstantHeadingInterpolation(Math.toRadians(0));
-                third_hang_back = new Path(
-                        // Line 8
-                        new BezierLine(
-                                new Point(thirdhangPose),
-                                new Point(15.000, 36.000, Point.CARTESIAN)
-                        )
-                );
-                third_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
-                /// Run pickup
-
-                fourth_hang = new Path(
-                        // Line 10
-                        new BezierLine(
-                                new Point(10.000, 36.000, Point.CARTESIAN),
-                                new Point(fourthhangPose)
-                        )
-                );
-                fourth_hang.setConstantHeadingInterpolation(Math.toRadians(0));
-                fourth_hang_back = new Path(
-                        // Line 11
-                        new BezierLine(
-                                new Point(fourthhangPose),
-                                new Point(15, 36, Point.CARTESIAN)
-                        )
-                );
-                fourth_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case -1: // empty case for testing
-                // setArmState();
-                setstonestate(0);
-                break;
-            case 0:
-                //setArmState(1); // Ready pos
-                follower.followPath(init_hang);
-                setPathState(101);
-                break;
-            case 101: /// Hang
-                if(!follower.isBusy()) {
-                    //setArmState(2);
-                    setPathState(102);
-                }
-                break;
-            case 102:
-                if(pathTimer.getElapsedTime() > (0.25*(Math.pow(10,9)))) {
-                    //setoutClawState(1);
-                    setPathState(1);
-                }
-                break;
-            case 1:
-                follower.followPath(curve2push);
-                setPathState(201);
-                break;
-            case 201:
-                if (pathTimer.getElapsedTime() > (0.5*(Math.pow(10,9)))) {
-                    telemetryA.addData("YOYOYOYOYOYO", true);
-                    //setArmState(0);
-                    setPathState(2);
-                }
-                break;
-            case 2:
-                if (!follower.isBusy()) {
-                    follower.followPath(pushall);
-                    setPathState(3);
-                }
-                break;
-            case 3:
-                if (!follower.isBusy()) {
-                    follower.followPath(first_hang);
-                    setPathState(4);
-                }
-                break;
-            case 4:
-                if (!follower.isBusy()) {
-                    follower.followPath(first_hang_back);
-                    setPathState(5);
-                }
-                break;
-            case 5:
-                if (!follower.isBusy()) {
-                    follower.followPath(pickup);
-                    setPathState(6);
-                }
-                break;
-            case 6:
-                if (!follower.isBusy()) {
-                    follower.followPath(second_hang);
-                    setPathState(7);
-                }
-                break;
-            case 7:
-                if (!follower.isBusy()) {
-                    follower.followPath(second_hang_back);
-                    setPathState(8);
-                }
-                break;
-            case 8:
-                if (!follower.isBusy()) {
-                    follower.followPath(pickup);
-                    setPathState(9);
-                }
-                break;
-            case 9:
-                if (!follower.isBusy()) {
-                    follower.followPath(third_hang);
-                    setPathState(10);
-                }
-                break;
-            case 10:
-                if (!follower.isBusy()) {
-                    follower.followPath(third_hang_back);
-                    setPathState(11);
-                }
-                break;
-            case 11:
-                if (!follower.isBusy()) {
-                    follower.followPath(pickup);
-                    setPathState(12);
-                }
-                break;
-            case 12:
-                if (!follower.isBusy()) {
-                    follower.followPath(fourth_hang);
-                    setPathState(13);
-                }
-                break;
-            case 13:
-                if (!follower.isBusy()) {
-                    follower.followPath(fourth_hang_back);
-                    setPathState(-1);
-                }
-                break;
+            case 2: //go to hang
+
         }
     }
     public void autonomousActionUpdate() {
             switch (armState) {
                 case -1: // default stop
-                    break;
-                case 0: // Zero Pos / pickup pos
-                    servo_outtake_flip2.setPosition(1);
-                    servo_outtake_flip1.setPosition(0);
-                    servo_outtake_rotate.setPosition(0.1);
-                    break;
-                case 1: // Run on position
-                    servo_outtake_flip2.setPosition(0.55);
-                    servo_outtake_flip1.setPosition(0.45);
-                    servo_outtake_rotate.setPosition(0.9);
-                    break;
-                case 2: // More power to run on
-                    servo_outtake_flip2.setPosition(0.5);
-                    servo_outtake_flip1.setPosition(0.5);
-                    servo_outtake_rotate.setPosition(0.9);
-                    break;
-                case 3:
+
+
             }
         switch (outclawState) {
             case -1: // Init Pos
-                break;
-            case 0: // closed
-                servo_outtake.setPosition(0.0);
-                break;
-            case 1: // open
-                servo_outtake.setPosition(0.7);
-                break;
-
-
-        }
-        switch (stoneState) {
-            case -1:
-                break;
-            case 0: // default stop always until i get a 6+0?
-                if(up_zero.isPressed()) {
-                    up1.setPower(-0.1);
-                    up2.setPower(-0.1);
-                } else {
-                    up1.setPower(0);
-                    up2.setPower(0);
-                }
-                out.setTargetPosition(0);
-                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                out.setPower(0.5);
-                break;
 
         }
     }
@@ -401,10 +122,7 @@ public class right_auto_new extends OpMode {
     public void setArmState(int aState) {
         armState = aState;
     }
-    public void setoutstate(int lState) {
-        armState = lState;
-    }
-    public void setstonestate(int gstate) {
+    public void setoutGrabState(int gstate) {
         outgrabState = gstate;
     }
     public void setoutClawState(int cState) {
@@ -419,7 +137,24 @@ public class right_auto_new extends OpMode {
 
         autonomousPathUpdate();
         autonomousActionUpdate();
-        
+
+
+        // Feedback to Driver Hub, states and timers
+        telemetryA.addData("path state", pathState);
+        telemetryA.addData("arm state", armState);
+        telemetryA.addData("claw state", outclawState);
+        telemetryA.addData("out grab state", outgrabState);
+        telemetryA.addData("pathtimer elapsed time", pathTimer.getElapsedTimeSeconds());
+
+
+
+        // Poses, follower error
+        telemetryA.addData("x", follower.getPose().getX());
+        telemetryA.addData("y", follower.getPose().getY());
+        telemetryA.addData("heading", follower.getPose().getHeading());
+        telemetryA.addData("Follower busy", follower.isBusy());
+        telemetryA.addData("headingPID error", follower.headingError);
+        telemetryA.update();
     }
 
 
@@ -430,11 +165,6 @@ public class right_auto_new extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
-
-        pathTimer = new NanoTimer();
-        opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
         leftRear = hardwareMap.get(DcMotorEx.class, leftRearMotorName);
@@ -446,12 +176,11 @@ public class right_auto_new extends OpMode {
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        follower.startTeleopDrive();
 
         out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        out.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        out.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //from rr version
 
@@ -479,20 +208,33 @@ public class right_auto_new extends OpMode {
 
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
 
-        out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
-
+        Pose startPose = new Pose(15, 40.0, Math.toRadians(0)); //TODO
+        follower.setStartingPose(startPose);
 
         inisclosed = false;
 
-        outisclosed = true;
+        outisclosed = false;
 
 
+    }
+
+    @Override
+    public void init_loop() {
+
+
+        // After 4 Seconds, Robot Initialization is complete
+        if (opmodeTimer.getElapsedTimeSeconds() > 4) {
+            telemetryA.addData("ready to cook cook cook cook cook", "Finished");
+        }
     }
     @Override
     public void start() {
         buildPaths();
-        setPathState(0);
-        setoutstate(-1);
+        opmodeTimer.resetTimer();
+        setPathState(2);
+        setArmState(-1);
+        setoutGrabState(-1);
+        setoutClawState(-1);
     }
     @Override
     public void stop() {
