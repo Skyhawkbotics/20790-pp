@@ -53,6 +53,7 @@ public class left_auto extends OpMode {
     private Pose bucketPose = new Pose(15, 129, Math.toRadians(135)); //TODO
 
     /// Paths, and path chains : pushFirst and pushSecond are called after hangFirst
+
     private Path preload, pickup1, basket1, pickup2, basket2, pickup3, basket3, park;
     //private PathChain ;//TODO: Trevor, idt we have any path chains, right?
 
@@ -70,9 +71,7 @@ public class left_auto extends OpMode {
     int outarm_transfer_position = 0;//TODO: set value
     int basket_height = 2800;
 
-
-
-    public void buildPaths() { //TODO: Trevor needs to change these paths
+    public void buildPaths() {
         // preload
         preload = new Path(
                 new BezierLine(
