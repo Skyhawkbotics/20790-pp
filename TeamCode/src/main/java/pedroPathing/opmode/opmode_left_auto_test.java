@@ -1,3 +1,12 @@
+/*HOW THIS IS SUPPOSED TO WORK
+1. Lay out a sample - human's job
+2. Triangle to grab the sample
+3. Circle to initiate transfer position
+4. Cross to transfer
+5. Square to prepare drop
+6. Right_Bumper to drop sample
+*/
+
 package pedroPathing.opmode;
 
 
