@@ -9,6 +9,7 @@ import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
 import com.acmerobotics.dashboard.message.redux.ReceiveGamepadState;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
@@ -114,6 +115,11 @@ public class opmode_MAIN_Redesign extends OpMode {
         //PATHING
     }
 
+    public void stop() {
+        follower.holdPoint(follower.getPose());
+        follower.update();
+    }
+
 
     @Override
     public void init() {
@@ -126,11 +132,13 @@ public class opmode_MAIN_Redesign extends OpMode {
         rightRear = hardwareMap.get(DcMotorEx.class, rightRearMotorName);
         rightFront = hardwareMap.get(DcMotorEx.class, rightFrontMotorName);
 
-
+/*
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+ */
 
 
         follower.startTeleopDrive();
@@ -181,8 +189,6 @@ public class opmode_MAIN_Redesign extends OpMode {
 
         Pose startPose = new Pose(15, 40.0, Math.toRadians(0)); //TODO
         follower.setStartingPose(startPose);
-
-
         inisclosed = false;
 
 
@@ -212,6 +218,8 @@ public class opmode_MAIN_Redesign extends OpMode {
         outtake_claw();
         if(!defend) {
             follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * 0.5, -gamepad1.left_stick_x * 0.5, -gamepad1.right_stick_x * 0.5);
+
+
         } else if (defend){
             follower.holdPoint(follower.getPose());
         }
@@ -362,16 +370,16 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_outtake_flip2.setPosition(0.58);
             servo_outtake_flip1.setPosition(0.42);
             servo_outtake_rotate.setPosition(0.805);
-            //nigganigganigga = true;
+            nigganigganigga = true;
         }
         if(nigganigganigga) {
-            up1.setTargetPosition(471);
-            up2.setTargetPosition(471);
+            up1.setTargetPosition(61);
+            up2.setTargetPosition(61);
             up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up1.setPower(1);
             up2.setPower(1);
-            if(up1.getCurrentPosition() == 471) {
+            if(up1.getCurrentPosition() == 61) {
                 nigganigganigga = false;
             }
 
