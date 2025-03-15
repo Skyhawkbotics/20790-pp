@@ -147,14 +147,14 @@ public class left_auto extends OpMode {
 
             case 2: //go to basket preload sample
                 follower.followPath(preload);
-                upArmState = 1;
-                outtakeState = 1;
+                setUpArmState(1);
+                setOuttakeState(1);
                 if (!follower.isBusy()) {
                     setPathState(3);
                 }
                 break;
             case 3: //let go
-                outtakeState = 2;
+                setOuttakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(4);
                 }
@@ -164,45 +164,45 @@ public class left_auto extends OpMode {
 
             case 4: //go to pickup pos
                 follower.followPath(pickup1);
-                outArmState = 1;
-                intakeState = 1;
+                setOutArmState(1);
+                setIntakeState(1);
                 if (!follower.isBusy()) {
                     setPathState(5);
                 }
                 break;
             case 5: //actually pickup
-                intakeState = 2;
+                setIntakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
                     setPathState(6);
                 }
                 break;
             case 6: //transfer pos
-                intakeState = 9;
-                outArmState = 9;
-                upArmState = 0; //TODO: is this right for transfer? if not also change others with same todo!
-                outtakeState = 9;
+                setIntakeState(9);
+                setOutArmState(9);
+                setUpArmState(0); //TODO: is this right for transfer? if not also change others with same todo!
+                setOuttakeState(9);
                 if (pathTimer.getElapsedTimeSeconds() > 2) {
                     setPathState(7);
                 }
                 break;
             case 7: //transfer
-                intakeState = 10;
-                outtakeState = 10;
+                setIntakeState(10);
+                setOuttakeState(10);
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(8);
                 }
                 break;
             case 8: //goto hang pos
-                outtakeState = 1;
-                outArmState = 0;
-                upArmState = 1;
+                setOuttakeState(1);
+                setOutArmState(0);
+                setUpArmState(1);
                 follower.followPath(basket1);
                 if (!follower.isBusy()) {
                     setPathState(9);
                 }
                 break;
             case 9:
-                outtakeState = 2;
+                setOuttakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(10);
                 }
@@ -212,45 +212,45 @@ public class left_auto extends OpMode {
 
             case 10: //go to pickup pos
                 follower.followPath(pickup2);
-                outArmState = 1;
-                intakeState = 1;
+                setOutArmState(1);
+                setIntakeState(1);
                 if (!follower.isBusy()) {
                     setPathState(11);
                 }
                 break;
             case 11: //actually pickup
-                intakeState = 2;
+                setIntakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
                     setPathState(12);
                 }
                 break;
             case 12: //transfer pos
-                intakeState = 9;
-                outArmState = 9;
-                upArmState = 0; //TODO: is this right for transfer? if not also change others with same todo!
-                outtakeState = 9;
+                setIntakeState(9);
+                setOutArmState(9);
+                setUpArmState(0); //TODO: is this right for transfer? if not also change others with same todo!
+                setOuttakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 2) {
                     setPathState(13);
                 }
                 break;
             case 13: //transfer
-                intakeState = 10;
-                outtakeState = 10;
+                setIntakeState(10);
+                setOuttakeState(10);
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(14);
                 }
                 break;
             case 14: //goto hang pos
-                outtakeState = 1;
-                outArmState = 0;
-                upArmState = 1;
+                setOuttakeState(1);
+                setOutArmState(0);
+                setUpArmState(1);
                 follower.followPath(basket2);
                 if (!follower.isBusy()) {
                     setPathState(15);
                 }
                 break;
             case 15:
-                outtakeState = 2;
+                setOuttakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(16);
                 }
@@ -260,45 +260,45 @@ public class left_auto extends OpMode {
 
             case 16: //go to pickup pos
                 follower.followPath(pickup3);
-                outArmState = 1;
-                intakeState = 1;
+                setOutArmState(1);
+                setIntakeState(1);
                 if (!follower.isBusy()) {
                     setPathState(17);
                 }
                 break;
             case 17: //actually pickup
-                intakeState = 2;
+                setIntakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
                     setPathState(18);
                 }
                 break;
             case 18: //transfer pos
-                intakeState = 9;
-                outArmState = 9;
-                upArmState = 0; //TODO: is this right for transfer? if not also change others with same todo!
-                outtakeState = 9;
+                setIntakeState(9);
+                setOutArmState(9);
+                setUpArmState(0); //TODO: is this right for transfer? if not also change others with same todo!
+                setOuttakeState(9);
                 if (pathTimer.getElapsedTimeSeconds() > 2) {
                     setPathState(19);
                 }
                 break;
             case 19: //transfer
                 intakeState = 10;
-                outtakeState = 10;
+                setOuttakeState(10);
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(20);
                 }
                 break;
             case 20: //goto hang pos
-                outtakeState = 1;
-                outArmState = 0;
-                upArmState = 1;
+                setOuttakeState(1);
+                setOutArmState(0);
+                setUpArmState(1);
                 follower.followPath(basket3);
                 if (!follower.isBusy()) {
                     setPathState(21);
                 }
                 break;
             case 21:
-                outtakeState = 2;
+                setOuttakeState(2);
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(22);
                 }
@@ -308,10 +308,10 @@ public class left_auto extends OpMode {
 
             case 22:
                 follower.followPath(park);
-                intakeState = 0;
-                outtakeState = 0;
-                outArmState = 0;
-                upArmState = 0;
+                setIntakeState(0);
+                setOuttakeState(0);
+                setOutArmState(0);
+                setUpArmState(0);
 
         }
     }
@@ -419,7 +419,21 @@ public class left_auto extends OpMode {
         pathState = pState;
         pathTimer.resetTimer();
     }
+    public void setOuttakeState(int otState) {
+        outtakeState = otState;
+    }
 
+    public void setIntakeState(int itState) {
+        intakeState = itState;
+    }
+
+    public void setOutArmState(int oaState) {
+        outArmState = oaState;
+    }
+
+    public void setUpArmState(int uaState) {
+        upArmState = uaState;
+    }
 
 
     @Override
@@ -519,6 +533,7 @@ public class left_auto extends OpMode {
         opmodeTimer.resetTimer();
         //TODO: Change all of these values below
         setPathState(2);
+
 
     }
 
