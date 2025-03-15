@@ -533,6 +533,10 @@ public class left_auto extends OpMode {
         opmodeTimer.resetTimer();
         //TODO: Change all of these values below
         setPathState(2);
+        setIntakeState(0);
+        setOuttakeState(0);
+        setOutArmState(0);
+        setUpArmState(0);
 
 
     }
