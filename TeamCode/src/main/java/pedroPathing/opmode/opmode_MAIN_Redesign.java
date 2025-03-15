@@ -62,6 +62,8 @@ public class opmode_MAIN_Redesign extends OpMode {
 
     boolean defend = false;
 
+    boolean nigganigganigga = false;
+
 
     boolean outisclosed = false;
 
@@ -353,28 +355,43 @@ public class opmode_MAIN_Redesign extends OpMode {
         if (gamepad2.cross) { //arm pickup
             servo_outtake_flip2.setPosition(1);
             servo_outtake_flip1.setPosition(0);
-            servo_outtake_rotate.setPosition(0.1);
+            servo_outtake_rotate.setPosition(0.165);
         }
         if (gamepad2.triangle) { //arm up
-            servo_outtake_flip2.setPosition(0.6);
-            servo_outtake_flip1.setPosition(0.5);
-            servo_outtake_rotate.setPosition(0.75);
+
+            servo_outtake_flip2.setPosition(0.58);
+            servo_outtake_flip1.setPosition(0.42);
+            servo_outtake_rotate.setPosition(0.805);
+            //nigganigganigga = true;
+        }
+        if(nigganigganigga) {
+            up1.setTargetPosition(471);
+            up2.setTargetPosition(471);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up1.setPower(1);
+            up2.setPower(1);
+            if(up1.getCurrentPosition() == 471) {
+                nigganigganigga = false;
+            }
+
+
         }
         if (gamepad2.options) { //arm hang pos (pull down)
-            servo_outtake_flip2.setPosition(0.3);
-            servo_outtake_flip1.setPosition(0.7);
-            servo_outtake_rotate.setPosition(0.75);
+            servo_outtake_flip2.setPosition(0.2);
+            servo_outtake_flip1.setPosition(0.8);
+            servo_outtake_rotate.setPosition(0.165);
         }
         if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
             outisclosed = !outisclosed;
         }
         if(outisclosed) {
-            servo_outtake.setPosition(0.1);
+            servo_outtake.setPosition(0.425);
         }
         if(!outisclosed) {
             servo_outtake.setPosition(1);
         }
-    }
+    }/// 6839
     public void intake_claw() {
         //servo intake control
         if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {

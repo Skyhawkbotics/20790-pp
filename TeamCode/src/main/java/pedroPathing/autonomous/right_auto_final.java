@@ -341,6 +341,7 @@ public class right_auto_final extends OpMode {
                 break;
             case 18:
                 if(!follower.isBusy()) {
+                    setoutClawState(0);
                     setPathState(181);
                 }
                 break;
@@ -348,7 +349,6 @@ public class right_auto_final extends OpMode {
                 if (pathTimer.getElapsedTime() > (0.1*Math.pow(10,9))) { // pickup time
                     follower.followPath(third_hang);
                     setArmState(1);
-                    setoutClawState(1);
                     setoutGrabState(4);
                     setPathState(185);
                 }
