@@ -317,6 +317,7 @@ public class right_auto_run extends OpMode {
                 break;
             case 101: /// Hang
                 if (!follower.isBusy()) {
+                    setArmState(2);
                     setoutClawState(1); // release
                     setPathState(203);
                 }
@@ -365,7 +366,7 @@ public class right_auto_run extends OpMode {
                 }
                 break;
             case 5011:
-                if (pathTimer.getElapsedTime() > (1 * (Math.pow(10, 9)))) { // Time to release
+                if (pathTimer.getElapsedTime() > (0.5 * (Math.pow(10, 9)))) { // Time to release
                     setoutClawState(1);
                     //follower.followPath(first_hang_back);
                     setPathState(501);
@@ -374,7 +375,7 @@ public class right_auto_run extends OpMode {
                 break;
 
             case 501:
-                if (pathTimer.getElapsedTime() > (0.2 * (Math.pow(10, 9)))) { // Time to get out of direciton of specimen
+                if (pathTimer.getElapsedTime() > (0.5 * (Math.pow(10, 9)))) { // Time to get out of direciton of specimen
                     follower.followPath(first_hang_back);
                     setArmState(0);
                     setPathState(5);
@@ -396,7 +397,7 @@ public class right_auto_run extends OpMode {
                 break;
             case 602:
                 if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) { // time to grab
-                    setArmState(22);
+                    setArmState(1);
                     setPathState(6);
                 }
                 break;
@@ -408,6 +409,7 @@ public class right_auto_run extends OpMode {
                 break;
             case 7:
                 if (!follower.isBusy()) { // waits for until its at position
+                    setArmState(2);
                     setoutClawState(1); // lets go
                     setPathState(801);
                 }
@@ -419,7 +421,7 @@ public class right_auto_run extends OpMode {
                 }
                 break;
             case 802:
-                if (pathTimer.getElapsedTime() > (0.1 * (Math.pow(10, 9)))) { // time to get out
+                if (pathTimer.getElapsedTime() > (0.2 * (Math.pow(10, 9)))) { // time to get out
                     setArmState(0);
                     setPathState(8);
                 }
@@ -539,7 +541,7 @@ public class right_auto_run extends OpMode {
             case -1: // Init Pos
                 break;
             case 0: // closed
-                servo_outtake.setPosition(0.25);
+                servo_outtake.setPosition(0.20);
                 break;
             case 1: // open
                 servo_outtake.setPosition(1);

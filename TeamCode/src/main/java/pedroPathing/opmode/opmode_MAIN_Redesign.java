@@ -366,9 +366,9 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_outtake_rotate.setPosition(0.165);
         }
         if (gamepad2.triangle) { //arm up
-            servo_outtake_flip2.setPosition(0.58);
-            servo_outtake_flip1.setPosition(0.42);
-            servo_outtake_rotate.setPosition(0.755);
+            servo_outtake_flip2.setPosition(0.565);
+            servo_outtake_flip1.setPosition(0.435);
+            servo_outtake_rotate.setPosition(0.85);
         }
 
 
