@@ -366,35 +366,23 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_outtake_rotate.setPosition(0.165);
         }
         if (gamepad2.triangle) { //arm up
-
             servo_outtake_flip2.setPosition(0.58);
             servo_outtake_flip1.setPosition(0.42);
-            servo_outtake_rotate.setPosition(0.805);
-            nigganigganigga = true;
+            servo_outtake_rotate.setPosition(0.755);
         }
-        if(nigganigganigga) {
-            up1.setTargetPosition(61);
-            up2.setTargetPosition(61);
-            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up1.setPower(1);
-            up2.setPower(1);
-            if(up1.getCurrentPosition() == 61) {
-                nigganigganigga = false;
-            }
 
 
-        }
+
         if (gamepad2.options) { //arm hang pos (pull down)
-            servo_outtake_flip2.setPosition(0.2);
-            servo_outtake_flip1.setPosition(0.8);
-            servo_outtake_rotate.setPosition(0.165);
+            servo_outtake_flip2.setPosition(0.4);
+            servo_outtake_flip1.setPosition(0.6);
+            servo_outtake_rotate.setPosition(0.805);
         }
-        if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
+        if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
             outisclosed = !outisclosed;
         }
         if(outisclosed) {
-            servo_outtake.setPosition(0.425);
+            servo_outtake.setPosition(0.3);
         }
         if(!outisclosed) {
             servo_outtake.setPosition(1);
@@ -402,15 +390,15 @@ public class opmode_MAIN_Redesign extends OpMode {
     }/// 6839
     public void intake_claw() {
         //servo intake control
-        if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
+        if (currentgamepad2.left_bumper && !previousgamepad2.left_bumper) {
             inisclosed = !inisclosed;
 
         }
         if(inisclosed) {
-            servo_intake.setPosition(0.5);
+            servo_intake.setPosition(0.7);
         }
         if(!inisclosed) {
-            servo_intake.setPosition(0.9);
+            servo_intake.setPosition(1);
         }
 
         //intake rotate reset

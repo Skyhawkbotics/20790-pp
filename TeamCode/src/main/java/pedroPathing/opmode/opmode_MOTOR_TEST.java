@@ -375,6 +375,7 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         }
 
         */
+        /*
         if (gamepad2.left_stick_x > 0.1) {
             pivot_pos -= 0.015;
             pivot_pose2 += 0.015;
@@ -403,7 +404,9 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
 
 
 
-         /*
+         */
+
+
         if (gamepad2.left_stick_x > 0.1) {
             servo_outtake_location -= 0.015;
         }
@@ -436,7 +439,7 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         servo_outtake_rotate.setPosition(servo_outtake_r);
 
 
-          */
+
 
     }
     public void intake_claw() {
