@@ -77,10 +77,10 @@ public class right_auto_run extends OpMode {
 
     /// hang poses, Make sure they running on hard enough (x), far enough from each other (y)
     private Pose inithangPose = new Pose(37.000, 65.000, Point.CARTESIAN);
-    private Pose firsthangPose = new Pose(37, 73.000, Point.CARTESIAN);
-    private Pose secondhangPose = new Pose(37, 69.000, Point.CARTESIAN);
-    private Pose thirdhangPose = new Pose(37, 67.000, Point.CARTESIAN); // changed from 69
-    private Pose fourthhangPose = new Pose(37,65,Point.CARTESIAN);
+    private Pose firsthangPose = new Pose(38, 73.000, Point.CARTESIAN);
+    private Pose secondhangPose = new Pose(38, 69.000, Point.CARTESIAN);
+    private Pose thirdhangPose = new Pose(38, 67.000, Point.CARTESIAN); // changed from 69
+    private Pose fourthhangPose = new Pose(38,65,Point.CARTESIAN);
 
 
 
@@ -185,7 +185,7 @@ public class right_auto_run extends OpMode {
                 .addPath(
                         new BezierLine(
                                 new Point(35,16.000,Point.CARTESIAN),
-                                new Point(11,16.000,Point.CARTESIAN)
+                                new Point(9,16.000,Point.CARTESIAN)
                         ))
                 .setConstantHeadingInterpolation(0)
                 .setZeroPowerAccelerationMultiplier(2)
@@ -203,7 +203,7 @@ public class right_auto_run extends OpMode {
         first_hang = new Path(
                 // Line 1
                 new BezierCurve(
-                        new Point(11,16),
+                        new Point(9,16),
                         new Point(firsthangPose)
                 )
         );
@@ -227,14 +227,14 @@ public class right_auto_run extends OpMode {
                 // Line 3
                 new BezierLine(
                         new Point(20.000, 36.000, Point.CARTESIAN),
-                        new Point(11, 36.000, Point.CARTESIAN)
+                        new Point(9, 36.000, Point.CARTESIAN)
                 )
         );
         pickup.setConstantHeadingInterpolation(Math.toRadians(0));
         second_hang = new Path(
                 // Line 4
                 new BezierLine(
-                        new Point(11.000, 36.000, Point.CARTESIAN),
+                        new Point(9.000, 36.000, Point.CARTESIAN),
                         new Point(secondhangPose)
                 )
         );
@@ -258,7 +258,7 @@ public class right_auto_run extends OpMode {
         third_hang = new Path(
                 // Line 7
                 new BezierLine(
-                        new Point(11.000, 36.000, Point.CARTESIAN),
+                        new Point(9.000, 36.000, Point.CARTESIAN),
                         new Point(thirdhangPose)
                 )
         );
@@ -293,7 +293,7 @@ public class right_auto_run extends OpMode {
                 // Line 11
                 new BezierLine(
                         new Point(fourthhangPose),
-                        new Point(11, 36, Point.CARTESIAN)
+                        new Point(9, 36, Point.CARTESIAN)
                 )
         );
         fourth_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
