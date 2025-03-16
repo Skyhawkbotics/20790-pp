@@ -382,7 +382,7 @@ public class opmode_MAIN_Redesign extends OpMode {
             outisclosed = !outisclosed;
         }
         if(outisclosed) {
-            servo_outtake.setPosition(0.3);
+            servo_outtake.setPosition(0.33);
         }
         if(!outisclosed) {
             servo_outtake.setPosition(1);
@@ -395,15 +395,15 @@ public class opmode_MAIN_Redesign extends OpMode {
 
         }
         if(inisclosed) {
-            servo_intake.setPosition(0.7);
+            servo_intake.setPosition(0.25);
         }
         if(!inisclosed) {
-            servo_intake.setPosition(1);
+            servo_intake.setPosition(0.8);
         }
 
         //intake rotate reset
         if (gamepad2.share) {
-            servo_intake_rotate_location = 0.5; //TODO: tune if needed
+            servo_intake_rotate_location = 0.5; /// Tuned
             servo_intake_wrist.setPosition(0.25);
         }
         // manual intake rotate location
@@ -430,7 +430,7 @@ public class opmode_MAIN_Redesign extends OpMode {
             servo_intake_wrist.setPosition(0.45);
         }
         if (gamepad2.dpad_down) {
-            servo_intake_wrist.setPosition(0.55);
+            servo_intake_wrist.setPosition(0.58);
         }
 
     }

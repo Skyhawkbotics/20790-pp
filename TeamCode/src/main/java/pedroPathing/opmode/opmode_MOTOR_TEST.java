@@ -79,6 +79,8 @@ public class opmode_MOTOR_TEST extends OpMode {
 
     double servo_outtake_location= 0.5;
 
+    double Servo_intake_location = 0;
+
     double servo_outtake_r = 0.5;
 
     double pivot_pos = 0;
@@ -252,7 +254,8 @@ public class opmode_MOTOR_TEST extends OpMode {
          */
         telemetry.addData("flip1", servo_outtake_flip1.getPosition());
         telemetry.addData("flip2", servo_outtake_flip2.getPosition());
-
+        telemetry.addData("intake pos", servo_intake.getPosition());
+        telemetry.addData("intake pos rotate", servo_intake_rotate.getPosition());
 
 
 
@@ -269,7 +272,7 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
 
 
     public void viper_slide() {
-        /*if(up1.getCurrentPosition() == arm_upper_lim) {
+        if(up1.getCurrentPosition() == arm_upper_lim) {
             telemetry.addData("upper limit reached", true);
         }
         if (gamepad2.right_stick_y < -0.5) { // Up
@@ -334,7 +337,7 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
             }
         }
 
-         */
+
     }
     /*public void misumi_slide() {
         // Misumi Slide
@@ -375,7 +378,7 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         }
 
         */
-        /*
+
         if (gamepad2.left_stick_x > 0.1) {
             pivot_pos -= 0.015;
             pivot_pose2 += 0.015;
@@ -404,10 +407,11 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
 
 
 
-         */
 
 
-        if (gamepad2.left_stick_x > 0.1) {
+            // TODO : Closed is 0.3, open is 1
+
+       /* if (gamepad2.left_stick_x > 0.1) {
             servo_outtake_location -= 0.015;
         }
         if (gamepad2.left_stick_x < -0.1) {
@@ -419,10 +423,7 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         } else if (servo_outtake_location < 0) {
             servo_outtake_location = 0;
         }
-        /// todo 0.805 for rotate
-        // toido niga 0.165 hang
-        /// todo 0.105 for outtake clsoed
-        /// todo 0.705 open
+
         servo_outtake.setPosition(servo_outtake_location);
         if (gamepad2.left_stick_y > 0.1) {
             servo_outtake_r -= 0.015;
@@ -438,24 +439,50 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         }
         servo_outtake_rotate.setPosition(servo_outtake_r);
 
+        */
+
 
 
 
     }
-    public void intake_claw() {
-        //servo intake control
-        /*if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
-            inisclosed = !inisclosed;
+    public void intake_claw() {/*
+        // TODO open is 0.8
+        // TODO closed is 0.25
 
+        // TODO rotate is 0.5 midpoint
+
+         if (gamepad2.left_stick_x > 0.1) {
+            servo_intake_location -= 0.015;
         }
-        if(inisclosed) {
-            servo_intake.setPosition(0.5);
-        }
-        if(!inisclosed) {
-            servo_intake.setPosition(0.9);
+        if (gamepad2.left_stick_x < -0.1) {
+            servo_intake_location += 0.015;
         }
 
-        //intake rotate reset
+        if (servo_intake_location > 1) {
+            servo_intake_location = 1;
+        } else if (servo_intake_location < 0) {
+            servo_intake_location = 0;
+        }
+
+        servo_intake.setPosition(servo_intake_location);
+        if (gamepad2.left_stick_y > 0.1) {
+            servo_intake_rotate_location -= 0.015;
+        }
+        if (gamepad2.left_stick_y < -0.1) {
+            servo_intake_rotate_location += 0.015;
+        }
+
+        if (servo_intake_rotate_location > 1) {
+            servo_intake_rotate_location = 1;
+        } else if (servo_intake_rotate_location < 0) {
+            servo_intake_rotate_location = 0;
+        }
+        servo_intake_rotate.setPosition(servo_intake_rotate_location);
+        */
+
+
+
+        /*//intake rotate reset
         if (gamepad2.share) {
             servo_intake_rotate_location = 0.5; //TODO: tune if needed
             servo_intake_wrist.setPosition(0.25);
@@ -486,7 +513,6 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         if (gamepad2.dpad_down) {
             servo_intake_wrist.setPosition(0.55);
         }
-
 
          */
     }

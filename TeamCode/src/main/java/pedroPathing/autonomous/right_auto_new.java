@@ -77,10 +77,10 @@ public class right_auto_new extends OpMode {
 
     /// hang poses, Make sure they running on hard enough (x), far enough from each other (y)
     private Pose inithangPose = new Pose(37.000, 65.000, Point.CARTESIAN);
-    private Pose firsthangPose = new Pose(19, 73.000, Point.CARTESIAN);
-    private Pose secondhangPose = new Pose(19, 71.000, Point.CARTESIAN);
-    private Pose thirdhangPose = new Pose(19, 69.000, Point.CARTESIAN); // changed from 69
-    private Pose fourthhangPose = new Pose(19,71,Point.CARTESIAN);
+    private Pose firsthangPose = new Pose(34, 73.000, Point.CARTESIAN);
+    private Pose secondhangPose = new Pose(34, 69.000, Point.CARTESIAN);
+    private Pose thirdhangPose = new Pose(34, 67.000, Point.CARTESIAN); // changed from 69
+    private Pose fourthhangPose = new Pose(34,65,Point.CARTESIAN);
 
 
 
@@ -178,14 +178,14 @@ public class right_auto_new extends OpMode {
                 .addPath(
                         new BezierLine(
                                 new Point(pickupPose1),
-                                new Point(20, 16, Point.CARTESIAN)
+                                new Point(20, 36.000, Point.CARTESIAN)
                         )
                 )
                 .setConstantHeadingInterpolation(0)
                 .addPath(
                         new BezierLine(
-                        new Point(20,16,Point.CARTESIAN),
-                        new Point(10,16,Point.CARTESIAN)
+                        new Point(20,36.000,Point.CARTESIAN),
+                        new Point(11,36.000,Point.CARTESIAN)
                 ))
                 .setConstantHeadingInterpolation(0)
                 .build();
@@ -217,7 +217,7 @@ public class right_auto_new extends OpMode {
         first_hang_back = new Path(
                 // Line 2
                 new BezierLine(
-                        new Point(37,73),
+                        new Point(firsthangPose),
                         new Point(20.000, 36.000, Point.CARTESIAN)
                 )
         );
@@ -226,14 +226,14 @@ public class right_auto_new extends OpMode {
                 // Line 3
                 new BezierLine(
                         new Point(20.000, 36.000, Point.CARTESIAN),
-                        new Point(10, 36.000, Point.CARTESIAN)
+                        new Point(11, 36.000, Point.CARTESIAN)
                 )
         );
         pickup.setConstantHeadingInterpolation(Math.toRadians(0));
         second_hang = new Path(
                 // Line 4
                 new BezierLine(
-                        new Point(10.000, 36.000, Point.CARTESIAN),
+                        new Point(11.000, 36.000, Point.CARTESIAN),
                         new Point(secondhangPose)
                 )
         );
@@ -257,7 +257,7 @@ public class right_auto_new extends OpMode {
         third_hang = new Path(
                 // Line 7
                 new BezierLine(
-                        new Point(10.000, 36.000, Point.CARTESIAN),
+                        new Point(11.000, 36.000, Point.CARTESIAN),
                         new Point(thirdhangPose)
                 )
         );
@@ -283,7 +283,7 @@ public class right_auto_new extends OpMode {
         fourth_hang = new Path(
                 // Line 10
                 new BezierLine(
-                        new Point(10.000, 36.000, Point.CARTESIAN),
+                        new Point(11.000, 36.000, Point.CARTESIAN),
                         new Point(fourthhangPose)
                 )
         );
@@ -292,7 +292,7 @@ public class right_auto_new extends OpMode {
                 // Line 11
                 new BezierLine(
                         new Point(fourthhangPose),
-                        new Point(10, 36, Point.CARTESIAN)
+                        new Point(11, 36, Point.CARTESIAN)
                 )
         );
         fourth_hang_back.setConstantHeadingInterpolation(Math.toRadians(0));
@@ -345,12 +345,12 @@ public class right_auto_new extends OpMode {
                 break;
             case 401:
                 if (pathTimer.getElapsedTime() > (0.5 * (Math.pow(10, 9)))) { // Time to grab
-                    setArmState(1); // This is the run on position for the slants
+                    setArmState(22);
                     setPathState(402);
                 }
                 break;
             case 402:
-                if (servo_outtake_flip1.getPosition() >= 0.1) {
+                if (pathTimer.getElapsedTime() > (0.5 * (Math.pow(10, 9)))) { // Time to grab
                     follower.followPath(first_hang, true);
                     setPathState(4);
                 }
@@ -358,15 +358,15 @@ public class right_auto_new extends OpMode {
 
             case 4:
                 if (!follower.isBusy()) { // if it is done
-                    setArmState(2); // aligns it then lets go (last ditch)
-                    follower.followPath(back);
+                    setArmState(2);
+                    //follower.followPath(back);
                     setPathState(5011);
                 }
                 break;
             case 5011:
-                if (pathTimer.getElapsedTime() > (0.5 * (Math.pow(10, 9)))) { // Time to release
+                if (pathTimer.getElapsedTime() > (1 * (Math.pow(10, 9)))) { // Time to release
                     setoutClawState(1);
-                    follower.followPath(first_hang_back);
+                    //follower.followPath(first_hang_back);
                     setPathState(501);
 
                 }
@@ -374,6 +374,7 @@ public class right_auto_new extends OpMode {
 
             case 501:
                 if (pathTimer.getElapsedTime() > (0.2 * (Math.pow(10, 9)))) { // Time to get out of direciton of specimen
+                    follower.followPath(first_hang_back);
                     setArmState(0);
                     setPathState(5);
 
@@ -394,25 +395,24 @@ public class right_auto_new extends OpMode {
                 break;
             case 602:
                 if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) { // time to grab
-                    setArmState(1);
+                    setArmState(22);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (pathTimer.getElapsedTime() > (0.2 * (Math.pow(10, 9)))) { // time to raise arm
-                    follower.followPath(second_hang);
+                    follower.followPath(second_hang, true);
                     setPathState(7);
                 }
                 break;
             case 7:
                 if (!follower.isBusy()) { // waits for until its at position
                     setArmState(2); // aligns it
-                    follower.followPath(back2);
                     setPathState(800);
                 }
                 break;
             case 800:
-                if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) {
+                if (pathTimer.getElapsedTime() > (1 * (Math.pow(10, 9)))) { // time to hang
                     setoutClawState(1); // lets go
                     setPathState(801);
                 }
@@ -424,7 +424,7 @@ public class right_auto_new extends OpMode {
                 }
                 break;
             case 802:
-                if (pathTimer.getElapsedTime() > (0.1 * (Math.pow(10, 9)))) {
+                if (pathTimer.getElapsedTime() > (0.1 * (Math.pow(10, 9)))) { // time to get out
                     setArmState(0);
                     setPathState(8);
                 }
@@ -442,26 +442,25 @@ public class right_auto_new extends OpMode {
                 }
                 break;
             case 902:
-                if (pathTimer.getElapsedTime() > (0.5 * (Math.pow(10, 9)))) { // close
-                    setArmState(1);
+                if (pathTimer.getElapsedTime() > (0.5 * (Math.pow(10, 9)))) { // time to close
+                    setArmState(22);
                     setPathState(9);
                 }
                 break;
             case 9:
-                if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) { // time to raise arm
-                    follower.followPath(third_hang);
+                if (pathTimer.getElapsedTime() > (0.2 * (Math.pow(10, 9)))) { // time to raise arm
+                    follower.followPath(third_hang, true);
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (!follower.isBusy()) {
                     setArmState(2);
-                    follower.followPath(back3);
                     setPathState(90);
                 }
                 break;
             case 90:
-                if(!follower.isBusy()) {
+                if (pathTimer.getElapsedTime() > (1 * (Math.pow(10, 9)))) { // time to hang
                     setoutClawState(1);
                     setPathState(1111);
                 }
@@ -492,29 +491,28 @@ public class right_auto_new extends OpMode {
                 }
                 break;
             case 12:
-                if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) { //pickup
-                    setArmState(1);
+                if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) { // time to pick up
+                    setArmState(22);
                     setPathState(131);
                     break;
                 }
             case 131:
                 if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) { // time to get arm up
-                    follower.followPath(fourth_hang);
+                    follower.followPath(fourth_hang, true);
                     setPathState(13);
                 }
                 break;
             case 13:
                 if (!follower.isBusy()) {
                     setArmState(2);
-                    setoutClawState(1);
-                    setPathState(14);
-                    follower.followPath(fourth_hang_back);
+                    setPathState(133);
                 }
                 break;
-            case 14:
-                if (pathTimer.getElapsedTime() > (0.2 * (Math.pow(10, 9)))) { // Time to get out of direciton of specimen
+            case 133:
+                if (pathTimer.getElapsedTime() > (0.4 * (Math.pow(10, 9)))) { // time to get arm up
+                    setoutClawState(1);
                     follower.followPath(fourth_hang_back);
-                    setPathState(-1);
+                    setPathState(144);
                 }
                 break;
         }
@@ -544,10 +542,15 @@ public class right_auto_new extends OpMode {
                     servo_outtake_rotate.setPosition(0.805); //set off from center (.805) so its crooked and runs on easier
                 }
                 break;
-            case 2: // Run on position
-                servo_outtake_flip2.setPosition(0.55);
-                servo_outtake_flip1.setPosition(0.45);
+            case 2: // TODO TODO TODODO TODO DODO
+                servo_outtake_flip2.setPosition(0.4);
+                servo_outtake_flip1.setPosition(0.6);
                 servo_outtake_rotate.setPosition(0.825); // fully striaght
+                break;
+            case 22: // TODO TODO TODO
+                servo_outtake_flip1.setPosition(0.2);
+                servo_outtake_flip2.setPosition(0.8);
+                servo_outtake_rotate.setPosition(0.825);
                 break;
             case 3:
                 up1.setTargetPosition(1000);
@@ -570,7 +573,7 @@ public class right_auto_new extends OpMode {
             case -1: // Init Pos
                 break;
             case 0: // closed
-                servo_outtake.setPosition(0.3);
+                servo_outtake.setPosition(0.25);
                 break;
             case 1: // open
                 servo_outtake.setPosition(1);
