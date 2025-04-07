@@ -63,7 +63,7 @@ public class opmode_MAIN_Redesign extends OpMode {
 
     boolean defend = false;
 
-    boolean nigganigganigga = false;
+    boolean charles = false;
 
 
     boolean outisclosed = false;
@@ -89,6 +89,8 @@ public class opmode_MAIN_Redesign extends OpMode {
 
     double driving_multiplier_fast = 0.7;
     double driving_multiplier_slow = 0.3;
+
+    int lift_pos_pos = 0;
 
 
     double driving_multiplier;
@@ -275,7 +277,7 @@ public class opmode_MAIN_Redesign extends OpMode {
 
 
     public void viper_slide() {
-        if(up1.getCurrentPosition() == arm_upper_lim) {
+        /*if(up1.getCurrentPosition() == arm_upper_lim) {
             telemetry.addData("upper limit reached", true);
         }
         if (gamepad2.right_stick_y < -0.5) { // Up
@@ -309,21 +311,7 @@ public class opmode_MAIN_Redesign extends OpMode {
             up1.setPower(1);
             up2.setPower(1);
         }
-        if(gamepad2.touchpad) {
-            hang = true;
-            nigga = up1.getCurrentPosition();
-            nigga2 = up2.getCurrentPosition();
-        }
-        if(hang) {
-            up1.setTargetPosition(nigga);
-            up2.setTargetPosition(nigga2);
-            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up1.setPower(1);
-            up2.setPower(1);
 
-
-        }
         if(goingdown) {
             if(!up_zero.isPressed()) {
                 up1.setTargetPosition(-1000);
@@ -339,6 +327,8 @@ public class opmode_MAIN_Redesign extends OpMode {
                 goingdown = false;
             }
         }
+
+         */
     }
     public void misumi_slide() {
         // Misumi Slide
@@ -360,16 +350,68 @@ public class opmode_MAIN_Redesign extends OpMode {
     }
     public void outtake_claw() {
         // manual outtake flip location //TODO: switch if needed
-        if (gamepad2.cross) { //arm pickup
+        if (gamepad2.right_stick_y > 0.5) { //arm pickup
             servo_outtake_flip2.setPosition(1);
             servo_outtake_flip1.setPosition(0);
             servo_outtake_rotate.setPosition(0.165);
+            lift_pos_pos = 0;
+            up1.setTargetPosition(lift_pos_pos);
+            up2.setTargetPosition(lift_pos_pos);
+
+
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            up1.setPower(1);
+            up2.setPower(1);
+
         }
-        if (gamepad2.triangle) { //arm up
-            servo_outtake_flip2.setPosition(0.565);
-            servo_outtake_flip1.setPosition(0.435);
-            servo_outtake_rotate.setPosition(0.85);
+        if (gamepad2.right_stick_y < -0.5) { //arm up
+            servo_outtake_flip2.setPosition(0.505);
+            servo_outtake_flip1.setPosition(0.495);
+            servo_outtake_rotate.setPosition(0.805);
+
+            lift_pos_pos = 550;
+           // charles = true;
+            up1.setTargetPosition(lift_pos_pos);
+            up2.setTargetPosition(lift_pos_pos);
+
+
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            up1.setPower(1);
+            up2.setPower(1);
+
+
+        } else {
+            up1.setTargetPosition(lift_pos_pos);
+            up2.setTargetPosition(lift_pos_pos);
+
+
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            up1.setPower(1);
+            up2.setPower(1);
+
         }
+        /*if(options) {
+            up1.setTargetPosition(450);
+            up2.setTargetPosition(450);
+            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            up1.setPower(1);
+            up2.setPower(1);
+            if(up1.getCurrentPosition() == 450) {
+                charles = false;
+            }
+        }
+
+         */
 
 
 

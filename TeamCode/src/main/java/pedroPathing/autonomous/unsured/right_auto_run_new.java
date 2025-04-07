@@ -1,4 +1,4 @@
-package pedroPathing.autonomous;
+package pedroPathing.autonomous.unsured;
 
 
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
@@ -114,13 +114,6 @@ public class right_auto_run_new extends OpMode {
                 )
         );
         init_hang.setConstantHeadingInterpolation(Math.toRadians(0));
-        back = new Path(
-                new BezierLine(
-                        new Point(inithangPose),
-                        new Point(40,65, Point.CARTESIAN)
-                )
-        );
-        back.setConstantHeadingInterpolation(0);
         curve2push = new Path(
                 /// behind first, make sure this doesn't hit the sub
                 new BezierCurve(
@@ -165,13 +158,6 @@ public class right_auto_run_new extends OpMode {
                         )
                 )
                 .build();
-
-
-
-
-
-
-
 
 
         /// First hang
@@ -559,7 +545,7 @@ public class right_auto_run_new extends OpMode {
             case -1: // Init Pos
                 break;
             case 0: // closed
-                servo_outtake.setPosition(0.20);
+                servo_outtake.setPosition(0.33);
                 break;
             case 1: // open
                 servo_outtake.setPosition(1);

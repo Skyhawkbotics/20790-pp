@@ -1,26 +1,15 @@
 package pedroPathing.opmode;
 
 
-import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
-import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
-import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
-import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
-
-
-import com.acmerobotics.dashboard.message.redux.ReceiveGamepadState;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
-import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -98,8 +87,8 @@ public class opmode_MOTOR_TEST extends OpMode {
 
     double driving_multiplier;
 
-    int nigga;
-    int nigga2;
+    int notaslur1;
+    int notaslur2;
 
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -308,12 +297,12 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         }
         if(gamepad2.touchpad) {
             hang = true;
-            nigga = up1.getCurrentPosition();
-            nigga2 = up2.getCurrentPosition();
+            notaslur1 = up1.getCurrentPosition();
+            notaslur2 = up2.getCurrentPosition();
         }
         if(hang) {
-            up1.setTargetPosition(nigga);
-            up2.setTargetPosition(nigga2);
+            up1.setTargetPosition(notaslur1);
+            up2.setTargetPosition(notaslur2);
             up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             up1.setPower(1);
@@ -406,6 +395,18 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
         servo_outtake_flip2.setPosition(pivot_pose2); // todo : 0.985 is the 0 pos, however 1 works as well 0.565  , transfer is 0
 
 
+        // toggle
+        if (currentgamepad2.right_bumper && !previousgamepad2.right_bumper) {
+            outisclosed = !outisclosed;
+        }
+
+        if(outisclosed) {
+            servo_outtake.setPosition(0.33);
+        }
+        if(!outisclosed) {
+            servo_outtake.setPosition(1);
+        }
+
 
 
 
@@ -445,12 +446,15 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
 
 
     }
-    public void intake_claw() {/*
+    public void intake_claw() {
         // TODO open is 0.8
         // TODO closed is 0.25
 
-        // TODO rotate is 0.5 midpoint
+        // TODO rotate is 0.5 midpoint`
 
+
+
+        /*
          if (gamepad2.left_stick_x > 0.1) {
             servo_intake_location -= 0.015;
         }
