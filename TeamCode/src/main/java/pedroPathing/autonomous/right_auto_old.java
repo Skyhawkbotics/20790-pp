@@ -34,7 +34,7 @@ import pedroPathing.constants.LConstants;
 ///* This is the Spark invitational auto
 /// We won spark 2nd in placement, 1st pick alliance, and also 2nd inspire.
 /// This  is a 4+0 autonomous and park for the into the deep season, using bezier curves and linear interpolation, along with a nano-second timer
-public class right_auto_final extends OpMode {
+public class right_auto_old extends OpMode {
 
     private Follower follower;
 

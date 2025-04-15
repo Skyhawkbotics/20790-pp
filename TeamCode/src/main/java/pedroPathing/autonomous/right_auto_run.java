@@ -43,6 +43,9 @@ import pedroPathing.constants.LConstants;
 @Config
 @Autonomous(name = "RIGHT AUTO RUN ON", group = "AUTO")
 /// 5+0 for state
+
+/// Ran out of time didn't work during state
+
 public class right_auto_run extends OpMode {
 
 

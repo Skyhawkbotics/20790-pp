@@ -110,7 +110,7 @@ public class opmode_MAIN_Redesign extends OpMode {
 
 
     /**
-     * This initializes the drive motors as well as the Follower and motion Vectors.
+     * This initializes the Mecanum_drive motors as well as the Follower and motion Vectors.
      */
     @Override
     public void start() {
@@ -203,7 +203,7 @@ public class opmode_MAIN_Redesign extends OpMode {
 
 
     /**
-     * This runs the OpMode. This is only drive control with Pedro Pathing live centripetal force
+     * This runs the OpMode. This is only Mecanum_drive control with Pedro Pathing live centripetal force
      * correction.
      */
     @Override
@@ -218,8 +218,8 @@ public class opmode_MAIN_Redesign extends OpMode {
         misumi_slide();
         intake_claw();
         outtake_claw();
-        if(!defend) {
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * 0.5, -gamepad1.left_stick_x * 0.5, -gamepad1.right_stick_x * 0.5);
+        if(!defend) { /// TODO TODO TODO easier driving change the 0.2 to higher for fasetr
+            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * 0.2, -gamepad1.left_stick_x * 0.2, -gamepad1.right_stick_x * 0.2);
 
 
         } else if (defend){

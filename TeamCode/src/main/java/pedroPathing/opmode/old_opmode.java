@@ -86,7 +86,7 @@ public class old_opmode extends OpMode {
     private PathChain park;
 
     /**
-     * This initializes the drive motors as well as the Follower and motion Vectors.
+     * This initializes the Mecanum_drive motors as well as the Follower and motion Vectors.
      */
     @Override
     public void start() {
@@ -153,12 +153,12 @@ public class old_opmode extends OpMode {
         follower.setStartingPose(startPose);
     }
     /**
-     * This runs the OpMode. This is only drive control with Pedro Pathing live centripetal force
+     * This runs the OpMode. This is only Mecanum_drive control with Pedro Pathing live centripetal force
      * correction.
      */
     @Override
     public void loop() {
-        //drive code from TeleOpEnhancements
+        //Mecanum_drive code from TeleOpEnhancements
 
 
         //TESTING PATH THING VERSION
@@ -169,7 +169,7 @@ public class old_opmode extends OpMode {
             follower.followPath(park);
         }
 
-        //change drive speed for more accuracy if needed
+        //change Mecanum_drive speed for more accuracy if needed
         if (gamepad1.left_bumper) {
             driving_multiplier = driving_multiplier_slow;
         } else {

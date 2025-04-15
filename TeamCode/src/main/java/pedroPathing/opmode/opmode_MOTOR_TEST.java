@@ -36,7 +36,7 @@ public class opmode_MOTOR_TEST extends OpMode {
 
 
     private Servo servo_outtake_flip1, servo_outtake_flip2, servo_intake_wrist, servo_intake_rotate, sweeper, servo_intake, servo_outtake, servo_outtake_rotate;
-    private DcMotorEx up1, up2, out;
+    private DcMotorEx leftfront, leftback, rightfront, rightback;
     private TouchSensor up_zero, out_zero;
     //from rr version of opmode_MAIN
     int arm_upper_lim = 2700;
@@ -102,7 +102,7 @@ public class opmode_MOTOR_TEST extends OpMode {
 
 
     /**
-     * This initializes the drive motors as well as the Follower and motion Vectors.
+     * This initializes the Mecanum_drive motors as well as the Follower and motion Vectors.
      */
     @Override
     public void start() {
@@ -113,36 +113,46 @@ public class opmode_MOTOR_TEST extends OpMode {
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        //follower = new Follower(hardwareMap);
 
-        follower.startTeleopDrive();
+        //follower.startTeleopDrive();
 
 
-        out = hardwareMap.get(DcMotorEx.class, "out");
+       /* out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         out.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
+        */
 
         //from rr version
 
 
         //setup arm to use velocity
         //setup arm variable
-        /*up1 = hardwareMap.get(DcMotorEx.class, "up1");
-        up1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        up1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        up1.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftfront = hardwareMap.get(DcMotorEx.class, "leftfront");
+        leftfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftfront.setDirection(DcMotorEx.Direction.REVERSE);
+
+        leftback = hardwareMap.get(DcMotorEx.class, "leftback");
+        leftback.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        rightfront = hardwareMap.get(DcMotorEx.class, "rightfront");
+        rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightfront.setDirection(DcMotorEx.Direction.REVERSE);
+
+        rightback = hardwareMap.get(DcMotorEx.class, "rightback");
+        rightback.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
-        up2 = hardwareMap.get(DcMotorEx.class, "up2");
-        up2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        up2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
-         */
-
-        servo_intake = hardwareMap.get(Servo.class, "intake");
+        /*servo_intake = hardwareMap.get(Servo.class, "intake");
         servo_intake_rotate = hardwareMap.get(Servo.class, "intakeRotate");
         servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
 
@@ -166,6 +176,8 @@ public class opmode_MOTOR_TEST extends OpMode {
         Pose startPose = new Pose(15, 40.0, Math.toRadians(0)); //TODO
         follower.setStartingPose(startPose);
 
+         */
+
 
         //inisclosed = false;
 
@@ -179,7 +191,7 @@ public class opmode_MOTOR_TEST extends OpMode {
 
 
     /**
-     * This runs the OpMode. This is only drive control with Pedro Pathing live centripetal force
+     * This runs the OpMode. This is only Mecanum_drive control with Pedro Pathing live centripetal force
      * correction.
      */
     @Override
@@ -190,11 +202,13 @@ public class opmode_MOTOR_TEST extends OpMode {
         currentgamepad2.copy(gamepad2);
         previousgamepad1.copy(currentgamepad1);
         currentgamepad1.copy(gamepad1);
-        //viper_slide();
+        viper_slide();
         //misumi_slide();
         intake_claw();
         outtake_claw();
         /*
+
+
         if(!defend) {
             follower.setTeleOpMovementVectors(-gamepad1.left_stick_y * 0.5, -gamepad1.left_stick_x * 0.5, -gamepad1.right_stick_x * 0.5);
         } else if (defend){
@@ -241,19 +255,8 @@ public class opmode_MOTOR_TEST extends OpMode {
         telemetry.addData("gamepad2 left stick x", gamepad2.left_stick_x);
 
          */
-        telemetry.addData("flip1", servo_outtake_flip1.getPosition());
-        telemetry.addData("flip2", servo_outtake_flip2.getPosition());
-        telemetry.addData("intake pos", servo_intake.getPosition());
-        telemetry.addData("intake pos rotate", servo_intake_rotate.getPosition());
-
-
-
-telemetry.addData("servo out pos", servo_outtake.getPosition());
-        telemetry.addData("servo out rotate pos", servo_outtake_rotate.getPosition());
-
-
         telemetry.update();
-        follower.update();
+       // follower.update();
 
     }
 
@@ -261,71 +264,15 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
 
 
     public void viper_slide() {
-        if(up1.getCurrentPosition() == arm_upper_lim) {
-            telemetry.addData("upper limit reached", true);
-        }
-        if (gamepad2.right_stick_y < -0.5) { // Up
-            goingdown = false;
-            up1.setTargetPosition(arm_upper_lim);
-            up2.setTargetPosition(arm_upper_lim);
-
-
-            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
-            up1.setPower(1);
-            up2.setPower(1);
-
-
-            telemetry.addData("up1", true);
-            telemetry.addData("up2", true);
-        } else if (gamepad2.right_stick_y > 0.5 && !up_zero.isPressed()) { // Down
-            goingdown = true;
-        } else if(gamepad2.right_stick_y == 0) {
-            goingdown = false;
-            up1.setTargetPosition(up1.getCurrentPosition());
-            up2.setTargetPosition(up1.getCurrentPosition());
-
-
-            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
-            up1.setPower(1);
-            up2.setPower(1);
-        }
-        if(gamepad2.touchpad) {
-            hang = true;
-            notaslur1 = up1.getCurrentPosition();
-            notaslur2 = up2.getCurrentPosition();
-        }
-        if(hang) {
-            up1.setTargetPosition(notaslur1);
-            up2.setTargetPosition(notaslur2);
-            up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            up1.setPower(1);
-            up2.setPower(1);
-
-
-        }
-        if(goingdown) {
-            if(!up_zero.isPressed()) {
-                up1.setTargetPosition(-1000);
-                up2.setTargetPosition(-1000);
-                up1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                up1.setPower(-1);
-                up2.setPower(-1);
-            } else if(up_zero.isPressed()) {
-                up1.setPower(0);
-                up1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                up2.setPower(0);
-                up2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                goingdown = false;
-            }
-        }
-
+       if(gamepad2.triangle) {
+           //up1.setPower(1);
+       }
+       if(gamepad2.cross) {
+           //up1.setPower(-1);
+       }
+       if(gamepad2.square) {
+          // up1.setPower(0);
+       }
 
     }
     /*public void misumi_slide() {
@@ -368,7 +315,7 @@ telemetry.addData("servo out pos", servo_outtake.getPosition());
 
         */
 
-        if (gamepad2.left_stick_x > 0.1) {
+        /*if (gamepad2.left_stick_x > 0.1) {
             pivot_pos -= 0.015;
             pivot_pose2 += 0.015;
         }

@@ -28,7 +28,7 @@ public class ExampleRobotCentricTeleop extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class,LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
+        //follower.setStartingPose(startPose);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/

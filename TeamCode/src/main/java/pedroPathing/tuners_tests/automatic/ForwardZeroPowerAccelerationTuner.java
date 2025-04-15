@@ -39,7 +39,7 @@ import pedroPathing.constants.LConstants;
  * stops. The accelerations across the entire time the robot is slowing down is then averaged and
  * that number is then printed. This is used to determine how the robot will decelerate in the
  * forward direction when power is cut, making the estimations used in the calculations for the
- * drive Vector more accurate and giving better braking at the end of Paths.
+ * Mecanum_drive Vector more accurate and giving better braking at the end of Paths.
  * You can adjust the max velocity the robot will hit on FTC Dashboard: 192/168/43/1:8080/dash
  *
  * @author Anyi Lin - 10158 Scott's Bots
@@ -72,7 +72,7 @@ public class ForwardZeroPowerAccelerationTuner extends OpMode {
     private boolean end;
 
     /**
-     * This initializes the drive motors as well as the FTC Dashboard telemetry.
+     * This initializes the Mecanum_drive motors as well as the FTC Dashboard telemetry.
      */
     @Override
     public void init() {
@@ -110,7 +110,7 @@ public class ForwardZeroPowerAccelerationTuner extends OpMode {
     }
 
     /**
-     * This starts the OpMode by setting the drive motors to run forward at full power.
+     * This starts the OpMode by setting the Mecanum_drive motors to run forward at full power.
      */
     @Override
     public void start() {

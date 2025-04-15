@@ -94,7 +94,7 @@ public class opmode_left_auto_test extends OpMode {
 
 
     /**
-     * This initializes the drive motors as well as the Follower and motion Vectors.
+     * This initializes the Mecanum_drive motors as well as the Follower and motion Vectors.
      */
     @Override
     public void start() {
@@ -165,7 +165,7 @@ public class opmode_left_auto_test extends OpMode {
 
 
     /**
-     * This runs the OpMode. This is only drive control with Pedro Pathing live centripetal force
+     * This runs the OpMode. This is only Mecanum_drive control with Pedro Pathing live centripetal force
      * correction.
      */
     @Override
