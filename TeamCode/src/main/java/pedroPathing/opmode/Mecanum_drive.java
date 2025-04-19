@@ -17,6 +17,8 @@ public class Mecanum_drive extends OpMode{
      */
 
     // declare and initialize four DcMotors.
+
+    // We make them private so they can only be used in this class.
     private DcMotor front_left  = null;
     private DcMotor front_right = null;
     private DcMotor back_left   = null;
@@ -39,22 +41,27 @@ public class Mecanum_drive extends OpMode{
     @Override
     public void loop() {
 
-        //
+        // variable to set the powers of the 4 motors. They are dependent on joystick position
         double r = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
+
+        // variable to set the angle of the robot depending on the joystick input
         double robotAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) - Math.PI / 4;
+        // basically a bunch of math
 
-
+        // Variable of turning
         double rightX = -gamepad1.right_stick_x; // Inverting the controls correctly
 
-        // variable to set the powers to
+        // math to find the values to set the powers of the motors
         final double v1 = r * Math.cos(robotAngle) + rightX;
         final double v2 = r * Math.sin(robotAngle) - rightX;
         final double v3 = r * Math.sin(robotAngle) + rightX;
         final double v4 = r * Math.cos(robotAngle) - rightX;
 
-        front_left.setPower(0.5 * v1); // TODO change the values 0.5 to higher for faster
-        front_right.setPower(0.5 * v2);
-        back_left.setPower(0.5 * v3);
-        back_right.setPower( 0.5  * v4);
+        // finally setting the powers of the motors
+
+        front_left.setPower(v1);
+        front_right.setPower(v2);
+        back_left.setPower(v3);
+        back_right.setPower(v4);
     }
 }
