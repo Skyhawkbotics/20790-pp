@@ -649,7 +649,6 @@ public class right_auto_new extends OpMode {
     // We init the timers, telemetry, motors , and follower
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
 
 
         pathTimer = new NanoTimer();
@@ -669,7 +668,7 @@ public class right_auto_new extends OpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
 

@@ -17,7 +17,7 @@ dependencies {
     implementation 'org.firstinspires.ftc:Hardware:10.2.0'
     implementation 'org.firstinspires.ftc:FtcCommon:10.2.0'
     implementation 'org.firstinspires.ftc:Vision:10.2.0'
-    implementation 'com.pedropathing:pedro:1.0.8'
+    implementation 'com.pedropathing:pedro:1.0.9'
 
     //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -26,6 +26,5 @@ dependencies {
     //nextftc
     implementation 'com.rowanmcalpin.nextftc:core:0.5.10-beta1'
     implementation 'com.rowanmcalpin.nextftc:ftc:0.5.10-beta1'
-    implementation 'com.rowanmcalpin.nextftc:pedro:0.5.10-beta1' // Remove if you don't intend to use PedroPathing
 }
 

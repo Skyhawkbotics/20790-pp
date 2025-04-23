@@ -125,8 +125,8 @@ public class opmode_MAIN_Redesign extends OpMode {
 
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+
 
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);

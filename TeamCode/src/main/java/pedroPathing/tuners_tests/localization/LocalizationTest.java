@@ -12,7 +12,6 @@ import static com.pedropathing.follower.FollowerConstants.rightRearMotorDirectio
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -30,7 +29,7 @@ import java.util.List;
 import pedroPathing.constants.*;
 
 /**
- * This is the LocalizationTest OpMode. This is basically just a simple mecanum Mecanum_drive attached to a
+ * This is the LocalizationTest OpMode. This is basically just a simple mecanum drive attached to a
  * PoseUpdater. The OpMode will print out the robot's pose to telemetry as well as draw the robot
  * on FTC Dashboard (192/168/43/1:8080/dash). You should use this to check the robot's localization.
  *
@@ -51,12 +50,11 @@ public class LocalizationTest extends OpMode {
     private List<DcMotorEx> motors;
 
     /**
-     * This initializes the PoseUpdater, the mecanum Mecanum_drive motors, and the FTC Dashboard telemetry.
+     * This initializes the PoseUpdater, the mecanum drive motors, and the FTC Dashboard telemetry.
      */
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
-        poseUpdater = new PoseUpdater(hardwareMap);
+        poseUpdater = new PoseUpdater(hardwareMap, FConstants.class, LConstants.class);
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
 
@@ -83,7 +81,7 @@ public class LocalizationTest extends OpMode {
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("This will print your robot's position to telemetry while "
-                + "allowing robot control through a basic mecanum Mecanum_drive on gamepad 1.");
+                + "allowing robot control through a basic mecanum drive on gamepad 1.");
         telemetryA.update();
 
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
@@ -91,7 +89,7 @@ public class LocalizationTest extends OpMode {
     }
 
     /**
-     * This updates the robot's pose estimate, the simple mecanum Mecanum_drive, and updates the FTC
+     * This updates the robot's pose estimate, the simple mecanum drive, and updates the FTC
      * Dashboard telemetry with the robot's position as well as draws the robot's position.
      */
     @Override

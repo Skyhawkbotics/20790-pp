@@ -1,7 +1,6 @@
 ## Pedro Pathing repo for 20790 Hawkbot1cs!!
 
-yay no more roadrunner
-
+2024 - 2025 season code 
 
 [website](https://pedropathing.com/)
 

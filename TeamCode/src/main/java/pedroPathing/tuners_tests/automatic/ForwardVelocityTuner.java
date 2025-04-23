@@ -12,7 +12,6 @@ import static com.pedropathing.follower.FollowerConstants.rightRearMotorDirectio
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -67,13 +66,12 @@ public class ForwardVelocityTuner extends OpMode {
     private boolean end;
 
     /**
-     * This initializes the Mecanum_drive motors as well as the cache of velocities and the FTC Dashboard
+     * This initializes the drive motors as well as the cache of velocities and the FTC Dashboard
      * telemetry.
      */
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
-        poseUpdater = new PoseUpdater(hardwareMap);
+        poseUpdater = new PoseUpdater(hardwareMap, FConstants.class, LConstants.class);
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
         leftRear = hardwareMap.get(DcMotorEx.class, leftRearMotorName);
@@ -111,7 +109,7 @@ public class ForwardVelocityTuner extends OpMode {
     }
 
     /**
-     * This starts the OpMode by setting the Mecanum_drive motors to run forward at full power.
+     * This starts the OpMode by setting the drive motors to run forward at full power.
      */
     @Override
     public void start() {
