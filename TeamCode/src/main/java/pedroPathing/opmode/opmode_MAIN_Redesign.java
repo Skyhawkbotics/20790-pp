@@ -93,10 +93,7 @@ public class opmode_MAIN_Redesign extends OpMode {
     int lift_pos_pos = 0;
 
 
-    double driving_multiplier;
-
-    int nigga;
-    int nigga2;
+    double driving_multiplier
 
     private final ElapsedTime runtime = new ElapsedTime();
 
